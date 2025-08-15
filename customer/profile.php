@@ -25,7 +25,7 @@ if (!$user) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile | Nujora</title>
+    <title>Profile | <?= APP_NAME ?></title>
 
     <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="../uploads/default-product.png">

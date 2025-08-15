@@ -78,7 +78,7 @@ $badge_class = strtolower(str_replace(' ', '-', $seller_badge['label']));
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= htmlspecialchars($product['name']) ?> | Nujora</title>
+  <title><?= htmlspecialchars($product['name']) ?> | <?= APP_NAME ?></title>
   <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
   <link rel="icon" type="image/png" href="../uploads/default-product.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
@@ -445,7 +445,7 @@ $badge_class = strtolower(str_replace(' ', '-', $seller_badge['label']));
   <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
     <div class="container">
       <a class="navbar-brand" href="home.php">
-        <i class="fas fa-store me-2"></i>Nujora
+        <i class="fas fa-store me-2"></i><?= APP_NAME ?>
       </a>
       <div class="d-flex align-items-center">
         <a href="search.php" class="btn btn-outline-secondary me-2">

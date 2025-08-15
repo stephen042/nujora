@@ -45,7 +45,7 @@ function getSellerBadge($avg_rating)
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Categories | Nujora</title>
+  <title>Categories | <?= APP_NAME ?></title>
   <link rel="icon" type="image/png" href="../uploads/default-product.png">
   <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -127,7 +127,7 @@ function getSellerBadge($avg_rating)
   <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
     <div class="container">
       <a class="navbar-brand" href="home.php">
-        <i class="fas fa-store me-2"></i>Nujora
+        <i class="fas fa-store me-2"></i><?= APP_NAME ?>
       </a>
       <div class="d-flex align-items-center">
         <a href="search.php" class="btn btn-outline-secondary me-2">

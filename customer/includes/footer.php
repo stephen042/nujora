@@ -2,7 +2,7 @@
     <div class="container">
       <div class="row">
         <div class="col-md-4 mb-4">
-          <h5>TrendyMart</h5>
+          <h5><?= APP_NAME ?></h5>
           <p>Your one-stop shop for all your needs. Quality products at affordable prices.</p>
         </div>
         <div class="col-md-2 mb-4">
@@ -33,7 +33,7 @@
       <hr class="my-4 bg-secondary">
       <div class="row">
         <div class="col-md-6">
-          <p class="mb-0">&copy; 2023 TrendyMart. All rights reserved.</p>
+          <p class="mb-0">&copy; 2023 <?= APP_NAME ?>. All rights reserved.</p>
         </div>
         <div class="col-md-6 text-md-end">
           <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>

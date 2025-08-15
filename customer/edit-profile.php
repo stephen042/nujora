@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html>
 
 <head>
-    <title>Profile | Nujora</title>
+    <title>Profile | <?= APP_NAME ?></title>
     <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="../uploads/default-product.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">

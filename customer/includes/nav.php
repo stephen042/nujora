@@ -1,17 +1,21 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-    <div class="container">
+    <div class="container d-flex justify-content-between align-items-center flex-nowrap">
         <?php include '../app/logo.php'; ?>
-        <div class="d-flex align-items-center">
-            <a href="cart.php" class="btn btn-outline-secondary position-relative me-3">
+        <div class="d-flex align-items-center flex-shrink-0" style="gap: 0.5rem;">
+            <a href="cart.php"
+                class="btn btn-outline-secondary position-relative me-2 py-1 px-2 px-sm-3"
+                style="font-size: 0.85rem;">
                 <i class="fas fa-shopping-cart"></i>
-                My Cart
+                <span class="d-sm-inline">My Cart</span>
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                     <?php echo $cartCount ?? 0 ?>
                 </span>
             </a>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <div class="dropdown">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle py-1 px-2 px-sm-3"
+                        type="button" id="userDropdown" data-bs-toggle="dropdown"
+                        style="font-size: 0.85rem;">
                         <i class="fas fa-user-circle"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -25,9 +29,11 @@
                     </ul>
                 </div>
             <?php else: ?>
-                <a href="../auth/login.php" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm border-1">
+                <a href="../auth/login.php"
+                    class="btn btn-outline-secondary d-inline-flex align-items-center gap-1 px-3 py-1 rounded-pill shadow-sm border-1"
+                    style="font-size: 0.85rem;">
                     <i class="fas fa-sign-in-alt"></i>
-                    <span>Login</span>
+                    <span class="d-sm-inline">Login</span>
                 </a>
             <?php endif; ?>
         </div>
