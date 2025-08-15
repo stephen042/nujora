@@ -463,13 +463,13 @@ if (!empty($search)) {
             <a href="products.php?category=<?= rawurlencode($row['name']) ?>" class="text-decoration-none flex-shrink-0">
               <div class="category-card bg-white text-center px-3 py-2" style="width: 120px;">
                 <div class="category-icon mb-2">
-                  <?php if (!empty($row['image_url']) && file_exists($row['image_url'])): ?>
-                    <img src="<?= htmlspecialchars($row['image_url']) ?>" alt="<?= htmlspecialchars($row['name']) ?>" class="img-fluid" style="width: 40px; height: 40px;">
+                  <?php if (!empty($row['image_url'])): ?>
+                    <img src="<?= htmlspecialchars($row['image_url']) ?>" alt="<?= htmlspecialchars($row['name']) ?>" class="img-fluid" style="width: 70px; height: 70px;">
                   <?php else: ?>
                     <i class="fas fa-tags fa-2x"></i>
                   <?php endif; ?>
                 </div>
-                <h6 class="mb-0 text-break" style="word-wrap: break-word; white-space: normal;">
+                <h6 class="mb-0 text-break" style="word-wrap: break-word; white-space: normal;font-size: 0.8rem">
                   <?= htmlspecialchars($row['name']) ?>
                 </h6>
               </div>

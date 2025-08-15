@@ -1,11 +1,10 @@
 <?php
-session_start();
-// require_once 'admin_auth.php'; // Authentication check
-require_once 'db.php'; // Database connection
+require '../app/config.php';
 
 // Initialize variables
 $statusMessage = '';
 $sellers = [];
+$buyers = [];
 $products = [];
 $reports = [];
 $buyerCount = 0;
@@ -38,11 +37,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (PDOException $e) {
             $statusMessage = '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>';
         }
+    } elseif (isset($_POST['buyer_action'])) {
+        // Handle seller actions (approve/suspend)
+        $buyer_id = (int)$_POST['buyer_id'];
+        $action = $_POST['buyer_action'];
+
+        // Validate the action
+        if (!in_array($action, ['pending', 'approved', 'rejected'])) {
+            $statusMessage = '<div class="alert alert-danger">Invalid action provided.</div>';
+            exit;
+        }
+
+        try {
+            $stmt = $pdo->prepare("UPDATE users SET approval_status = ? WHERE id = ? AND role = 'buyer'");
+            $stmt->execute([$action, $buyer_id]);
+
+            if ($stmt->rowCount() > 0) {
+                $statusMessage = '<div class="alert alert-success">buyer status updated</div>';
+            } else {
+                $statusMessage = '<div class="alert alert-warning">No changes made to buyer status.</div>';
+            }
+        } catch (PDOException $e) {
+            $statusMessage = '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>';
+        }
     } elseif (isset($_POST['product_action'])) {
         // Handle product actions (feature/delete)
         $product_id = (int)$_POST['product_id'];
         $action = $_POST['product_action'];
-        
+
         try {
             if ($action === 'delete') {
                 $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
@@ -60,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle report actions
         $report_id = (int)$_POST['report_id'];
         $action = $_POST['report_action'];
-        
+
         try {
             if ($action === 'resolve') {
                 $stmt = $pdo->prepare("UPDATE reports SET status = 'resolved' WHERE id = ?");
@@ -83,6 +105,11 @@ try {
     $stmt = $pdo->prepare("SELECT id, name, email, approval_status, created_at FROM users WHERE role = 'seller' ORDER BY created_at DESC LIMIT 10");
     $stmt->execute();
     $sellers = $stmt->fetchAll();
+
+    // Get Buyers
+    $stmt = $pdo->prepare("SELECT id, name, email, approval_status, created_at FROM users WHERE role = 'buyer' ORDER BY created_at DESC LIMIT 10");
+    $stmt->execute();
+    $buyers = $stmt->fetchAll();
 
     // Get recent products
     $stmt = $pdo->prepare("
@@ -125,7 +152,6 @@ try {
     $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM orders");
     $stmt->execute();
     $orderCount = $stmt->fetch()['total'];
-
 } catch (PDOException $e) {
     $statusMessage = '<div class="alert alert-danger">Database error: ' . $e->getMessage() . '</div>';
 }
@@ -133,162 +159,21 @@ try {
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | TrendyMart</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --sidebar-width: 250px;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-        }
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            background-color: #343a40;
-            color: white;
-            transition: all 0.3s;
-        }
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 20px;
-            transition: all 0.3s;
-        }
-        .sidebar-header {
-            padding: 20px;
-            background-color: #212529;
-        }
-        .sidebar-menu {
-            padding: 0;
-            list-style: none;
-        }
-        .sidebar-menu li {
-            padding: 10px 20px;
-            border-bottom: 1px solid #495057;
-        }
-        .sidebar-menu li a {
-            color: #adb5bd;
-            text-decoration: none;
-            display: block;
-        }
-        .sidebar-menu li a:hover {
-            color: white;
-        }
-        .sidebar-menu li.active {
-            background-color: #495057;
-        }
-        .sidebar-menu li.active a {
-            color: white;
-        }
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            border: none;
-        }
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-            font-weight: 600;
-        }
-        .stat-card {
-            text-align: center;
-            padding: 20px;
-            color: white;
-            border-radius: 10px;
-        }
-        .stat-card i {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        .badge-featured {
-            background-color: #ffc107;
-            color: #212529;
-        }
-        .table-responsive {
-            overflow-x: auto;
-        }
-        .action-buttons .btn {
-            margin-right: 5px;
-        }
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        .badge-approved {
-            background-color: #28a745;
-            color: white;
-        }
-        .badge-pending {
-            background-color: #ffc107;
-            color: #212529;
-        }
-        .badge-suspended {
-            background-color: #dc3545;
-            color: white;
-        }
-        @media (max-width: 768px) {
-            .sidebar {
-                margin-left: -250px;
-            }
-            .sidebar.active {
-                margin-left: 0;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .main-content.active {
-                margin-left: 250px;
-            }
-        }
-    </style>
-</head>
+
+<!-- head tag -->
+<?php include 'includes/head.php'; ?>
+
 <body>
     <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h4>TrendyMart Admin</h4>
-        </div>
-        <ul class="sidebar-menu">
-            <li class="active">
-                <a href="admin_dashboard.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
-            </li>
-            <li>
-                <a href="admin_users.php"><i class="bi bi-people"></i> Users</a>
-            </li>
-            <li>
-                <a href="admin_products.php"><i class="bi bi-box-seam"></i> Products</a>
-            </li>
-            <li>
-                <a href="admin_orders.php"><i class="bi bi-cart"></i> Orders</a>
-            </li>
-            <li>
-                <a href="admin_reports.php"><i class="bi bi-flag"></i> Reports</a>
-            </li>
-            <li>
-                <a href="admin_settings.php"><i class="bi bi-gear"></i> Settings</a>
-            </li>
-            <li>
-                <a href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
-            </li>
-        </ul>
-    </div>
+    <?php include 'includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Admin Dashboard</h2>
             <button class="btn btn-outline-secondary d-md-none" id="sidebarToggle">
                 <i class="bi bi-list"></i>
             </button>
+            <h2>Admin Dashboard</h2>
         </div>
 
         <?php echo $statusMessage; ?>
@@ -382,7 +267,6 @@ try {
                     </div>
                 </div>
             </div>
-
             <!-- Products Section -->
             <div class="col-md-6">
                 <div class="card">
@@ -425,7 +309,63 @@ try {
                                                     <input type="hidden" name="product_action" value="delete">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this product?')">Delete</button>
                                                 </form>
-                                                
+
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Buyers Section -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Recent Buyers</h5>
+                        <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($buyers as $buyer): ?>
+                                        <tr>
+                                            <td>
+                                                <strong><?= htmlspecialchars($buyer['name']) ?></strong><br>
+                                                <small class="text-muted"><?= htmlspecialchars($buyer['email']) ?></small>
+                                            </td>
+                                            <td>
+                                                <?php if ($buyer['approval_status'] === 'approved'): ?>
+                                                    <span class="status-badge badge-approved">Approved</span>
+                                                <?php elseif ($buyer['approval_status'] === 'pending'): ?>
+                                                    <span class="status-badge badge-pending">Pending</span>
+                                                <?php else: ?>
+                                                    <span class="status-badge badge-rejected">Rejected</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="action-buttons">
+                                                <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to reject this buyer?');">
+                                                    <input type="hidden" name="buyer_id" value="<?= $buyer['id'] ?>">
+                                                    <?php if ($buyer['approval_status'] === 'approved'): ?>
+                                                        <input type="hidden" name="buyer_action" value="rejected">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                                                    <?php elseif ($buyer['approval_status'] === 'pending'): ?>
+                                                        <input type="hidden" name="buyer_action" value="approved">
+                                                        <button type="submit" class="btn btn-sm btn-outline-success">Approve</button>
+                                                    <?php else: ?>
+                                                        <input type="hidden" name="buyer_action" value="approved">
+                                                        <button type="submit" class="btn btn-sm btn-outline-success">Reinstate</button>
+                                                    <?php endif; ?>
+                                                </form>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -492,25 +432,8 @@ try {
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Toggle sidebar on mobile
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('active');
-            document.querySelector('.main-content').classList.toggle('active');
-        });
+    <?php include 'includes/script.php'; ?>
 
-        // Confirm before critical actions
-        document.querySelectorAll('form').forEach(form => {
-            if (form.querySelector('input[name="product_action"][value="delete"]') || 
-                form.querySelector('input[name="report_action"][value="delete"]')) {
-                form.addEventListener('submit', function(e) {
-                    if (!confirm('Are you sure you want to perform this action?')) {
-                        e.preventDefault();
-                    }
-                });
-            }
-        });
-    </script>
 </body>
+
 </html>
