@@ -551,8 +551,8 @@ if (!empty($search)) {
                 alt="<?= htmlspecialchars($product['name']) ?>">
 
               <div class="card-body">
-                <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
-                <p class="card-text">Price: ₦<?= htmlspecialchars($product['price']) ?></p>
+                <h5 class="card-title fs-6"><?= htmlspecialchars($product['name']) ?></h5>
+                <p class="card-text mb-2">Price: ₦<?= number_format($product['price'], 2) ?></p>
                 <!-- Stock badge -->
                 <?php if ($product['stock'] > 0): ?>
                   <span class="product-badge bg-success">In Stock</span>

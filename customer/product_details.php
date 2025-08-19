@@ -307,12 +307,28 @@ try {
             <img id="mainImage" src="../<?= htmlspecialchars($product['image_url']) ?? "../uploads/default-product.png" ?>" class="main-image w-100" alt="<?= htmlspecialchars($product['name']) ?>">
 
             <div class="thumbnail-container">
-              <!-- Thumbnails would go here (you would need additional product images in your DB) -->
-              <img src="../<?= htmlspecialchars($product['image_url']) ?? "../uploads/default-product.png" ?>" class="thumbnail active" onclick="changeImage(this)">
-              <!-- Example additional thumbnails -->
-              <img src="../<?= htmlspecialchars($product['image_url']) ?? "../uploads/default-product.png" ?>" class="thumbnail" onclick="changeImage(this)">
-              <img src="../<?= htmlspecialchars($product['image_url']) ?? "../uploads/default-product.png" ?>" class="thumbnail" onclick="changeImage(this)">
-              <img src="../<?= htmlspecialchars($product['image_url']) ?? "../uploads/default-product.png" ?>" class="thumbnail" onclick="changeImage(this)">
+              <?php
+              // Decode JSON from DB
+              $images = json_decode($product['photos'], true);
+
+              if (!empty($images)) {
+                foreach ($images as $index => $image) {
+                  $activeClass = $index === 0 ? 'active' : ''; // Make first image active
+              ?>
+                  <img src="<?= htmlspecialchars($image) ?>"
+                    class="thumbnail <?= $activeClass ?>"
+                    onclick="changeImage(this)">
+                <?php
+                }
+              } else {
+                // Fallback if no images
+                ?>
+                <img src="../uploads/default-product.png"
+                  class="thumbnail active"
+                  onclick="changeImage(this)">
+              <?php
+              }
+              ?>
             </div>
           </div>
         </div>
@@ -476,7 +492,7 @@ try {
       <div class="tab-content" id="productTabsContent">
         <div class="tab-pane fade show active" id="details" role="tabpanel">
           <h5 class="section-title">About This Product</h5>
-          <p><?= nl2br(htmlspecialchars($product['description'])) ?></p>
+          <p><?= htmlspecialchars($product['description']) ?></p>
 
           <div class="row mt-4">
             <div class="col-md-6">
