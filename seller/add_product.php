@@ -7,37 +7,46 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'seller') {
     exit;
 }
 
-// Initialize variables
 $statusMessage = '';
-$uploadDir = '../uploads/'; // Directory to store uploaded images
+$uploadDir = '../uploads/';
 
 // Fetch categories
 $stmt = $pdo->query("SELECT * FROM categories ORDER BY id DESC");
 $categories = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
     $price = floatval($_POST['price']);
     $description = $_POST['description'];
     $stock = intval($_POST['stock']);
     $status = htmlspecialchars($_POST['status']);
-    $category = $_POST['category'] ?? '';
-    $subCategory = $_POST['sub_category'] ?? '';
+    $categoryId = $_POST['category'] ?? '';
+    $subCategoryId = $_POST['sub_category'] ?? '';
     $sellerId = $_SESSION['user_id'];
 
     // Validate category
     $validCategoryIds = array_map(fn($c) => $c->id, $categories);
-    if (!in_array($category, $validCategoryIds)) {
+    if (!in_array($categoryId, $validCategoryIds)) {
         $statusMessage = '<div class="alert alert-danger">Please select a valid category.</div>';
     } else {
-        // Get sellers_fee for the selected category
-        $stmtFee = $pdo->prepare("SELECT sellers_fee FROM categories WHERE id = ?");
-        $stmtFee->execute([$category]);
-        $sellersFee = floatval($stmtFee->fetchColumn());
+        // Get category name + sellers_fee
+        $stmtCat = $pdo->prepare("SELECT name, sellers_fee FROM categories WHERE id = ?");
+        $stmtCat->execute([$categoryId]);
+        $categoryData = $stmtCat->fetch(PDO::FETCH_ASSOC);
 
-        // Calculate final price
-        $finalPrice = $price + ($price * $sellersFee / 100);
+        $categoryName = $categoryData['name'];
+        $sellersFee = floatval($categoryData['sellers_fee']);
+
+        // Get subcategory name (if chosen)
+        $subCategoryName = '';
+        if (!empty($subCategoryId)) {
+            $stmtSub = $pdo->prepare("SELECT name FROM sub_categories WHERE id = ? AND category_id = ?");
+            $stmtSub->execute([$subCategoryId, $categoryId]);
+            $subCategoryName = $stmtSub->fetchColumn() ?: '';
+        }
+
+        // Calculate final price (rounded up to nearest whole number)
+        $finalPrice = ceil($price + ($price * $sellersFee / 100));
 
         // Handle main image upload
         if (isset($_FILES['product_image']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
@@ -68,22 +77,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 try {
                     $stmt = $pdo->prepare("
                         INSERT INTO products (name, price, description, stock, status, seller_id, category, sub_category, image_url, photos) 
-                        VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ");
                     $stmt->execute([
                         $name,
-                        $finalPrice,
+                        $finalPrice, // ✅ Rounded price saved
                         $description,
                         $stock,
                         $status,
                         $sellerId,
-                        $category,
-                        $subCategory,
+                        $categoryName,
+                        $subCategoryName,
                         $destPath,
                         json_encode($uploadedPhotos)
                     ]);
 
                     $statusMessage = '<div class="alert alert-success">Product uploaded successfully!</div>';
+                    $_POST = [];
                 } catch (PDOException $e) {
                     $statusMessage = '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>';
                 }
@@ -133,11 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .ck-editor__editable_inline {
             min-height: 300px;
-            /* taller editor */
             max-height: 500px;
-            /* optional limit */
             overflow-y: auto;
-            /* adds scroll if text overflows */
         }
 
         .ck-editor__editable_inline[role="textbox"] {
@@ -150,11 +157,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container mt-4 mb-5">
         <h4>Upload New Product</h4>
         <?= $statusMessage; ?>
+        <a href="seller-dashboard.php" class="btn btn-secondary mb-3">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
         <form method="POST" action="add_product.php" enctype="multipart/form-data">
 
             <div class="mb-3">
                 <label class="form-label">Product Name</label>
-                <input type="text" name="name" class="form-control" placeholder="e.g. Bluetooth Speaker" required>
+                <input
+                    type="text"
+                    name="name"
+                    class="form-control"
+                    placeholder="e.g. Bluetooth Speaker"
+                    required
+                    value="<?= isset($_POST['name']) ? htmlspecialchars($_POST['name']) : '' ?>">
             </div>
 
             <!-- Category + Subcategory -->
@@ -163,7 +179,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <select name="category" id="categorySelect" class="form-select" required>
                     <option value="">Select a category</option>
                     <?php foreach ($categories as $cat): ?>
-                        <option value="<?= htmlspecialchars($cat->id) ?>" data-fee="<?= htmlspecialchars($cat->sellers_fee) ?>">
+                        <option value="<?= htmlspecialchars($cat->id) ?>"
+                            data-fee="<?= htmlspecialchars($cat->sellers_fee) ?>"
+                            <?= (isset($_POST['category']) && $_POST['category'] == $cat->id) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($cat->name) ?> (Fee: <?= $cat->sellers_fee ?>%)
                         </option>
                     <?php endforeach; ?>
@@ -174,6 +192,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label class="form-label">Sub Category</label>
                 <select name="sub_category" id="subCategorySelect" class="form-select" required>
                     <option value="">Select a sub-category</option>
+                    <?php if (!empty($subcategories)): ?>
+                        <?php foreach ($subcategories as $sub): ?>
+                            <option value="<?= htmlspecialchars($sub->id) ?>"
+                                <?= (isset($_POST['sub_category']) && $_POST['sub_category'] == $sub->id) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($sub->name) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </select>
             </div>
 
@@ -181,7 +207,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Price (₦)</label>
-                    <input type="number" step="0.01" name="price" id="priceInput" class="form-control" placeholder="e.g. 8500" required>
+                    <input
+                        type="number"
+                        step="0.01"
+                        name="price"
+                        id="priceInput"
+                        class="form-control"
+                        placeholder="e.g. 8500"
+                        required
+                        value="<?= isset($_POST['price']) ? htmlspecialchars($_POST['price']) : '' ?>">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Final Price (With Fee %)</label>
@@ -191,17 +225,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="mb-3">
                 <label class="form-label">Description</label>
-                <textarea name="description" class="form-control" rows="9" placeholder="Enter product description" required></textarea>
+                <textarea
+                    name="description"
+                    class="form-control"
+                    rows="9"
+                    placeholder="Enter product description"
+                    required><?= isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '' ?></textarea>
             </div>
+
             <div class="mb-3">
                 <label class="form-label">Stock Quantity</label>
-                <input type="number" name="stock" class="form-control" min="0" required>
+                <input
+                    type="number"
+                    name="stock"
+                    class="form-control"
+                    min="0"
+                    required
+                    value="<?= isset($_POST['stock']) ? htmlspecialchars($_POST['stock']) : '' ?>">
             </div>
+
             <div class="mb-3">
                 <label class="form-label">Status</label>
                 <select name="status" class="form-select" required>
-                    <option value="In Stock">In Stock</option>
-                    <option value="Out of Stock">Out of Stock</option>
+                    <option value="In Stock" <?= (isset($_POST['status']) && $_POST['status'] === 'In Stock') ? 'selected' : '' ?>>In Stock</option>
+                    <option value="Out of Stock" <?= (isset($_POST['status']) && $_POST['status'] === 'Out of Stock') ? 'selected' : '' ?>>Out of Stock</option>
                 </select>
             </div>
 
@@ -262,8 +309,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         function updateFinalPrice() {
             let price = parseFloat(document.getElementById('priceInput').value) || 0;
             let fee = parseFloat(document.getElementById('priceInput').dataset.fee) || 0;
-            let finalPrice = price + (price * fee / 100);
-            document.getElementById('finalPrice').value = finalPrice > 0 ? finalPrice.toFixed(2) : '';
+            let finalPrice = Math.ceil(price + (price * fee / 100)); // ✅ round up
+            document.getElementById('finalPrice').value = finalPrice > 0 ? finalPrice : '';
         }
 
         // Preview main image

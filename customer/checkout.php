@@ -718,16 +718,37 @@ if (isset($_SESSION['applied_promo'])) {
                                         <i class="bi bi-exclamation-triangle me-2"></i>
                                         <strong>Note:</strong> Payment will be confirmed before shipping.
                                     </div>
+                                    <?php
+                                    // Fetch bank details from the database
+                                    try {
+                                        $stmt = $pdo->query("SELECT bank_name, account_number, account_name FROM bank_details order by id DESC");
+                                        $bank_details = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                    } catch (Exception $e) {
+                                        $bank_details = [
+                                            [
+                                                'bank_name' => 'Access Bank',
+                                                'account_number' => '1234567890',
+                                                'account_name' => 'Your Business Name'
+                                            ]
+                                        ];
+                                    }
+                                    ?>
+
                                     <div class="bank-details-box mt-3">
-                                        <div class="bank-item"><strong>Bank Name:</strong> <span>Access Bank</span></div>
-                                        <div class="bank-item d-flex flex-wrap align-items-center gap-2">
-                                            <strong>Account Number:</strong>
-                                            <span id="acctNumber">1234567890</span>
-                                            <button type="button" class="btn btn-outline-secondary btn-sm px-2 py-1" onclick="copyToClipboard('1234567890')">
-                                                <i class="bi bi-clipboard"></i> Copy
-                                            </button>
-                                        </div>
-                                        <div class="bank-item"><strong>Account Name:</strong> Your Business Name</div>
+                                        <?php foreach ($bank_details as $bank): ?>
+                                            <div class="bank-item"><strong>Bank Name:</strong> <span><?= htmlspecialchars($bank['bank_name']) ?></span></div>
+                                            <div class="bank-item d-flex flex-wrap align-items-center gap-2">
+                                                <strong>Account Number:</strong>
+                                                <span id="acctNumber"><?= htmlspecialchars($bank['account_number']) ?></span>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm px-2 py-1" onclick="copyToClipboard('<?= htmlspecialchars($bank['account_number']) ?>')">
+                                                    <i class="bi bi-clipboard"></i> Copy
+                                                </button>
+                                            </div>
+                                            <div class="bank-item"><strong>Account Name:</strong> <?= htmlspecialchars($bank['account_name']) ?></div>
+                                            <?php if (next($bank_details)): ?>
+                                                <hr>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
                                     </div>
 
                                     <hr class="my-3">
