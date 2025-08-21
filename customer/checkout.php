@@ -195,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             $pdo->beginTransaction();
 
             try {
-                // Calculate total and apply promo if valid
+                // Calculate totals
                 $subtotal = 0;
                 foreach ($cart_items as $item) {
                     if (!isset($item['product_id']) || empty($item['product_id'])) {
@@ -226,24 +226,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
                 $total = $subtotal - $discount_amount;
 
-                // Create order
+                // STEP 3: Decide transaction reference
+                if ($payment_method === 'pay_with_transfer' && isset($_SESSION['payment_proof_reference'])) {
+                    $transaction_reference = $_SESSION['payment_proof_reference'];
+                } else {
+                    $transaction_reference = 'REF_' . strtoupper(uniqid()) . '_' . time();
+                }
+
+                // STEP 4: Create order with reference
                 $stmt = $pdo->prepare("
                     INSERT INTO orders (
-                        buyer_id,
-                        order_date,
-                        payment_method,
-                        delivery_method,
-                        shipping_address,
-                        status,
-                        subtotal,
-                        total,
-                        promo_code,
-                        discount
-                    ) VALUES (?, NOW(), ?, ?, ?, 'pending', ?, ?, ?, ?)
+                        buyer_id, transaction_reference, order_date,
+                        payment_method, delivery_method, shipping_address,
+                        status, subtotal, total, promo_code, discount
+                    ) VALUES (?, ?, NOW(), ?, ?, ?, 'pending', ?, ?, ?, ?)
                 ");
-
                 $stmt->execute([
                     $buyer_id,
+                    $transaction_reference,
                     $payment_method,
                     $delivery_method,
                     $shipping_address,
@@ -255,12 +255,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
                 $order_id = $pdo->lastInsertId();
 
-                // Insert order items
+                // STEP 5: Insert order items
                 $stmt = $pdo->prepare("
                     INSERT INTO order_items (order_id, product_id, price, quantity, seller_id, image_url)
                     VALUES (?, ?, ?, ?, ?, ?)
                 ");
-
                 foreach ($cart_items as $item) {
                     $stmt->execute([
                         $order_id,
@@ -272,41 +271,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                     ]);
                 }
 
-                // STEP 3: Create purchase record for transaction tracking
-                $purchase_id = 'PUR_' . strtoupper(uniqid()) . '_' . time();
+                // STEP 6: Insert transaction record
+                $payment_method_db = match ($payment_method) {
+                    'pay_with_transfer' => 'bank_transfer',
+                    'pay_with_card'     => 'card',
+                    default             => 'wallet',
+                };
 
                 $stmt = $pdo->prepare("
-                    INSERT INTO purchases (purchase_id, user_id, total_amount, order_number, status, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, 'pending', NOW(), NOW())
+                    INSERT INTO transactions (
+                        payment_method, amount, status, transaction_reference, created_at, updated_at
+                    ) VALUES (?, ?, 'pending', ?, NOW(), NOW())
                 ");
-                $stmt->execute([$purchase_id, $buyer_id, $total, 'ORD_' . $order_id]);
+                $stmt->execute([$payment_method_db, $total, $transaction_reference]);
 
-                // STEP 4: Create transaction record
-                $payment_reference = $_SESSION['payment_proof_reference'] ?? null;
-
-                if ($payment_method === 'pay_with_transfer' && $payment_reference) {
-                    // Use the SAME reference from proof_of_payment table
-                    $stmt = $pdo->prepare("
-                        INSERT INTO transactions (purchase_id, payment_method, amount, status, reference, created_at, updated_at)
-                        VALUES (?, 'bank_transfer', ?, 'pending', ?, NOW(), NOW())
-                    ");
-                    $stmt->execute([$purchase_id, $total, $payment_reference]);
-                } else {
-                    // For other payment methods (no proof needed)
-                    $payment_method_db = ($payment_method === 'pay_with_card') ? 'card' : 'wallet';
-                    $reference = 'REF_' . strtoupper(uniqid()) . '_' . time();
-                    $stmt = $pdo->prepare("
-                        INSERT INTO transactions (purchase_id, payment_method, amount, status, reference, created_at, updated_at)
-                        VALUES (?, ?, ?, 'pending', ?, NOW(), NOW())
-                    ");
-                    $stmt->execute([$purchase_id, $payment_method_db, $total, $reference]);
-                }
-
-                // Clear cart
+                // STEP 7: Cleanup
                 $stmt = $pdo->prepare("DELETE FROM cart_items WHERE buyer_id = ?");
                 $stmt->execute([$buyer_id]);
 
-                // Mark promo code as used if applicable
                 if ($applied_promo) {
                     $stmt = $pdo->prepare("
                         UPDATE coupons 
@@ -317,12 +299,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                     unset($_SESSION['applied_promo']);
                 }
 
-                // Clear payment proof reference
                 unset($_SESSION['payment_proof_reference']);
-
                 $pdo->commit();
 
-                // Redirect to order confirmation
                 header("Location: order-confirmation.php?order_id=$order_id");
                 exit;
             } catch (Exception $e) {
@@ -386,7 +365,7 @@ if (isset($_SESSION['applied_promo'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout | Nojura</title>
+    <title>Checkout | <?= APP_NAME ?></title>
     <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="../uploads/default-product.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">

@@ -52,7 +52,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Cart | TrendyMart</title>
+    <title>My Cart | <?= APP_NAME ?></title>
     <link rel="icon" type="image/png" href="../uploads/default-product.png">
     <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">

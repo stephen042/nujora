@@ -8,7 +8,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 // Define categories (replace with actual categories from your database or array)
-$categories = ['Electronics', 'Fashion', 'Home Appliances', 'Books', 'Beauty Products'];
+// Fetch categories from the database
+try {
+    $stmt = $pdo->query("SELECT name FROM categories ORDER BY name ASC");
+    $categories = $stmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (PDOException $e) {
+    die("Error fetching categories: " . $e->getMessage());
+}
 
 // Get current category filter
 $currentCategory = $_GET['category'] ?? '';
@@ -77,7 +83,7 @@ try {
 
         <!-- Products Table -->
         <?php if (!empty($products)): ?>
-        <table class="table table-bordered">
+        <table class="table table-bordered dataTable">
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>

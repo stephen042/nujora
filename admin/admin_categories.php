@@ -127,7 +127,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </form>
 
         <!-- Categories Table -->
-        <table id="categoriesTable" class="table table-bordered table-hover">
+        <table class="table table-bordered table-hover dataTable">
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>

@@ -64,7 +64,7 @@ try {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= htmlspecialchars($product['name']) ?> | TrendyMart</title>
+  <title><?= htmlspecialchars($product['name']) ?> | <?= APP_NAME ?></title>
   <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="../uploads/default-product.png">
@@ -414,7 +414,6 @@ try {
               <button class="btn btn-buy-now btn-lg p-2 text-white" <?= $product['stock'] == 0 ? 'disabled' : '' ?>>
                 <i class="fas fa-buy"></i> Buy Now
               </button>
-
             </form>
           </div>
           <!-- Notify When Available Button -->

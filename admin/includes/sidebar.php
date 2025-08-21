@@ -34,15 +34,39 @@ if (!isset($_SESSION['user_id'])) {
             <a href="admin_reports.php"><i class="bi bi-flag"></i> Reports</a>
         </li>
 
+
+        <!-- Transactions Dropdown -->
+        <?php
+        $isTransactions = in_array($current_page, ['bank_transfers.php', 'automatic_transactions.php','bank_transfer_details.php']);
+        ?>
+        <li class="dropdown <?= $isTransactions ? 'active' : '' ?>">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#transactionsMenu" aria-expanded="<?= $isTransactions ? 'true' : 'false' ?>">
+                <i class="bi bi-receipt"></i> Transactions
+            </a>
+            <ul id="transactionsMenu" class="collapse list-unstyled ps-3 <?= $isTransactions ? 'show' : '' ?>">
+                <li class="<?= $current_page == 'bank_transfer_details.php' ? 'active' : '' ?>">
+                    <a href="bank_transfer_details.php"><i class="bi bi-diagram-2"></i> Bank Transfer Details</a>
+                </li>
+                <li class="<?= $current_page == 'bank_transfers.php' ? 'active' : '' ?>">
+                    <a href="bank_transfers.php"><i class="bi bi-bank"></i> Bank Transfers</a>
+                </li>
+                <li class="<?= $current_page == 'automatic_transactions.php' ? 'active' : '' ?>">
+                    <a href="automatic_transactions.php" onclick="alert('This feature is under development!'); return false"><i class="bi bi-credit-card"></i> Automatic Payments</a>
+                </li>
+            </ul>
+
+
+        </li>
+
         <!-- Categories Dropdown -->
         <?php
-        $isCategoryPage = in_array($current_page, ['admin_categories.php', 'admin_subcategories.php']);
+        $isCategories = in_array($current_page, ['admin_categories.php', 'admin_subcategories.php']);
         ?>
-        <li class="dropdown <?= $isCategoryPage ? 'active' : '' ?>">
-            <a href="#" class="dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#categoriesMenu" aria-expanded="<?= $isCategoryPage ? 'true' : 'false' ?>">
+        <li class="dropdown <?= $isCategories ? 'active' : '' ?>">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#categoriesMenu" aria-expanded="<?= $isCategories ? 'true' : 'false' ?>">
                 <i class="bi bi-tags"></i> Categories
             </a>
-            <ul id="categoriesMenu" class="collapse list-unstyled ps-3 <?= $isCategoryPage ? 'show' : '' ?>">
+            <ul id="categoriesMenu" class="collapse list-unstyled ps-3 <?= $isCategories ? 'show' : '' ?>">
                 <li class="<?= $current_page == 'admin_categories.php' ? 'active' : '' ?>">
                     <a href="admin_categories.php"><i class="bi bi-tag"></i> Categories</a>
                 </li>

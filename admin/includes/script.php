@@ -8,13 +8,13 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#categoriesTable').DataTable({
+            $('.dataTable').DataTable({
                 responsive: true,
                 pageLength: 5,
                 lengthMenu: [5, 10, 25, 50],
                 columnDefs: [{
                         orderable: false,
-                        targets: [3, 6]
+                        // targets: [3, 6]
                     } // disable sorting on Image & Actions columns
                 ]
             });
