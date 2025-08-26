@@ -105,7 +105,11 @@ if (!empty($search)) {
       color: var(--dark-text);
       padding-bottom: 60px;
     }
-    h1, h2, h3, h4 {
+
+    h1,
+    h2,
+    h3,
+    h4 {
       font-family: 'Poppins', sans-serif;
     }
 
@@ -139,7 +143,7 @@ if (!empty($search)) {
     .product-img {
       width: 100%;
       height: 320px;
-      object-fit: cover;
+      object-fit: contain;
       border-radius: 12px;
       box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -353,12 +357,6 @@ if (!empty($search)) {
       right: -12px;
     }
 
-    @media (min-width: 768px) {
-      .category-scroll-wrapper {
-        padding: 0 40px;
-      }
-    }
-
     .category-card {
       transition: transform 0.2s ease-in-out;
     }
@@ -367,25 +365,6 @@ if (!empty($search)) {
       transform: scale(1.05);
     }
 
-    @media (min-width: 768px) {
-      .category-card {
-        width: 140px;
-      }
-    }
-
-    @media (min-width: 992px) {
-      .category-card {
-        width: 160px;
-      }
-    }
-
-    @media (min-width: 768px) {
-      #categoryScroll {
-        max-width: 1000px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-    }
 
 
     #searchInput:focus+div {
@@ -398,10 +377,394 @@ if (!empty($search)) {
       overflow-y: auto;
     }
 
+    /* Enhanced Mobile-Responsive Styles - Add these to your existing CSS */
+
+    /* Mobile-first optimizations */
+    @media (max-width: 576px) {
+
+      /* Reduce container padding on mobile */
+      .container {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+      }
+
+      /* Hero section mobile optimization */
+      .hero-section {
+        padding: 2rem 0;
+        margin-bottom: 1rem;
+      }
+
+      .hero-section .container {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+
+      .hero-section h1 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .hero-section p.lead {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      /* Search form mobile optimization */
+      .hero-section form {
+        max-width: 100% !important;
+        padding: 0 5px;
+      }
+
+      /* Product grid mobile optimization */
+      .row.g-6 {
+        --bs-gutter-x: 0.5rem;
+        --bs-gutter-y: 0.5rem;
+      }
+
+      /* Product cards mobile optimization */
+      .col-6 {
+        padding-left: 4px !important;
+        padding-right: 4px !important;
+        max-width: 50% !important;
+      }
+
+      .product-card-mobile {
+        max-height: none !important;
+        max-width: none !important;
+      }
+
+      .card {
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .card-body {
+        padding: 0.75rem 0.5rem;
+        display: flex !important;
+        flex-direction: column !important;
+        flex-grow: 1 !important;
+      }
+
+      /* Push button to bottom */
+      .card-body .btn-container {
+        margin-top: auto !important;
+        padding-top: 0.5rem;
+      }
+
+      .card-title {
+        font-size: 0.8rem !important;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .card-text {
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem !important;
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+
+      /* Product image mobile optimization */
+      .product-img {
+        height: 140px !important;
+        width: 100% !important;
+        object-fit: contain !important;
+        border-radius: 8px 8px 0 0;
+      }
+
+      /* Product badge mobile optimization */
+      .product-badge {
+        top: 5px;
+        right: 5px;
+        padding: 0.15rem 0.3rem;
+        font-size: 0.6rem;
+      }
+
+      /* Rating stars mobile optimization */
+      .card-body>div {
+        margin-bottom: 0.5rem;
+        font-size: 0.7rem;
+      }
+
+      /* Button optimization for mobile */
+      .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        border-radius: 4px;
+      }
+
+      .d-flex.justify-content-between {
+        align-items: center;
+        margin-top: 0.5rem;
+      }
+
+      /* Section titles mobile optimization */
+      .section-title {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+      }
+
+      .section-title:after {
+        width: 30px;
+        height: 2px;
+      }
+
+      /* Category section mobile optimization */
+      .category-scroll-wrapper {
+        padding: 8px 0;
+        margin: 0 -8px;
+      }
+
+      .category-card {
+        width: 100px !important;
+        padding: 12px 8px;
+        margin-right: 12px;
+      }
+
+      .category-icon {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
+
+      .category-card h6 {
+        font-size: 0.7rem !important;
+      }
+
+      /* Sellers section mobile optimization */
+      .row.g-4 {
+        --bs-gutter-x: 0.5rem;
+        --bs-gutter-y: 0.5rem;
+      }
+
+      .seller-logo {
+        width: 60px;
+        height: 60px;
+      }
+
+      .badge-tier {
+        font-size: 0.65rem;
+        padding: 0.2em 0.4em;
+      }
+
+      .rating-stars {
+        font-size: 0.75rem;
+      }
+
+      /* View all products button */
+      .btn.w-100 {
+        margin: 2rem 0;
+        padding: 0.75rem;
+      }
+
+      /* Bottom navigation adjustments */
+      body {
+        padding-bottom: 70px;
+      }
+
+      .nav-bottom .nav-link {
+        padding: 8px 0;
+        font-size: 0.7rem;
+      }
+
+      .nav-bottom .nav-link i {
+        font-size: 1rem;
+        margin-bottom: 3px;
+      }
+
+      /* Scroll buttons mobile optimization */
+      .scroll-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+      }
+
+      .scroll-left {
+        left: -8px;
+      }
+
+      .scroll-right {
+        right: -8px;
+      }
+
+      /* Alert messages mobile optimization */
+      .alert {
+        margin: 1rem 0;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+      }
+
+      /* Form control mobile optimization */
+      .form-control {
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+        padding: 0.5rem;
+      }
+
+      /* Suggestions box mobile optimization */
+      #suggestionsBox {
+        font-size: 0.9rem;
+        max-height: 150px;
+      }
+    }
+
+    /* Small mobile devices (max-width: 400px) */
+    @media (max-width: 400px) {
+      .container {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+      }
+
+      .col-6 {
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+      }
+
+      .card-body {
+        padding: 0.5rem 0.3rem;
+      }
+
+      .card-title {
+        font-size: 0.75rem !important;
+      }
+
+      .card-text {
+        font-size: 0.8rem;
+      }
+
+      .product-img {
+        height: 120px !important;
+      }
+
+      .btn-sm {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
+      }
+
+      .hero-section h1 {
+        font-size: 1.3rem;
+      }
+
+      .section-title {
+        font-size: 1rem;
+      }
+    }
+
+    /* Tablet optimization (577px to 768px) */
+    @media (min-width: 577px) and (max-width: 768px) {
+      .container {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+
+      .col-6 {
+        max-width: 33.333333% !important;
+      }
+
+      .col-md-4 {
+        max-width: 50% !important;
+      }
+
+      .product-img {
+        height: 200px !important;
+      }
+
+      .card-title {
+        font-size: 0.9rem !important;
+      }
+
+      .card-body {
+        padding: 1rem 0.75rem;
+      }
+    }
+
+    /* Medium screens optimization */
+    @media (min-width: 769px) and (max-width: 991px) {
+      .col-lg-3 {
+        max-width: 33.333333% !important;
+      }
+
+      .product-img {
+        height: 240px !important;
+      }
+
+      /* Ensure flexbox for larger screens too */
+      .card {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .card-body {
+        display: flex !important;
+        flex-direction: column !important;
+        flex-grow: 1 !important;
+      }
+
+      .card-body .btn-container {
+        margin-top: auto !important;
+      }
+    }
+
+    /* Desktop flexbox optimization */
     @media (min-width: 992px) {
-      .category-wrapper-responsive {
-        max-width: 1000px;
-        width: fit-content;
+      .card {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .card-body {
+        display: flex !important;
+        flex-direction: column !important;
+        flex-grow: 1 !important;
+      }
+
+      .card-body .btn-container {
+        margin-top: auto !important;
+        padding-top: 1rem;
+      }
+    }
+
+    /* Utility classes for better mobile experience */
+    @media (max-width: 576px) {
+      .mobile-text-small {
+        font-size: 0.8rem !important;
+      }
+
+      .mobile-mb-1 {
+        margin-bottom: 0.25rem !important;
+      }
+
+      .mobile-p-2 {
+        padding: 0.5rem !important;
+      }
+
+      .mobile-rounded {
+        border-radius: 6px !important;
+      }
+
+      /* Hide unnecessary elements on mobile */
+      .mobile-hide {
+        display: none !important;
+      }
+
+      /* Make text more readable on mobile */
+      .mobile-text-bold {
+        font-weight: 600 !important;
+      }
+
+      /* Optimize spacing */
+      .mobile-spacing-sm {
+        margin: 0.25rem 0 !important;
+      }
+
+      .mobile-spacing-md {
+        margin: 0.5rem 0 !important;
       }
     }
   </style>
@@ -437,7 +800,7 @@ if (!empty($search)) {
 
 
   <!-- Main Content -->
-  <div class="container">
+  <div class="container mb-3">
     <!-- Categories -->
     <?php
     try {
@@ -448,8 +811,6 @@ if (!empty($search)) {
       die("Database error: " . $e->getMessage());
     }
     ?>
-
-
     <h4 class="section-title">Shop by Category</h4>
     <div class="position-relative mb-5">
       <button class="scroll-btn scroll-left" onclick="scrollCategory(-300)">
@@ -457,7 +818,7 @@ if (!empty($search)) {
       </button>
 
       <!-- Wrapper with max-width and auto margin -->
-      <div id="categoryScroll" class="category-scroll-wrapper bg-light rounded px-3 py-3 overflow-auto category-wrapper-responsive">
+      <div id="categoryScroll" class="category-scroll-wrapper rounded px-3 py-3 overflow-auto category-wrapper-responsive">
         <div class="d-flex flex-row flex-nowrap gap-3">
           <?php foreach ($categories as $row): ?>
             <a href="products.php?category=<?= rawurlencode($row['name']) ?>" class="text-decoration-none flex-shrink-0">
@@ -484,44 +845,51 @@ if (!empty($search)) {
     </div>
 
 
-
-    <!-- Top Sellers -->
+    <!-- Top Sellers - Mobile Optimized -->
     <h4 class="section-title">Top Rated Sellers</h4>
-    <div class="row g-4 mb-5">
+    <div class="row g-2 g-md-3 g-lg-4 mb-5">
       <?php if (empty($sellers)): ?>
         <div class="col-12 text-center py-4">
-          <div class="alert alert-info">No top sellers available at the moment.</div>
+          <div class="alert alert-info mobile-p-2">No top sellers available at the moment.</div>
         </div>
       <?php else: ?>
         <?php foreach ($sellers as $seller):
           $badge = getSellerBadge($seller['avg_rating']);
           $badgeClass = strtolower(str_replace(' ', '-', $badge['label']));
         ?>
-          <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100">
-              <div class="card-body text-center">
+          <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+            <div class="card h-100 mobile-rounded">
+              <div class="card-body text-center mobile-p-2">
                 <img src="<?= htmlspecialchars($seller['shop_logo'] ?? 'assets/default-shop.png') ?>"
-                  class="seller-logo mb-3"
+                  class="seller-logo mb-2"
                   alt="<?= htmlspecialchars($seller['shop_name']) ?>">
-                <h5 class="card-title mb-1"><?= htmlspecialchars($seller['shop_name']) ?></h5>
+
+                <h5 class="card-title mb-1 mobile-text-small mobile-text-bold">
+                  <?= htmlspecialchars($seller['shop_name']) ?>
+                </h5>
 
                 <span class="badge badge-tier badge-<?= $badgeClass ?> mb-2">
-                  <i class="fas <?= $badge['icon'] ?> me-1"></i> <?= $badge['label'] ?>
+                  <i class="fas <?= $badge['icon'] ?> me-1 d-none d-md-inline"></i>
+                  <span class="d-md-none"><?= substr($badge['label'], 0, 4) ?></span>
+                  <span class="d-none d-md-inline"><?= $badge['label'] ?></span>
                 </span>
 
                 <div class="rating-stars mb-2">
                   <?php for ($i = 1; $i <= 5; $i++): ?>
                     <i class="fas <?= $i <= round($seller['avg_rating']) ? 'fa-star' : 'fa-star-half-alt' ?>"></i>
                   <?php endfor; ?>
-                  <span class="ms-1"><?= number_format($seller['avg_rating'], 1) ?></span>
+                  <span class="ms-1 mobile-text-small"><?= number_format($seller['avg_rating'], 1) ?></span>
                 </div>
 
-                <p class="small text-muted mb-3">
-                  <i class="fas fa-comment-alt me-1"></i> <?= $seller['rating_count'] ?> reviews
+                <p class="small text-muted mb-2 mobile-text-small">
+                  <i class="fas fa-comment-alt me-1 d-none d-md-inline"></i>
+                  <?= $seller['rating_count'] ?>
+                  <span class="d-none d-sm-inline">reviews</span>
                 </p>
 
                 <a href="seller.php?id=<?= $seller['id'] ?>" class="btn btn-outline-primary btn-sm w-100">
-                  Visit Shop
+                  <span class="d-md-none">Visit</span>
+                  <span class="d-none d-md-inline">Visit Shop</span>
                 </a>
               </div>
             </div>
@@ -535,32 +903,38 @@ if (!empty($search)) {
       <a href="products.php" class="text-decoration-none">View All Products <i class="fas fa-chevron-right"></i><i class="fas fa-chevron-right"></i>
       </a>
     </h4>
-    <div class="row g-6 mb-2 mx-auto">
+
+    <!-- Mobile-optimized product grid -->
+    <div class="row g-2 g-md-3 g-lg-4 mb-2 mx-auto">
       <?php if (empty($products)): ?>
         <div class="col-12 text-center py-4">
-          <div class="alert alert-info">No featured products available at the moment.</div>
+          <div class="alert alert-info mobile-p-2">No featured products available at the moment.</div>
         </div>
       <?php else: ?>
         <?php foreach ($products as $product): ?>
-          <div class="col-6 col-md-4 col-lg-3 my-2 col-sm-6" style="max-height: 450px; max-width: 300px;">
-            <div class="card h-100">
-              <img src="<?php echo isset($product['image_url']) && $product['image_url']
-                          ? "../" . htmlspecialchars($product['image_url'])
-                          : "../uploads/default-product.png"; ?>"
-                class="product-img"
-                alt="<?= htmlspecialchars($product['name']) ?>">
+          <div class="col-6 col-sm-6 col-md-4 col-lg-3 product-card-mobile">
+            <div class="card h-100 mobile-rounded">
+              <div class="position-relative">
+                <img src="<?php echo isset($product['image_url']) && $product['image_url']
+                            ? "../" . htmlspecialchars($product['image_url'])
+                            : "../uploads/default-product.png"; ?>"
+                  class="product-img"
+                  alt="<?= htmlspecialchars($product['name']) ?>">
 
-              <div class="card-body">
-                <h5 class="card-title fs-6"><?= htmlspecialchars($product['name']) ?></h5>
-                <p class="card-text mb-2">Price: ₦<?= number_format($product['price'], 2) ?></p>
                 <!-- Stock badge -->
                 <?php if ($product['stock'] > 0): ?>
                   <span class="product-badge bg-success">In Stock</span>
                 <?php else: ?>
                   <span class="product-badge bg-danger">Out of Stock</span>
                 <?php endif; ?>
+              </div>
+
+              <div class="card-body">
+                <h5 class="card-title mobile-text-bold"><?= htmlspecialchars($product['name']) ?></h5>
+                <p class="card-text mobile-text-bold">₦<?= number_format($product['price'], 2) ?></p>
+
                 <!-- Rating stars -->
-                <div>
+                <div class="mobile-spacing-sm">
                   <?php
                   $avg_rating = 0;
                   if (!empty($grouped_reviews[$product['id']])) {
@@ -568,22 +942,24 @@ if (!empty($search)) {
                     $avg_rating = round(array_sum($ratings) / count($ratings), 1);
                   }
                   ?>
-                  <?php for ($i = 1; $i <= 5; $i++): ?>
-                    <?php if ($i <= floor($avg_rating)): ?>
-                      <span style="color: gold;">&#9733;</span>
-                    <?php else: ?>
-                      <span style="color: #ccc;">&#9733;</span>
-                    <?php endif; ?>
-                  <?php endfor; ?>
-                  <small>(<?= $avg_rating ?>)</small>
+                  <div class="d-flex align-items-center">
+                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                      <?php if ($i <= floor($avg_rating)): ?>
+                        <span style="color: gold; font-size: 0.8rem;">&#9733;</span>
+                      <?php else: ?>
+                        <span style="color: #ccc; font-size: 0.8rem;">&#9733;</span>
+                      <?php endif; ?>
+                    <?php endfor; ?>
+                    <small class="ms-1 mobile-text-small">(<?= $avg_rating ?>)</small>
+                  </div>
                 </div>
-                <div class="d-flex justify-content-between align-items-center">
-                  <a href="product_details.php?id=<?= $product['id'] ?>" class="btn btn-primary btn-sm">
-                    <i class="fas fa-eye me-1"></i> View
+
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                  <a href="product_details.php?id=<?= $product['id'] ?>" class="btn btn-primary btn-sm flex-grow-1">
+                    <i class="fas fa-eye me-1 d-none d-md-inline"></i>
+                    <span class="d-md-none">View</span>
+                    <span class="d-none d-md-inline">View Details</span>
                   </a>
-                  <!-- <a href="save_item" class="btn btn-transparent btn-sm fs-5">
-                    <i class="fas fa-heart text-danger"></i>
-                  </a> -->
                 </div>
               </div>
             </div>
@@ -591,10 +967,15 @@ if (!empty($search)) {
         <?php endforeach; ?>
       <?php endif; ?>
     </div>
-    <div>
-      <a href="products.php" class="btn btn-outline-primary w-100 text-decoration-none my-5">View All Products <i class="fas fa-chevron-right"></i><i class="fas fa-chevron-right"></i>
+    <!-- Mobile-optimized view all button -->
+    <div class="text-center">
+      <a href="products.php" class="btn btn-outline-primary mobile-p-2" style="width: 95%; max-width: 400px;">
+        View All Products
+        <i class="fas fa-chevron-right"></i>
+        <i class="fas fa-chevron-right"></i>
       </a>
     </div>
+
   </div>
   <!-- Footer -->
   <?php include 'includes/footer.php'; ?>

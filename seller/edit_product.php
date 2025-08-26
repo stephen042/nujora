@@ -26,23 +26,34 @@ $categories = $stmt->fetchAll(PDO::FETCH_OBJ);
 
 // Handle update
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'];
-    $price = floatval($_POST['price']);
-    $description = $_POST['description'];
-    $stock = intval($_POST['stock']);
-    $status = htmlspecialchars($_POST['status']);
-    $category = $_POST['category'] ?? '';
-    $subCategory = $_POST['sub_category'] ?? '';
+    $name        = trim($_POST['name']);
+    $price       = floatval($_POST['price']);
+    $description = trim($_POST['description']);
+    $stock       = intval($_POST['stock']);
+    $status      = htmlspecialchars($_POST['status']);
+    $categoryId  = $_POST['category'] ?? '';
+    $subCategoryId = $_POST['sub_category'] ?? '';
 
     // Validate category
     $validCategoryIds = array_map(fn($c) => $c->id, $categories);
-    if (!in_array($category, $validCategoryIds)) {
+    if (!in_array($categoryId, $validCategoryIds)) {
         $statusMessage = '<div class="alert alert-danger">Please select a valid category.</div>';
     } else {
-        // Get sellers_fee
-        $stmtFee = $pdo->prepare("SELECT sellers_fee FROM categories WHERE id = ?");
-        $stmtFee->execute([$category]);
-        $sellersFee = floatval($stmtFee->fetchColumn());
+        // Get category name + sellers_fee
+        $stmtCat = $pdo->prepare("SELECT name, sellers_fee FROM categories WHERE id = ?");
+        $stmtCat->execute([$categoryId]);
+        $categoryData = $stmtCat->fetch(PDO::FETCH_ASSOC);
+
+        $categoryName = $categoryData['name'];
+        $sellersFee   = floatval($categoryData['sellers_fee']);
+
+        // Get subcategory name (if chosen)
+        $subCategoryName = '';
+        if (!empty($subCategoryId)) {
+            $stmtSub = $pdo->prepare("SELECT name FROM sub_categories WHERE id = ? AND category_id = ?");
+            $stmtSub->execute([$subCategoryId, $categoryId]);
+            $subCategoryName = $stmtSub->fetchColumn() ?: '';
+        }
 
         // Final price
         $finalPrice = $price + ($price * $sellersFee / 100);
@@ -85,9 +96,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SET name=?, price=?, description=?, stock=?, status=?, category=?, sub_category=?, image_url=?, photos=? 
                 WHERE id=? AND seller_id=?");
             $stmt->execute([
-                $name, $finalPrice, $description, $stock, $status,
-                $category, $subCategory, $mainImage, json_encode($photos),
-                $product_id, $_SESSION['user_id']
+                $name,
+                $finalPrice,
+                $description,
+                $stock,
+                $status,
+                $categoryName,     // save category name instead of id
+                $subCategoryName,  // save subcategory name instead of id
+                $mainImage,
+                json_encode($photos),
+                $product_id,
+                $_SESSION['user_id']
             ]);
 
             $statusMessage = '<div class="alert alert-success">Product updated successfully!</div>';
@@ -95,100 +114,174 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
             $stmt->execute([$product_id]);
             $product = $stmt->fetch(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             $statusMessage = '<div class="alert alert-danger">Error updating: ' . $e->getMessage() . '</div>';
         }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Edit Product</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <title>Edit Product</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
+
 <body>
-<div class="container mt-4 mb-5">
-    <h4>Edit Product</h4>
-    <?= $statusMessage; ?>
+    <div class="container mt-4 mb-5">
+        <a href="seller-dashboard.php?tab=products" class="btn btn-secondary mb-3"><i class="bi bi-arrow-left"></i> Back to Products</a>
+        <hr>
+        <h4>Edit Product</h4>
+        <?= $statusMessage; ?>
 
-    <form method="POST" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label class="form-label">Product Name</label>
-            <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($product['name']) ?>" required>
-        </div>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label">Product Name</label>
+                <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($product['name']) ?>" required>
+            </div>
 
-        <!-- Category -->
-        <div class="mb-3">
-            <label class="form-label">Category</label>
-            <select name="category" id="categorySelect" class="form-select" required>
-                <?php foreach ($categories as $cat): ?>
-                    <option value="<?= $cat->id ?>" data-fee="<?= $cat->sellers_fee ?>" 
-                        <?= $cat->id == $product['category'] ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($cat->name) ?> (Fee: <?= $cat->sellers_fee ?>%)
-                    </option>
+            <!-- Category -->
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select name="category" id="categorySelect" class="form-select" required>
+                    <?php foreach ($categories as $cat): ?>
+                        <option value="<?= $cat->id ?>" data-fee="<?= $cat->sellers_fee ?>"
+                            <?= $cat->id == $product['category'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($cat->name) ?> (Fee: <?= $cat->sellers_fee ?>%)
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Sub Category </label>
+                <span class="badge bg-info text-dark me-2">(<?= htmlspecialchars($product['sub_category']) ?>)</span>
+                <select name="sub_category" id="subCategorySelect" class="form-select">
+                    <option value="<?= $product['sub_category'] ?>"><?= $product['sub_category'] ?></option>
+                </select>
+            </div>
+
+            <!-- Price -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Price (₦)</label>
+                    <input type="number" id="priceInput" name="price" class="form-control" step="0.01"
+                        value="<?= htmlspecialchars($product['price']) ?>" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Final Price</label>
+                    <input type="text" id="finalPrice" class="form-control" value="<?= htmlspecialchars($product['price']) ?>" readonly>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control" rows="6"><?= htmlspecialchars($product['description']) ?></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Stock</label>
+                <input type="number" name="stock" class="form-control" value="<?= htmlspecialchars($product['stock']) ?>">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="In Stock" <?= $product['status'] === 'In Stock' ? 'selected' : '' ?>>In Stock</option>
+                    <option value="Out of Stock" <?= $product['status'] === 'Out of Stock' ? 'selected' : '' ?>>Out of Stock</option>
+                </select>
+            </div>
+
+            <!-- Main Image -->
+            <div class="mb-3">
+                <label class="form-label">Main Image</label><br>
+                <img src="<?= $product['image_url'] ?>" class="img-thumbnail mb-2" style="max-width:120px;">
+                <input type="file" name="product_image" class="form-control" accept="image/*" onchange="previewMainImage(event)">
+                <div id="mainImagePreview" class="mt-2"></div>
+            </div>
+
+            <!-- Extra Photos -->
+            <div class="mb-3">
+                <label class="form-label">Extra Photos</label><br>
+                <?php foreach (json_decode($product['photos'], true) ?? [] as $photo): ?>
+                    <img src="<?= $photo ?>" class="img-thumbnail me-2 mb-2" style="max-width:100px;">
                 <?php endforeach; ?>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Sub Category</label>
-            <select name="sub_category" id="subCategorySelect" class="form-select">
-                <option value="<?= $product['sub_category'] ?>"><?= $product['sub_category'] ?></option>
-            </select>
-        </div>
-
-        <!-- Price -->
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label class="form-label">Price (₦)</label>
-                <input type="number" name="price" class="form-control" step="0.01"
-                       value="<?= htmlspecialchars($product['price']) ?>" required>
+                <input type="file" name="product_photos[]" class="form-control mt-2" multiple accept="image/*" onchange="previewMultipleImages(event)">
+                <div id="multiImagePreview" class="mt-2 d-flex flex-wrap"></div>
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Final Price</label>
-                <input type="text" id="finalPrice" class="form-control" value="<?= htmlspecialchars($product['price']) ?>" readonly>
-            </div>
-        </div>
 
-        <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea name="description" class="form-control" rows="6"><?= htmlspecialchars($product['description']) ?></textarea>
-        </div>
+            <button type="submit" class="btn btn-primary w-100">Update Product</button>
+        </form>
+    </div>
 
-        <div class="mb-3">
-            <label class="form-label">Stock</label>
-            <input type="number" name="stock" class="form-control" value="<?= htmlspecialchars($product['stock']) ?>">
-        </div>
+    <script>
+        // Fetch subcategories dynamically
+        document.getElementById('categorySelect').addEventListener('change', function() {
+            let categoryId = this.value;
+            let fee = parseFloat(this.selectedOptions[0].getAttribute('data-fee')) || 0;
+            document.getElementById('priceInput').dataset.fee = fee;
+            updateFinalPrice();
 
-        <div class="mb-3">
-            <label class="form-label">Status</label>
-            <select name="status" class="form-select">
-                <option value="In Stock" <?= $product['status'] === 'In Stock' ? 'selected' : '' ?>>In Stock</option>
-                <option value="Out of Stock" <?= $product['status'] === 'Out of Stock' ? 'selected' : '' ?>>Out of Stock</option>
-            </select>
-        </div>
+            fetch('fetch_subcategories.php?category_id=' + categoryId)
+                .then(res => res.json())
+                .then(data => {
+                    let subCatSelect = document.getElementById('subCategorySelect');
+                    subCatSelect.innerHTML = '<option value="">Select a sub-category</option>';
+                    data.forEach(sub => {
+                        let option = document.createElement('option');
+                        option.value = sub.id;
+                        option.textContent = sub.name;
+                        subCatSelect.appendChild(option);
+                    });
+                });
+        });
 
-        <!-- Main Image -->
-        <div class="mb-3">
-            <label class="form-label">Main Image</label><br>
-            <img src="<?= $product['image_url'] ?>" class="img-thumbnail mb-2" style="max-width:120px;">
-            <input type="file" name="product_image" class="form-control" accept="image/*">
-        </div>
+        // Update final price
+        document.getElementById('priceInput').addEventListener('input', updateFinalPrice);
 
-        <!-- Extra Photos -->
-        <div class="mb-3">
-            <label class="form-label">Extra Photos</label><br>
-            <?php foreach (json_decode($product['photos'], true) ?? [] as $photo): ?>
-                <img src="<?= $photo ?>" class="img-thumbnail me-2 mb-2" style="max-width:100px;">
-            <?php endforeach; ?>
-            <input type="file" name="product_photos[]" class="form-control mt-2" multiple accept="image/*">
-        </div>
+        function updateFinalPrice() {
+            let price = parseFloat(document.getElementById('priceInput').value) || 0;
+            let fee = parseFloat(document.getElementById('priceInput').dataset.fee) || 0;
+            let finalPrice = Math.ceil(price + (price * fee / 100));
+            document.getElementById('finalPrice').value = finalPrice > 0 ? finalPrice : '';
+        }
 
-        <button type="submit" class="btn btn-primary w-100">Update Product</button>
-    </form>
-</div>
+        // Preview main image
+        function previewMainImage(event) {
+            const preview = document.getElementById('mainImagePreview');
+            preview.innerHTML = '';
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="max-width: 150px;">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Preview multiple images
+        function previewMultipleImages(event) {
+            const preview = document.getElementById('multiImagePreview');
+            preview.innerHTML = '';
+            const files = event.target.files;
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('img-thumbnail', 'me-2', 'mb-2');
+                    img.style.maxWidth = '120px';
+                    preview.appendChild(img);
+                }
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
 </body>
+
 </html>
