@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 // Fetch user details
 $user_id = $_SESSION['user_id'];
-$stmt = $pdo->prepare("SELECT name, email, phone, address FROM users WHERE id = ?");
+$stmt = $pdo->prepare("SELECT name, email, phone, country FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
@@ -111,8 +111,8 @@ if (!$user) {
                 <h5 class="card-title">Welcome, <?= htmlspecialchars($user['name']) ?>!</h5>
                 <hr>
                 <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
-                <p><strong>Phone:</strong> <?= htmlspecialchars($user['phone']) ?></p>
-                <p><strong>Address:</strong> <?= htmlspecialchars($user['address']) ?></p>
+                <p><strong>Phone:</strong> <?= htmlspecialchars($user['phone'] ?? '') ?></p>
+                <p><strong>Country:</strong> <?= htmlspecialchars($user['country'] ?? '') ?></p>
             </div>
         </div>
     </div>
