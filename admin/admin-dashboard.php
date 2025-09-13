@@ -102,12 +102,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fetch data
 try {
     // Get sellers
-    $stmt = $pdo->prepare("SELECT id, name, email, approval_status, created_at FROM users WHERE role = 'seller' ORDER BY created_at DESC LIMIT 10");
+    $stmt = $pdo->prepare("SELECT id, name, email, approval_status, created_at FROM users WHERE role = 'seller' ORDER BY created_at DESC LIMIT 5");
     $stmt->execute();
     $sellers = $stmt->fetchAll();
 
     // Get Buyers
-    $stmt = $pdo->prepare("SELECT id, name, email, approval_status, created_at FROM users WHERE role = 'buyer' ORDER BY created_at DESC LIMIT 10");
+    $stmt = $pdo->prepare("SELECT id, name, email, approval_status, created_at FROM users WHERE role = 'buyer' ORDER BY created_at DESC LIMIT 5");
     $stmt->execute();
     $buyers = $stmt->fetchAll();
 
@@ -117,7 +117,7 @@ try {
         FROM products p
         JOIN users u ON p.seller_id = u.id
         ORDER BY p.created_at DESC 
-        LIMIT 10
+        LIMIT 5
     ");
     $stmt->execute();
     $products = $stmt->fetchAll();
