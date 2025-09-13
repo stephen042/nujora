@@ -131,36 +131,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_admin'])) {
                                         ?>
                                     </td>
                                     <td>
-                                        <a href="edit_admin.php?id=<?= urlencode($admin['id']) ?>" class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="edit_admin.php?id=<?= urlencode($admin['id']) ?>"
+                                            class="btn btn-sm btn-warning me-1">Edit</a>
 
                                         <?php if ($admin['approval_status'] == 'pending'): ?>
                                             <form method="POST" action="" style="display:inline;">
                                                 <input type="hidden" name="admin_id" value="<?= htmlspecialchars($admin['id']) ?>">
-                                                <button type="submit" name="approve_admin" class="btn btn-sm btn-success"
+                                                <button type="submit" name="approve_admin"
+                                                    class="btn btn-sm btn-success me-1"
                                                     onclick="return confirm('Approve this admin?')">Approve</button>
                                             </form>
                                             <form method="POST" action="" style="display:inline;">
                                                 <input type="hidden" name="admin_id" value="<?= htmlspecialchars($admin['id']) ?>">
-                                                <button type="submit" name="reject_admin" class="btn btn-sm btn-danger"
+                                                <button type="submit" name="reject_admin"
+                                                    class="btn btn-sm btn-danger me-1"
                                                     onclick="return confirm('Reject this admin?')">Reject</button>
                                             </form>
                                         <?php elseif ($admin['approval_status'] == 'approved'): ?>
                                             <form method="POST" action="" style="display:inline;">
                                                 <input type="hidden" name="admin_id" value="<?= htmlspecialchars($admin['id']) ?>">
-                                                <button type="submit" name="reject_admin" class="btn btn-sm btn-danger"
+                                                <button type="submit" name="reject_admin"
+                                                    class="btn btn-sm btn-danger me-1"
                                                     onclick="return confirm('Reject this admin?')">Reject</button>
                                             </form>
                                         <?php elseif ($admin['approval_status'] == 'rejected'): ?>
                                             <form method="POST" action="" style="display:inline;">
                                                 <input type="hidden" name="admin_id" value="<?= htmlspecialchars($admin['id']) ?>">
-                                                <button type="submit" name="approve_admin" class="btn btn-sm btn-success"
+                                                <button type="submit" name="approve_admin"
+                                                    class="btn btn-sm btn-success me-1"
                                                     onclick="return confirm('Approve this admin?')">Approve</button>
                                             </form>
                                         <?php endif; ?>
 
                                         <form method="POST" action="" style="display:inline;">
                                             <input type="hidden" name="delete_id" value="<?= htmlspecialchars($admin['id']) ?>">
-                                            <button type="submit" name="delete_admin" class="btn btn-sm btn-outline-danger"
+                                            <button type="submit" name="delete_admin"
+                                                class="btn btn-sm btn-outline-danger my-2"
                                                 onclick="return confirm('Are you sure you want to delete this admin?')">
                                                 Delete
                                             </button>
@@ -179,4 +185,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_admin'])) {
     <?php include 'includes/script.php'; ?>
 
 </body>
+
 </html>
