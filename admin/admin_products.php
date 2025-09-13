@@ -39,6 +39,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,8 +47,17 @@ try {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
+
 <body>
     <div class="container mt-4">
+        <?php if (!empty($_SESSION['success'])): ?>
+            <div class="alert alert-success"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+        <?php endif; ?>
+
+        <?php if (!empty($_SESSION['error'])): ?>
+            <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+
         <!-- Back to Admin Dashboard -->
         <div class="mb-4">
             <a href="admin-dashboard.php" class="btn btn-secondary">
@@ -66,15 +76,15 @@ try {
                 </button>
             </div>
         </form>
-            
+
         <!-- Category Filter -->
         <div class="mb-4">
             <h4>Browse Categories</h4>
             <div class="d-flex flex-wrap gap-2">
                 <a href="admin_products.php" class="btn btn-outline-primary <?= empty($currentCategory) ? 'active' : '' ?>">All Products</a>
                 <?php foreach ($categories as $cat): ?>
-                    <a href="admin_products.php?category=<?= urlencode($cat) ?>" 
-                       class="btn btn-outline-secondary <?= $currentCategory === $cat ? 'active' : '' ?>">
+                    <a href="admin_products.php?category=<?= urlencode($cat) ?>"
+                        class="btn btn-outline-secondary <?= $currentCategory === $cat ? 'active' : '' ?>">
                         <?= htmlspecialchars($cat) ?>
                     </a>
                 <?php endforeach; ?>
@@ -83,44 +93,45 @@ try {
 
         <!-- Products Table -->
         <?php if (!empty($products)): ?>
-        <table class="table table-bordered dataTable">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Created At</th>
-                    <th>Image URL</th>
-                    <th>Shop Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($products as $product): ?>
-                <tr>
-                    <td><?= htmlspecialchars($product['id']) ?></td>
-                    <td><?= htmlspecialchars($product['name']) ?></td>
-                    <td><?= htmlspecialchars($product['category']) ?></td>
-                    <td>₦<?= number_format($product['price'], 2) ?></td>
-                    <td><?= htmlspecialchars($product['stock']) ?></td>
-                    <td><?= htmlspecialchars($product['created_at']) ?></td>
-                    <td><a href="<?= htmlspecialchars($product['image_url']) ?>" target="_blank">View Image</a></td>
-                    <td><?= htmlspecialchars($product['shop_name']) ?></td>
-                    <td>
-                        <a href="edit_product.php?id=<?= urlencode($product['id']) ?>" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="delete_product.php?id=<?= urlencode($product['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+            <table class="table table-bordered dataTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Created At</th>
+                        <th>Image URL</th>
+                        <th>Shop Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($products as $product): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($product['id']) ?></td>
+                            <td><?= htmlspecialchars($product['name']) ?></td>
+                            <td><?= htmlspecialchars($product['category']) ?></td>
+                            <td>₦<?= number_format($product['price'], 2) ?></td>
+                            <td><?= htmlspecialchars($product['stock']) ?></td>
+                            <td><?= htmlspecialchars($product['created_at']) ?></td>
+                            <td><a href="<?= htmlspecialchars($product['image_url']) ?>" target="_blank">View Image</a></td>
+                            <td><?= htmlspecialchars($product['shop_name']) ?></td>
+                            <td>
+                                <a href="admin_edit_product.php?id=<?= urlencode($product['id']) ?>" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="delete_product.php?id=<?= urlencode($product['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         <?php else: ?>
-        <div class="alert alert-info">No products found in this category.</div>
+            <div class="alert alert-info">No products found in this category.</div>
         <?php endif; ?>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

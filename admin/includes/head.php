@@ -123,7 +123,7 @@
             background-color: #dc3545;
             color: white;
         }
-
+        
         @media (max-width: 768px) {
             .sidebar {
                 margin-left: -250px;

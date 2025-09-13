@@ -177,6 +177,13 @@ try {
         </div>
 
         <?php echo $statusMessage; ?>
+        <?php if (!empty($_SESSION['success'])): ?>
+            <div class="alert alert-success"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+        <?php endif; ?>
+
+        <?php if (!empty($_SESSION['error'])): ?>
+            <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
 
         <!-- Stats Cards -->
         <div class="row mb-4">
@@ -216,7 +223,7 @@ try {
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Recent Sellers</h5>
-                        <a href="admin_users.php?role=seller" class="btn btn-sm btn-outline-primary">View All</a>
+                        <a href="admin_sellers.php" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -324,7 +331,7 @@ try {
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Recent Buyers</h5>
-                        <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                        <a href="admin_buyers.php" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
