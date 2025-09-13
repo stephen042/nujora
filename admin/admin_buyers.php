@@ -132,41 +132,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_buyer'])) {
                                         ?>
                                     </td>
                                     <td>
-                                        <a href="edit_buyer.php?id=<?= urlencode($buyer['id']) ?>" class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="edit_buyer.php?id=<?= urlencode($buyer['id']) ?>"
+                                            class="btn btn-sm btn-warning me-1">Edit</a>
 
                                         <?php if ($buyer['approval_status'] == 'pending'): ?>
                                             <form method="POST" action="" style="display:inline;">
                                                 <input type="hidden" name="buyer_id" value="<?= htmlspecialchars($buyer['id']) ?>">
-                                                <button type="submit" name="approve_buyer" class="btn btn-sm btn-success"
+                                                <button type="submit" name="approve_buyer"
+                                                    class="btn btn-sm btn-success me-1"
                                                     onclick="return confirm('Approve this buyer?')">Approve</button>
                                             </form>
                                             <form method="POST" action="" style="display:inline;">
                                                 <input type="hidden" name="buyer_id" value="<?= htmlspecialchars($buyer['id']) ?>">
-                                                <button type="submit" name="reject_buyer" class="btn btn-sm btn-danger"
+                                                <button type="submit" name="reject_buyer"
+                                                    class="btn btn-sm btn-danger me-1"
                                                     onclick="return confirm('Reject this buyer?')">Reject</button>
                                             </form>
                                         <?php elseif ($buyer['approval_status'] == 'approved'): ?>
                                             <form method="POST" action="" style="display:inline;">
                                                 <input type="hidden" name="buyer_id" value="<?= htmlspecialchars($buyer['id']) ?>">
-                                                <button type="submit" name="reject_buyer" class="btn btn-sm btn-danger"
+                                                <button type="submit" name="reject_buyer"
+                                                    class="btn btn-sm btn-danger me-1"
                                                     onclick="return confirm('Reject this buyer?')">Reject</button>
                                             </form>
                                         <?php elseif ($buyer['approval_status'] == 'rejected'): ?>
                                             <form method="POST" action="" style="display:inline;">
                                                 <input type="hidden" name="buyer_id" value="<?= htmlspecialchars($buyer['id']) ?>">
-                                                <button type="submit" name="approve_buyer" class="btn btn-sm btn-success"
+                                                <button type="submit" name="approve_buyer"
+                                                    class="btn btn-sm btn-success me-1"
                                                     onclick="return confirm('Approve this buyer?')">Approve</button>
                                             </form>
                                         <?php endif; ?>
 
                                         <form method="POST" action="" style="display:inline;">
                                             <input type="hidden" name="delete_id" value="<?= htmlspecialchars($buyer['id']) ?>">
-                                            <button type="submit" name="delete_buyer" class="btn btn-sm btn-outline-danger"
+                                            <button type="submit" name="delete_buyer"
+                                                class="btn btn-sm btn-outline-danger"
                                                 onclick="return confirm('Are you sure you want to delete this buyer?')">
                                                 Delete
                                             </button>
                                         </form>
                                     </td>
+
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -180,4 +187,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_buyer'])) {
     <?php include 'includes/script.php'; ?>
 
 </body>
+
 </html>
