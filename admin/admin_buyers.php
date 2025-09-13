@@ -167,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_buyer'])) {
                                         <form method="POST" action="" style="display:inline;">
                                             <input type="hidden" name="delete_id" value="<?= htmlspecialchars($buyer['id']) ?>">
                                             <button type="submit" name="delete_buyer"
-                                                class="btn btn-sm btn-outline-danger mx-1 my-1"
+                                                class="btn btn-sm btn-outline-danger my-2"
                                                 onclick="return confirm('Are you sure you want to delete this buyer?')">
                                                 Delete
                                             </button>
