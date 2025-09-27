@@ -25,7 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sellerId = $_SESSION['user_id'];
 
     // Validate category
-    $validCategoryIds = array_map(fn($c) => $c->id, $categories);
+    $validCategoryIds = [];
+    foreach ($categories as $c) {
+        $validCategoryIds[] = $c->id;
+    }
     if (!in_array($categoryId, $validCategoryIds)) {
         $statusMessage = '<div class="alert alert-danger">Please select a valid category.</div>';
     } else {
