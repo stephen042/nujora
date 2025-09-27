@@ -1,6 +1,5 @@
 <?php
-require 'db.php';
-session_start();
+require '../app/config.php';
 
 // Check if user is logged in and is a buyer with approved but incomplete profile
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'seller' || $_SESSION['is_approved'] != 1 || $_SESSION['profile_complete'] == 1) {

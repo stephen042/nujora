@@ -6,16 +6,16 @@ $stmt = $pdo->prepare("SELECT is_approved, profile_complete FROM users WHERE id 
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (
-    isset($_SESSION['role']) && $_SESSION['role'] === 'seller' &&
-    $user &&
-    $user['is_approved'] == 1 &&
-    $user['profile_complete'] != 1 &&
-    basename($_SERVER['PHP_SELF']) !== 'complete_profile.php'
-) {
-    header('Location: complete_profile.php');
-    exit;
-}
+// if (
+//     isset($_SESSION['role']) && $_SESSION['role'] === 'seller' &&
+//     $user &&
+//     $user['is_approved'] == 1 &&
+//     $user['profile_complete'] != 1 &&
+//     basename($_SERVER['PHP_SELF']) !== 'complete_profile.php'
+// ) {
+//     header('Location: complete_profile.php');
+//     exit;
+// }
 
 
 // Security checks
