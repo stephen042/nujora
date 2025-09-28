@@ -129,6 +129,23 @@ if (!empty($search)) {
       font-family: 'Poppins', sans-serif;
     }
 
+    /* ================= BUTTONS ================= */
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #e65100;
+      border-color: #e65100;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
     /* ================= NAVBAR ================= */
     .navbar-brand {
       font-weight: 700;

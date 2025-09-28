@@ -3,7 +3,7 @@
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
-<nav class="nav nav-pills nav-fill nav-bottom" style="color: #957156 !important;">
+<nav class="nav nav-pills nav-fill nav-bottom">
     <a class="nav-link <?= ($currentPage == 'home.php') ? 'active' : '' ?>" href="home.php">
         <i class="fas fa-home"></i>
         <span>Home</span>
@@ -27,42 +27,66 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 </nav>
 
 <style>
+    :root {
+        --primary-color: #f57c00;
+        /* Bright Orange */
+        --secondary-color: #ef6c00;
+        /* Deep Orange */
+        --accent-color: #ffb74d;
+        /* Soft Yellow-Orange */
+        --light-bg: #fff8f0;
+        /* Warm Light Background */
+        --dark-text: #1e1e1e;
+        /* Darker Text for Better Contrast */
+    }
+
     /* ================= BOTTOM NAV ================= */
     .nav-bottom {
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        background: #fff8f0;
-        /* light background */
-        border-top: 1px solid #ddd;
+        background: var(--light-bg);
+        border-top: 1px solid var(--border-color);
         z-index: 1050;
         display: flex;
         justify-content: space-around;
         align-items: center;
         padding: 0.3rem 0;
+        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
     }
 
     .nav-bottom .nav-link {
         flex: 1;
         text-align: center;
-        color: #957156 !important;
+        color: var(--muted-text);
         font-size: 0.85rem;
         padding: 0.4rem 0;
         display: flex;
         flex-direction: column;
         align-items: center;
-        transition: color 0.3s ease;
+        transition: all 0.3s ease;
     }
 
     .nav-bottom .nav-link i {
         font-size: 1.2rem;
         margin-bottom: 0.2rem;
+        transition: color 0.3s ease, transform 0.3s ease;
     }
 
+    /* Active link */
     .nav-bottom .nav-link.active {
-        color: var(--primary-color) !important;
+        color: var(--primary-color);
         font-weight: 600;
+    }
+
+    /* Hover effect */
+    .nav-bottom .nav-link:hover {
+        color: var(--secondary-color);
+    }
+
+    .nav-bottom .nav-link:hover i {
+        transform: scale(1.2);
     }
 
     /* Mobile adjustments */

@@ -206,6 +206,12 @@ try {
             border-color: #e65100;
         }
 
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+
         /* ================= BADGES ================= */
         .product-badge {
             position: absolute;
