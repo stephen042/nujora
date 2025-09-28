@@ -543,8 +543,8 @@ if (!empty($search)) {
         </div>
       <?php else: ?>
         <?php foreach ($products as $product): ?>
-          <a href="product_details.php?id=<?= $product['id'] ?>" style="text-decoration: none;">
-            <div class="col-6 col-sm-6 col-md-4 col-lg-3 product-card-mobile">
+          <div class="col-6 col-sm-6 col-md-4 col-lg-3 product-card-mobile">
+            <a href="product_details.php?id=<?= $product['id'] ?>" style="text-decoration: none;">
               <div class="card h-100 mobile-rounded">
                 <div class="position-relative">
                   <img src="<?php echo isset($product['image_url']) && $product['image_url']
@@ -599,8 +599,8 @@ if (!empty($search)) {
                   </div>
                 </div>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
         <?php endforeach; ?>
       <?php endif; ?>
     </div>
