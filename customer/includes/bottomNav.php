@@ -27,65 +27,42 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 </nav>
 
 <style>
-    :root {
-        --primary-color: #f57c00;
-        /* Bright Orange */
-        --secondary-color: #ef6c00;
-        /* Deep Orange */
-        --accent-color: #ffb74d;
-        /* Soft Yellow-Orange */
-        --light-bg: #fff8f0;
-        /* Warm Light Background */
-        --dark-text: #1e1e1e;
-    }
-
     /* ================= BOTTOM NAV ================= */
     .nav-bottom {
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        background: var(--light-bg);
-        border-top: 1px solid var(--border-color);
+        background: #fff8f0;
+        /* light background */
+        border-top: 1px solid #ddd;
         z-index: 1050;
         display: flex;
         justify-content: space-around;
         align-items: center;
         padding: 0.3rem 0;
-        box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
     }
 
     .nav-bottom .nav-link {
         flex: 1;
         text-align: center;
-        color: var(--muted-text);
+        color: #957156 !important;
         font-size: 0.85rem;
         padding: 0.4rem 0;
         display: flex;
         flex-direction: column;
         align-items: center;
-        transition: all 0.3s ease;
+        transition: color 0.3s ease;
     }
 
     .nav-bottom .nav-link i {
         font-size: 1.2rem;
         margin-bottom: 0.2rem;
-        transition: color 0.3s ease, transform 0.3s ease;
     }
 
-    /* Active link */
     .nav-bottom .nav-link.active {
-        color: var(--primary-color);
+        color: var(--primary-color) !important;
         font-weight: 600;
-    }
-
-    /* Hover effect */
-    .nav-bottom .nav-link:hover {
-        color: var(--secondary-color);
-    }
-
-    .nav-bottom .nav-link:hover i {
-        transform: scale(1.2);
     }
 
     /* Mobile adjustments */
