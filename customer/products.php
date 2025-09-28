@@ -120,11 +120,13 @@ try {
             font-family: 'Poppins', sans-serif;
         }
 
+        /* ================= NAVBAR ================= */
         .navbar-brand {
             font-weight: 700;
             color: var(--primary-color);
         }
 
+        /* ================= HERO ================= */
         .hero-section {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
@@ -133,13 +135,14 @@ try {
             border-radius: 0 0 20px 20px;
         }
 
+        /* ================= PRODUCT CARD ================= */
         .card {
             border: none;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
             display: flex;
             flex-direction: column;
         }
@@ -153,17 +156,18 @@ try {
             display: flex;
             flex-direction: column;
             flex-grow: 1;
+            padding: 1rem;
         }
 
         .card-body .btn-container {
             margin-top: auto;
-            padding-top: 1rem;
+            padding-top: 0.8rem;
         }
 
         .product-img {
             width: 100%;
             height: 320px;
-            object-fit: cover;
+            object-fit: contain;
             border-radius: 12px 12px 0 0;
             transition: transform 0.3s ease;
         }
@@ -172,6 +176,25 @@ try {
             transform: scale(1.05);
         }
 
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.6rem;
+        }
+
+        /* ================= BUTTONS ================= */
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
@@ -183,60 +206,7 @@ try {
             border-color: #e65100;
         }
 
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-outline-primary:hover {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .section-title {
-            position: relative;
-            padding-bottom: 10px;
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
-
-        .section-title:after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 50px;
-            height: 3px;
-            background: var(--accent-color);
-        }
-
-        .nav-bottom {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: white;
-            border-top: 1px solid #dee2e6;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-
-        .nav-bottom .nav-link {
-            padding: 12px 0;
-            font-size: 0.8rem;
-            color: #6c757d;
-        }
-
-        .nav-bottom .nav-link.active {
-            color: var(--accent-color);
-        }
-
-        .nav-bottom .nav-link i {
-            display: block;
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-        }
-
+        /* ================= BADGES ================= */
         .product-badge {
             position: absolute;
             top: 10px;
@@ -258,7 +228,7 @@ try {
             background-color: #dc3545 !important;
         }
 
-        /* Mobile Responsive Styles */
+        /* ================= MOBILE OPTIMIZATION ================= */
         @media (max-width: 576px) {
             .container {
                 padding-left: 8px !important;
@@ -282,28 +252,23 @@ try {
             }
 
             .card-body {
-                padding: 0.75rem 0.5rem;
+                padding: 0.6rem;
             }
 
             .card-title {
                 font-size: 0.8rem !important;
                 line-height: 1.2;
-                margin-bottom: 0.5rem;
-                display: -webkit-box;
+                margin-bottom: 0.3rem;
                 -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
             }
 
             .card-text {
-                font-size: 0.85rem;
-                margin-bottom: 0.5rem !important;
-                font-weight: 600;
-                color: var(--primary-color);
+                font-size: 0.8rem !important;
+                margin-bottom: 0.4rem !important;
             }
 
             .product-img {
-                height: 140px !important;
+                height: 160px !important;
                 border-radius: 8px 8px 0 0;
             }
 
@@ -320,65 +285,18 @@ try {
                 border-radius: 4px;
             }
 
-            .card-body .btn-container {
-                padding-top: 0.5rem;
-            }
-
-            /* Filter form mobile optimization */
-            .filter-form-mobile {
-                background: white;
-                padding: 1rem;
-                border-radius: 10px;
-                margin-bottom: 1rem;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-
-            .filter-form-mobile .form-label {
-                font-size: 0.8rem;
-                font-weight: 600;
-                margin-bottom: 0.3rem;
-            }
-
-            .filter-form-mobile .form-control,
-            .filter-form-mobile .form-select {
-                font-size: 0.85rem;
-                padding: 0.5rem;
-            }
-
-            .section-title {
-                font-size: 1.1rem;
-                margin-bottom: 15px;
-            }
-
-            /* Search form mobile */
-            .search-form-mobile {
-                max-width: 100% !important;
-                margin: 1rem 0;
-            }
-
-            .search-form-mobile input {
-                font-size: 16px;
-                /* Prevents zoom on iOS */
-            }
-
-            /* Rating stars mobile */
             .rating-mobile {
                 font-size: 0.7rem;
                 margin: 0.3rem 0;
             }
 
             .rating-mobile span {
-                font-size: 0.8rem !important;
+                font-size: 0.75rem !important;
             }
         }
 
-        /* Small mobile devices */
+        /* ================= EXTRA SMALL MOBILE ================= */
         @media (max-width: 400px) {
-            .container {
-                padding-left: 5px !important;
-                padding-right: 5px !important;
-            }
-
             .col-6 {
                 padding-left: 2px !important;
                 padding-right: 2px !important;
@@ -393,11 +311,11 @@ try {
             }
 
             .product-img {
-                height: 120px !important;
+                height: 130px !important;
             }
         }
 
-        /* Tablet optimization */
+        /* ================= TABLET OPTIMIZATION ================= */
         @media (min-width: 577px) and (max-width: 768px) {
             .col-6 {
                 max-width: 33.333333% !important;
@@ -405,6 +323,51 @@ try {
 
             .product-img {
                 height: 200px !important;
+            }
+        }
+
+        /* ================= DESKTOP OPTIMIZATION ================= */
+        @media (min-width: 769px) {
+            .product-img {
+                height: 220px !important;
+                object-fit: contain;
+            }
+
+            .card-title {
+                font-size: 1rem !important;
+                line-height: 1.3;
+                height: 2.6em;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+
+            .card-text {
+                font-size: 0.9rem !important;
+                margin-bottom: 0.5rem;
+            }
+
+            .rating-mobile {
+                font-size: 0.8rem;
+                margin-bottom: 0.4rem;
+            }
+
+            .btn-sm {
+                font-size: 0.85rem;
+                padding: 0.35rem 0.75rem;
+            }
+        }
+
+        /* ================= EXTRA LARGE SCREENS ================= */
+        @media (min-width: 1200px) {
+            .product-img {
+                height: 240px !important;
+            }
+
+            .card-title {
+                font-size: 1.05rem !important;
             }
         }
     </style>
@@ -492,14 +455,14 @@ try {
         </form>
 
         <!-- Results Info -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3 my-4">
             <h4 class="section-title mb-0">
                 <?php if ($search): ?>
                     Search Results for "<?= htmlspecialchars($search) ?>"
                 <?php elseif ($category): ?>
                     <?= htmlspecialchars($category) ?> Products
                 <?php else: ?>
-                    All Products
+                    All Products in Store
                 <?php endif; ?>
             </h4>
             <small class="text-muted">
@@ -536,7 +499,8 @@ try {
                                 <?php endif; ?>
                             </div>
 
-                            <div class="card-body">
+                            <div class="card-body d-flex flex-column">
+                                <!-- Product details -->
                                 <div class="card-content">
                                     <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
                                     <p class="card-text">₦<?= number_format($product['price'], 2) ?></p>
@@ -552,32 +516,27 @@ try {
                                         ?>
                                         <div class="d-flex align-items-center">
                                             <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                <?php if ($i <= floor($avg_rating)): ?>
-                                                    <span style="color: gold;">&#9733;</span>
-                                                <?php else: ?>
-                                                    <span style="color: #ccc;">&#9733;</span>
-                                                <?php endif; ?>
+                                                <span style="color: <?= $i <= floor($avg_rating) ? 'gold' : '#ccc' ?>;">&#9733;</span>
                                             <?php endfor; ?>
                                             <small class="ms-1">(<?= $avg_rating ?>)</small>
                                         </div>
                                     </div>
 
                                     <!-- Shop name -->
-                                    <small class="text-muted">
+                                    <small class="text-muted d-block">
                                         <i class="fas fa-store me-1"></i>
                                         <?= htmlspecialchars($product['shop_name']) ?>
                                     </small>
                                 </div>
 
                                 <!-- Button container -->
-                                <div class="btn-container">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <a href="product_details.php?id=<?= $product['id'] ?>" class="btn btn-primary btn-sm flex-grow-1">
-                                            <i class="fas fa-eye me-1 d-none d-md-inline"></i>
-                                            <span class="d-md-none">View</span>
-                                            <span class="d-none d-md-inline">View Details</span>
-                                        </a>
-                                    </div>
+                                <div class="btn-container mt-auto">
+                                    <a href="product_details.php?id=<?= $product['id'] ?>"
+                                        class="btn btn-primary btn-sm w-100">
+                                        <i class="fas fa-eye me-1 d-none d-md-inline"></i>
+                                        <span class="d-md-none">View</span>
+                                        <span class="d-none d-md-inline">View Details</span>
+                                    </a>
                                 </div>
                             </div>
                         </div>

@@ -101,135 +101,211 @@ if (!empty($search)) {
   <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --primary-color: #f57c00;
-      /* Bright Orange */
-      --secondary-color: #ef6c00;
-      /* Deep Orange */
-      --accent-color: #ffb74d;
-      /* Soft Yellow-Orange */
-      --light-bg: #fff8f0;
-      /* Warm Light Background */
-      --dark-text: #1e1e1e;
-      /* Darker Text for Better Contrast */
-    }
+<style>
+  :root {
+    --primary-color: #f57c00; /* Bright Orange */
+    --secondary-color: #ef6c00; /* Deep Orange */
+    --accent-color: #ffb74d; /* Soft Yellow-Orange */
+    --light-bg: #fff8f0; /* Warm Light Background */
+    --dark-text: #1e1e1e; /* Darker Text for Better Contrast */
+  }
 
-    body {
-      font-family: 'Open Sans', sans-serif;
-      background-color: var(--light-bg);
-      color: var(--dark-text);
-      padding-bottom: 60px;
-    }
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: var(--light-bg);
+    color: var(--dark-text);
+    padding-bottom: 60px;
+  }
 
-    h1,
-    h2,
-    h3,
-    h4 {
-      font-family: 'Poppins', sans-serif;
-    }
+  h1, h2, h3, h4 {
+    font-family: 'Poppins', sans-serif;
+  }
 
-    /* ================= NAVBAR ================= */
-    .navbar-brand {
-      font-weight: 700;
-      color: var(--primary-color);
-    }
+  /* ================= NAVBAR ================= */
+  .navbar-brand {
+    font-weight: 700;
+    color: var(--primary-color);
+  }
 
-    .navbar-nav .nav-link.active {
-      border-bottom: 2px solid var(--primary-color);
-      color: var(--primary-color) !important;
-      font-weight: 600;
-    }
+  .navbar-nav .nav-link.active {
+    border-bottom: 2px solid var(--primary-color);
+    color: var(--primary-color) !important;
+    font-weight: 600;
+  }
 
-    /* ================= HERO CAROUSEL ================= */
-    .hero-section {
-      /* height: 600px; */
-      margin-bottom: 2rem;
-      border-radius: 0 0 20px 20px;
-      overflow: hidden;
-    }
+  /* ================= HERO CAROUSEL ================= */
+  .hero-section {
+    margin-bottom: 2rem;
+    border-radius: 0 0 20px 20px;
+    overflow: hidden;
+  }
 
+  .hero-section .carousel-item {
+    height: 500px; /* Full height for desktop */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+
+  .hero-section .carousel-item .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+    padding: 0 1rem;
+  }
+
+  /* ================= CARDS ================= */
+  .card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .product-img {
+    width: 100%;
+    height: 320px;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .product-img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  /* ================= CATEGORIES ================= */
+  .category-card {
+    width: 140px;
+    min-height: 150px;
+    text-align: center;
+    padding: 16px 10px;
+    border-radius: 10px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .category-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .category-icon img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+  }
+
+  .category-card h6 {
+    font-size: 0.8rem;
+    line-height: 1.2;
+    height: 2.4em; /* 2 lines */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* ================= SCROLL BUTTONS ================= */
+  .scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    border: none;
+    font-size: 18px;
+    z-index: 10;
+    cursor: pointer;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scroll-left {
+    left: -14px;
+  }
+
+  .scroll-right {
+    right: -14px;
+  }
+
+  /* ================= SECTION TITLES ================= */
+  .section-title {
+    position: relative;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-weight: 600;
+  }
+
+  .section-title:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50px;
+    height: 3px;
+    background: var(--accent-color);
+  }
+
+  /* ================= MOBILE ================= */
+  @media (max-width: 576px) {
     .hero-section .carousel-item {
-      height: 500px;
-      /* Full height for desktop */
-      background-size: cover;
-      background-position: center;
-      position: relative;
+      height: 300px; /* smaller height for mobile */
     }
 
-    .hero-section .carousel-item .overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      color: #fff;
-      padding: 0 1rem;
-    }
-
-    /* ================= CARDS ================= */
-    .card {
-      border: none;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      margin-bottom: 1.5rem;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    }
-
-    .product-img {
-      width: 100%;
-      height: 320px;
-      object-fit: contain;
-      border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .product-img:hover {
-      transform: scale(1.1);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    /* ================= CATEGORIES ================= */
     .category-card {
-      width: 140px;
-      min-height: 150px;
-      text-align: center;
-      padding: 16px 10px;
-      border-radius: 10px;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: transform 0.3s;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .category-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .category-icon img {
-      width: 70px;
-      height: 70px;
-      object-fit: contain;
+      width: 100px !important;
+      padding: 12px 8px;
+      margin-right: 12px;
     }
 
     .category-card h6 {
-      font-size: 0.8rem;
+      font-size: 0.7rem;
+    }
+
+    .scroll-btn {
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+    }
+
+    /* ==== PRODUCT CARD MOBILE FIX ==== */
+    .product-img {
+      height: 180px !important; /* smaller image for mobile */
+    }
+
+    .card-body {
+      padding: 0.5rem !important;
+    }
+
+    .card-title {
+      font-size: 0.85rem !important;
       line-height: 1.2;
-      height: 2.4em;
-      /* 2 lines */
+      height: 2.4em; /* limit to 2 lines */
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
@@ -237,75 +313,55 @@ if (!empty($search)) {
       -webkit-box-orient: vertical;
     }
 
-    /* ================= SCROLL BUTTONS ================= */
-    .scroll-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: white;
-      border: none;
-      font-size: 18px;
-      z-index: 10;
-      cursor: pointer;
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .card-text {
+      font-size: 0.85rem !important;
     }
 
-    .scroll-left {
-      left: -14px;
+    .btn-sm {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
     }
 
-    .scroll-right {
-      right: -14px;
+    .card {
+      margin-bottom: 0.75rem;
+    }
+  }
+
+  /* ================= DESKTOP ================= */
+  @media (min-width: 768px) {
+    .product-img {
+      height: 200px !important; /* was 320px */
+      object-fit: contain;
     }
 
-    /* ================= SECTION TITLES ================= */
-    .section-title {
-      position: relative;
-      padding-bottom: 10px;
-      margin-bottom: 25px;
-      font-weight: 600;
+    .card-title {
+      font-size: 1rem !important;
+      line-height: 1.3;
+      height: 2.6em; /* ~2 lines */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
 
-    .section-title:after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 50px;
-      height: 3px;
-      background: var(--accent-color);
+    .card-text {
+      font-size: 0.9rem !important;
     }
 
-    /* ================= MOBILE ================= */
-    @media (max-width: 576px) {
-      .hero-section .carousel-item {
-        height: 300px;
-        /* smaller height for mobile */
-      }
-
-      .category-card {
-        width: 100px !important;
-        padding: 12px 8px;
-        margin-right: 12px;
-      }
-
-      .category-card h6 {
-        font-size: 0.7rem;
-      }
-
-      .scroll-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 14px;
-      }
+    .btn-sm {
+      font-size: 0.85rem;
+      padding: 0.35rem 0.75rem;
     }
-  </style>
+  }
+
+  /* ================= LARGE DESKTOP ================= */
+  @media (min-width: 1200px) {
+    .product-img {
+      height: 220px !important; /* slightly larger for wide screens */
+    }
+  }
+</style>
 
 </head>
 
@@ -425,7 +481,7 @@ if (!empty($search)) {
       <section class="mb-5 position-relative">
         <h4 class="section-title mb-3">Featured Goods</h4>
         <div class="category-scroll-wrapper overflow-hidden position-relative">
-          <div id="featuredGoods" class="d-flex flex-row flex-nowrap gap-3 px-2">
+          <div id="featuredGoods" class="d-flex flex-row flex-nowrap gap-3 px-4 py-2 overflow-auto" style="scroll-behavior: smooth;">
             <?php foreach ($featured_products as $product): ?>
               <div class="card" style="min-width: 180px; max-width: 200px;">
                 <img src="<?php echo isset($product['image_url']) && $product['image_url']
@@ -456,7 +512,8 @@ if (!empty($search)) {
 
     <!-- Featured Products -->
     <h4 class="section-title">
-      <a href="products.php" class="text-decoration-none">View All Products <i class="fas fa-chevron-right"></i><i class="fas fa-chevron-right"></i>
+      <a href="products.php" class="text-decoration-none">
+        <span class="section-title mb-3">View All Products</span>
       </a>
     </h4>
 
@@ -479,9 +536,13 @@ if (!empty($search)) {
 
                 <!-- Stock badge -->
                 <?php if ($product['stock'] > 0): ?>
-                  <span class="product-badge bg-success">In Stock</span>
+                  <span style="position: absolute; top: 10px; left: 10px; background: #28a745; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; z-index: 2; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                    In Stock
+                  </span>
                 <?php else: ?>
-                  <span class="product-badge bg-danger">Out of Stock</span>
+                  <span style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; z-index: 2; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+                    Out of Stock
+                  </span>
                 <?php endif; ?>
               </div>
 
@@ -527,8 +588,6 @@ if (!empty($search)) {
     <div class="text-center">
       <a href="products.php" class="btn btn-outline-primary mobile-p-2" style="width: 95%; max-width: 400px;">
         View All Products
-        <i class="fas fa-chevron-right"></i>
-        <i class="fas fa-chevron-right"></i>
       </a>
     </div>
 
