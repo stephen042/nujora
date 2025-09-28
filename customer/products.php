@@ -380,7 +380,7 @@ try {
     <!-- Main Content -->
     <div class="container">
         <!-- Search Bar -->
-        <form class="d-flex mx-auto search-form-mobile" style="max-width: 600px;" action="products.php" method="GET">
+        <form class="d-flex mx-auto search-form-mobile my-3" style="max-width: 600px;" action="products.php" method="GET">
             <input
                 class="form-control form-control-lg me-2"
                 type="search"
@@ -395,7 +395,7 @@ try {
         </form>
 
         <!-- Filter Form -->
-        <form method="GET" class="filter-form-mobile">
+        <form method="GET" class="filter-form-mobile px-2">
             <div class="row g-3 align-items-end">
                 <!-- Preserve search query -->
                 <?php if ($search): ?>
