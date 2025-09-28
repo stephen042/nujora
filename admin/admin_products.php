@@ -35,6 +35,21 @@ try {
 } catch (PDOException $e) {
     die("Error fetching products: " . $e->getMessage());
 }
+if (isset($_POST['product_action'])) {
+    // Handle product actions (feature/delete)
+    $product_id = (int)$_POST['product_id'];
+    $action = $_POST['product_action'];
+
+    try {
+        if ($action === 'feature') {
+            $stmt = $pdo->prepare("UPDATE products SET is_featured = NOT is_featured WHERE id = ?");
+            $stmt->execute([$product_id]);
+            $_SESSION['success'] = "Product feature status updated.";
+        }
+    } catch (PDOException $e) {
+        $_SESSION['error'] = " Error updating product: " . $e->getMessage();
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -51,11 +66,13 @@ try {
 <body>
     <div class="container mt-4">
         <?php if (!empty($_SESSION['success'])): ?>
-            <div class="alert alert-success"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+            <div class="alert alert-success"><?= $_SESSION['success'];
+                                                unset($_SESSION['success']); ?></div>
         <?php endif; ?>
 
         <?php if (!empty($_SESSION['error'])): ?>
-            <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+            <div class="alert alert-danger"><?= $_SESSION['error'];
+                                            unset($_SESSION['error']); ?></div>
         <?php endif; ?>
 
         <!-- Back to Admin Dashboard -->
@@ -102,23 +119,37 @@ try {
                         <th>Price</th>
                         <th>Stock</th>
                         <th>Created At</th>
-                        <th>Image URL</th>
+                        <th>Image</th>
                         <th>Shop Name</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <?php
+                    $i = 1; // initialize counter
+                    ?>
                     <?php foreach ($products as $product): ?>
                         <tr>
-                            <td><?= htmlspecialchars($product['id']) ?></td>
+                            <td><?= $i++ ?></td>
                             <td><?= htmlspecialchars($product['name']) ?></td>
                             <td><?= htmlspecialchars($product['category']) ?></td>
                             <td>₦<?= number_format($product['price'], 2) ?></td>
                             <td><?= htmlspecialchars($product['stock']) ?></td>
                             <td><?= htmlspecialchars($product['created_at']) ?></td>
-                            <td><a href="<?= htmlspecialchars($product['image_url']) ?>" target="_blank">View Image</a></td>
-                            <td><?= htmlspecialchars($product['shop_name']) ?></td>
                             <td>
+                                <a href="<?= htmlspecialchars($product['image_url']) ?>" target="_blank">
+                                    <img src="<?= htmlspecialchars($product['image_url']) ?>" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;" alt="">
+                                </a>
+                            </td>
+                            <td><?= htmlspecialchars($product['shop_name']) ?></td>
+                            <td class="d-flex gap-2">
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                                    <input type="hidden" name="product_action" value="feature">
+                                    <button type="submit" class="btn btn-sm <?= $product['is_featured'] ? 'btn-warning' : 'btn-outline-primary' ?>">
+                                        <?= $product['is_featured'] ? 'Unfeature' : 'Feature' ?>
+                                    </button>
+                                </form>
                                 <a href="admin_edit_product.php?id=<?= urlencode($product['id']) ?>" class="btn btn-sm btn-warning">Edit</a>
                                 <a href="delete_product.php?id=<?= urlencode($product['id']) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this product?')">Delete</a>
                             </td>
