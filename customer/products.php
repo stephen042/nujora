@@ -483,63 +483,65 @@ try {
             <?php else: ?>
                 <?php foreach ($products as $product): ?>
                     <div class="col-6 col-sm-6 col-md-4 col-lg-3">
-                        <div class="card h-100">
-                            <div class="position-relative">
-                                <img src="<?php echo isset($product['image_url']) && $product['image_url']
-                                                ? "../" . htmlspecialchars($product['image_url'])
-                                                : "../uploads/default-product.png"; ?>"
-                                    class="product-img"
-                                    alt="<?= htmlspecialchars($product['name']) ?>">
+                        <a href="product_details.php?id=<?= $product['id'] ?>" style="text-decoration: none;">
+                            <div class="card h-100">
+                                <div class="position-relative">
+                                    <img src="<?php echo isset($product['image_url']) && $product['image_url']
+                                                    ? "../" . htmlspecialchars($product['image_url'])
+                                                    : "../uploads/default-product.png"; ?>"
+                                        class="product-img"
+                                        alt="<?= htmlspecialchars($product['name']) ?>">
 
-                                <!-- Stock badge -->
-                                <?php if ($product['stock'] > 0): ?>
-                                    <span class="product-badge bg-success">In Stock</span>
-                                <?php else: ?>
-                                    <span class="product-badge bg-danger">Out of Stock</span>
-                                <?php endif; ?>
-                            </div>
+                                    <!-- Stock badge -->
+                                    <?php if ($product['stock'] > 0): ?>
+                                        <span class="product-badge bg-success">In Stock</span>
+                                    <?php else: ?>
+                                        <span class="product-badge bg-danger">Out of Stock</span>
+                                    <?php endif; ?>
+                                </div>
 
-                            <div class="card-body d-flex flex-column">
-                                <!-- Product details -->
-                                <div class="card-content">
-                                    <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
-                                    <p class="card-text">₦<?= number_format($product['price'], 2) ?></p>
+                                <div class="card-body d-flex flex-column">
+                                    <!-- Product details -->
+                                    <div class="card-content">
+                                        <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
+                                        <p class="card-text">₦<?= number_format($product['price'], 2) ?></p>
 
-                                    <!-- Rating stars -->
-                                    <div class="rating-mobile">
-                                        <?php
-                                        $avg_rating = 0;
-                                        if (!empty($grouped_reviews[$product['id']])) {
-                                            $ratings = array_column($grouped_reviews[$product['id']], 'rating');
-                                            $avg_rating = round(array_sum($ratings) / count($ratings), 1);
-                                        }
-                                        ?>
-                                        <div class="d-flex align-items-center">
-                                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                <span style="color: <?= $i <= floor($avg_rating) ? 'gold' : '#ccc' ?>;">&#9733;</span>
-                                            <?php endfor; ?>
-                                            <small class="ms-1">(<?= $avg_rating ?>)</small>
+                                        <!-- Rating stars -->
+                                        <div class="rating-mobile">
+                                            <?php
+                                            $avg_rating = 0;
+                                            if (!empty($grouped_reviews[$product['id']])) {
+                                                $ratings = array_column($grouped_reviews[$product['id']], 'rating');
+                                                $avg_rating = round(array_sum($ratings) / count($ratings), 1);
+                                            }
+                                            ?>
+                                            <div class="d-flex align-items-center">
+                                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                    <span style="color: <?= $i <= floor($avg_rating) ? 'gold' : '#ccc' ?>;">&#9733;</span>
+                                                <?php endfor; ?>
+                                                <small class="ms-1">(<?= $avg_rating ?>)</small>
+                                            </div>
                                         </div>
+
+                                        <!-- Shop name -->
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-store me-1"></i>
+                                            <?= htmlspecialchars($product['shop_name']) ?>
+                                        </small>
                                     </div>
 
-                                    <!-- Shop name -->
-                                    <small class="text-muted d-block">
-                                        <i class="fas fa-store me-1"></i>
-                                        <?= htmlspecialchars($product['shop_name']) ?>
-                                    </small>
-                                </div>
-
-                                <!-- Button container -->
-                                <div class="btn-container mt-auto">
-                                    <a href="product_details.php?id=<?= $product['id'] ?>"
-                                        class="btn btn-primary btn-sm w-100">
-                                        <i class="fas fa-eye me-1 d-none d-md-inline"></i>
-                                        <span class="d-md-none">View</span>
-                                        <span class="d-none d-md-inline">View Details</span>
-                                    </a>
+                                    <!-- Button container -->
+                                    <div class="btn-container mt-auto">
+                                        <a href="product_details.php?id=<?= $product['id'] ?>"
+                                            class="btn btn-primary btn-sm w-100">
+                                            <i class="fas fa-eye me-1 d-none d-md-inline"></i>
+                                            <span class="d-md-none">View</span>
+                                            <span class="d-none d-md-inline">View Details</span>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
