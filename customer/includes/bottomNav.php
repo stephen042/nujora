@@ -37,7 +37,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         --light-bg: #fff8f0;
         /* Warm Light Background */
         --dark-text: #1e1e1e;
-        /* Darker Text for Better Contrast */
     }
 
     /* ================= BOTTOM NAV ================= */
