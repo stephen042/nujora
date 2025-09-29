@@ -272,11 +272,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                 }
 
                 // STEP 6: Insert transaction record
-                $payment_method_db = match ($payment_method) {
-                    'pay_with_transfer' => 'bank_transfer',
-                    'pay_with_card'     => 'card',
-                    default             => 'wallet',
-                };
+                $payment_method_db = '';
+                if ($payment_method === 'pay_with_transfer') {
+                    $payment_method_db = 'bank_transfer';
+                } elseif ($payment_method === 'pay_with_card') {
+                    $payment_method_db = 'card';
+                } else {
+                    $payment_method_db = 'wallet';
+                }
 
                 $stmt = $pdo->prepare("
                     INSERT INTO transactions (
