@@ -1,7 +1,7 @@
 <?php
 // You can include your header here if you have one, e.g.:
-// include 'includes/header.php';
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,8 +9,8 @@ require '../app/config.php';
 <head>
   <meta charset="UTF-8">
   <title>Return Policy | <?= APP_NAME ?></title>
-  <link rel="icon" type="image/png" href="../uploads/default-product.png">
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="icon" type="image/png" href="uploads/default-product.png">
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>

@@ -1,5 +1,6 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 // Get product details
 $product_id = $_GET['id'] ?? null;
@@ -79,8 +80,8 @@ $badge_class = strtolower(str_replace(' ', '-', $seller_badge['label']));
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= htmlspecialchars($product['name']) ?> | <?= APP_NAME ?></title>
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="icon" type="image/png" href="../uploads/default-product.png">
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="icon" type="image/png" href="uploads/default-product.png">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
@@ -473,7 +474,7 @@ $badge_class = strtolower(str_replace(' ', '-', $seller_badge['label']));
             </ul>
           </div>
         <?php else: ?>
-          <a href="../auth/login.php" class="btn btn-outline-primary">
+          <a href="auth/login.php" class="btn btn-outline-primary">
             <i class="fas fa-sign-in-alt me-1"></i> Login
           </a>
         <?php endif; ?>
@@ -487,7 +488,7 @@ $badge_class = strtolower(str_replace(' ', '-', $seller_badge['label']));
       <!-- Product Gallery -->
       <div class="col-lg-6">
         <div class="product-gallery">
-          <img src="../<?= htmlspecialchars($product['image_url']) ?? "../uploads/default-product.png" ?>"
+          <img src="<?= htmlspecialchars($product['image_url']) ?? "uploads/default-product.png" ?>"
             class="main-image"
             alt="<?= htmlspecialchars($product['name']) ?>"
             id="mainImage">
@@ -499,7 +500,7 @@ $badge_class = strtolower(str_replace(' ', '-', $seller_badge['label']));
               $product_images = [$product['image_url']];
             }
             foreach ($product_images as $image): ?>
-              <img src="../<?= htmlspecialchars($image) ?? "../uploads/default-product.png" ?>"
+              <img src="<?= htmlspecialchars($image) ?? "uploads/default-product.png" ?>"
                 class="thumbnail"
                 alt="Thumbnail"
                 onclick="document.getElementById('mainImage').src = this.src"
@@ -515,7 +516,7 @@ $badge_class = strtolower(str_replace(' ', '-', $seller_badge['label']));
           <h1 class="product-title"><?= htmlspecialchars($product['name']) ?></h1>
 
           <div class="product-seller">
-            <img src="<?= htmlspecialchars($product['shop_logo'] ?? "../uploads/default-product.png") ?>"
+            <img src="<?= htmlspecialchars($product['shop_logo'] ?? "uploads/default-product.png") ?>"
               class="seller-logo"
               alt="<?= htmlspecialchars($product['shop_name']) ?>">
             <span class="seller-name me-2"><?= htmlspecialchars($product['shop_name']) ?></span>
@@ -634,7 +635,7 @@ $badge_class = strtolower(str_replace(' ', '-', $seller_badge['label']));
             <div class="col-6 col-md-4 col-lg-3">
               <a href="product_details.php?id=<?= $related['id'] ?>" class="text-decoration-none">
                 <div class="related-product-card">
-                  <img src="../<?= htmlspecialchars($related['image_url']) ?? "../uploads/default-product.png" ?>"
+                  <img src="<?= htmlspecialchars($related['image_url']) ?? "uploads/default-product.png" ?>"
                     class="related-product-img"
                     alt="<?= htmlspecialchars($related['name']) ?>">
                   <div class="related-product-info">

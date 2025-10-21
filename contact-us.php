@@ -1,5 +1,6 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 include 'includes/nav.php';
 ?>
 <!DOCTYPE html>
@@ -9,8 +10,8 @@ include 'includes/nav.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us | <?= APP_NAME ?></title>
-    <link rel="icon" type="image/png" href="../uploads/default-product.png">
-    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="uploads/default-product.png">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {

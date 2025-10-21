@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
     <div class="container d-flex justify-content-between align-items-center flex-nowrap">
-        <?php include '../app/logo.php'; ?>
+        <?php include 'app/logo.php'; ?>
         <div class="d-flex align-items-center flex-shrink-0" style="gap: 0.5rem;">
             <a href="cart.php"
                 class="btn btn-outline-secondary position-relative me-2 py-1 px-2 px-sm-3"
@@ -25,11 +25,11 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item text-danger" href="../auth/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        <li><a class="dropdown-item text-danger" href="auth/logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                     </ul>
                 </div>
             <?php else: ?>
-                <a href="../auth/login.php"
+                <a href="auth/login.php"
                     class="btn btn-outline-secondary d-inline-flex align-items-center gap-1 px-3 py-1 rounded-pill shadow-sm border-1"
                     style="font-size: 0.85rem;">
                     <i class="fas fa-sign-in-alt"></i>

@@ -1,5 +1,6 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 $cart_id = $_POST['cart_id'] ?? null;
 

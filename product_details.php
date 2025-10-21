@@ -1,5 +1,6 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 // Fetch product details
 $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -65,9 +66,9 @@ try {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= htmlspecialchars($product['name']) ?> | <?= APP_NAME ?></title>
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="../uploads/default-product.png">
+  <link rel="icon" type="image/png" href="uploads/default-product.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -304,7 +305,7 @@ try {
               <span class="product-badge bg-danger">Out of Stock</span>
             <?php endif; ?>
 
-            <img id="mainImage" src="../<?= htmlspecialchars($product['image_url']) ?? "../uploads/default-product.png" ?>" class="main-image w-100" alt="<?= htmlspecialchars($product['name']) ?>">
+            <img id="mainImage" src="<?= htmlspecialchars($product['image_url']) ?? "uploads/default-product.png" ?>" class="main-image w-100" alt="<?= htmlspecialchars($product['name']) ?>">
 
             <div class="thumbnail-container">
               <?php
@@ -323,7 +324,7 @@ try {
               } else {
                 // Fallback if no images
                 ?>
-                <img src="../uploads/default-product.png"
+                <img src="uploads/default-product.png"
                   class="thumbnail active"
                   onclick="changeImage(this)">
               <?php
@@ -445,7 +446,7 @@ try {
   <div class="card mb-4 p-3 seller-card">
     <div class="row align-items-center">
       <div class="col-md-2 text-center">
-        <img src="../uploads/default-product.png" class="rounded-circle" width="80" height="80">
+        <img src="uploads/default-product.png" class="rounded-circle" width="80" height="80">
       </div>
       <div class="col-md-6">
         <h5 class="mb-1"><?= htmlspecialchars($product['shop_name']) ?></h5>
@@ -659,7 +660,7 @@ try {
     <?php foreach ($related_products as $related): ?>
       <div class="col-md-3 mb-4">
         <div class="card h-100">
-          <img src="../<?= htmlspecialchars($related['image_url']) ?? "../uploads/default-product.png" ?>" class="card-img-top" alt="<?= htmlspecialchars($related['name']) ?>" style="height: 200px; object-fit: contain;">
+          <img src="<?= htmlspecialchars($related['image_url']) ?? "uploads/default-product.png" ?>" class="card-img-top" alt="<?= htmlspecialchars($related['name']) ?>" style="height: 200px; object-fit: contain;">
           <div class="card-body">
             <h6 class="card-title"><?= htmlspecialchars($related['name']) ?></h6>
             <div class="d-flex justify-content-between align-items-center">

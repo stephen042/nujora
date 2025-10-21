@@ -1,5 +1,6 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 // Authentication check - built directly into this file
 if (!isset($_SESSION['user_id'])) {
@@ -96,7 +97,7 @@ function getSellerBadge($avg_rating)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seller Marketplace | <?= APP_NAME ?></title>
-    <link rel="icon" type="image/png" href="../uploads/default-product.png">
+    <link rel="icon" type="image/png" href="uploads/default-product.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -302,7 +303,7 @@ function getSellerBadge($avg_rating)
                     <div class="col-md-6 col-lg-4 py-3">
                         <div class="seller-card card h-100">
                             <div class="card-body text-center">
-                                <img src="<?= htmlspecialchars($seller['shop_logo'] ?? '../uploads/default-product.png') ?>"
+                                <img src="<?= htmlspecialchars($seller['shop_logo'] ?? 'uploads/default-product.png') ?>"
                                     alt="<?= htmlspecialchars($seller['shop_name']) ?>"
                                     class="seller-logo mb-3">
                                 <h5 class="card-title mb-1"><?= htmlspecialchars($seller['shop_name']) ?></h5>

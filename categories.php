@@ -1,5 +1,6 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 // Fetch all categories with product counts
 try {
@@ -46,8 +47,8 @@ function getSellerBadge($avg_rating)
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Categories | <?= APP_NAME ?></title>
-  <link rel="icon" type="image/png" href="../uploads/default-product.png">
-  <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="icon" type="image/png" href="uploads/default-product.png">
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* All your existing styles from homepage */
@@ -155,7 +156,7 @@ function getSellerBadge($avg_rating)
             </ul>
           </div>
         <?php else: ?>
-          <a href="../auth/login.php" class="btn btn-outline-primary">
+          <a href="auth/login.php" class="btn btn-outline-primary">
             <i class="fas fa-sign-in-alt me-1"></i> Login
           </a>
         <?php endif; ?>
@@ -197,7 +198,7 @@ function getSellerBadge($avg_rating)
         <div class="col-6 col-md-4 col-lg-3">
           <div class="card h-100">
             <div class="position-relative">
-              <img src="../uploads<?= htmlspecialchars($category['image_url'] ?? '../uploads/default-product.png' . urlencode($category['name'])) ?>"
+              <img src="uploads<?= htmlspecialchars($category['image_url'] ?? 'uploads/default-product.png' . urlencode($category['name'])) ?>"
                 class="category-page-img"
                 alt="<?= htmlspecialchars($category['name']) ?>">
               <span class="category-count-badge"><?= $category['product_count'] ?> items</span>
@@ -221,7 +222,7 @@ function getSellerBadge($avg_rating)
     <div class="row g-4 mb-5">
       <div class="col-md-6">
         <div class="featured-category">
-          <img src="../uploads/default-product.png"
+          <img src="uploads/default-product.png"
             class="w-100 h-100 object-fit-cover"
             alt="Summer Sale">
           <div class="featured-category-content">
@@ -233,7 +234,7 @@ function getSellerBadge($avg_rating)
       </div>
       <div class="col-md-6">
         <div class="featured-category">
-          <img src="../uploads/default-product.png"
+          <img src="uploads/default-product.png"
             class="w-100 h-100 object-fit-cover"
             alt="New Arrivals">
           <div class="featured-category-content">

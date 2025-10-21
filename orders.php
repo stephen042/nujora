@@ -1,9 +1,10 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 // Security check
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'buyer') {
-    header("Location: ../auth/login.php");
+    header("Location: auth/login.php");
     exit;
 }
 $buyer_id = $_SESSION['user_id'];
@@ -64,8 +65,8 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders | <?= APP_NAME ?></title>
-    <link rel="icon" type="image/png" href="../uploads/default-product.png">
-    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="uploads/default-product.png">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -364,7 +365,7 @@ try {
                     <!-- Order Products -->
                     <?php foreach ($product_ids as $index => $product_id): ?>
                         <div class="order-product">
-                            <img src="../<?= htmlspecialchars($image_urls[$index]) ?? "../uploads/default-product.png" ?>"
+                            <img src="<?= htmlspecialchars($image_urls[$index]) ?? "uploads/default-product.png" ?>"
                                 class="product-img"
                                 alt="<?= htmlspecialchars($product_names[$index]) ?>">
                             <div class="flex-grow-1">

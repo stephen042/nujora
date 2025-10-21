@@ -1,6 +1,6 @@
-<script src="../../assets/js/bootstrap.bundle.min.js"></script>
-<script src="../../assets/js/jquery.min.js"></script>
-<script src="../../assets/js/owl.carousel.min.js"></script>
+<script src="../assets/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/jquery.min.js"></script>
+<script src="../ssets/js/owl.carousel.min.js"></script>
 
 <!-- for product details -->
 <script>

@@ -1,6 +1,6 @@
 <?php
-// Database connection
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 // Input parameters
 $category = isset($_GET['category']) ? trim($_GET['category']) : null;
@@ -93,9 +93,9 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products | <?= APP_NAME ?></title>
-    <link rel="icon" type="image/png" href="../uploads/default-product.png">
+    <link rel="icon" type="image/png" href="uploads/default-product.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
-    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -493,8 +493,8 @@ try {
                             <div class="card h-100">
                                 <div class="position-relative">
                                     <img src="<?php echo isset($product['image_url']) && $product['image_url']
-                                                    ? "../" . htmlspecialchars($product['image_url'])
-                                                    : "../uploads/default-product.png"; ?>"
+                                                    ? "" . htmlspecialchars($product['image_url'])
+                                                    : "uploads/default-product.png"; ?>"
                                         class="product-img"
                                         alt="<?= htmlspecialchars($product['name']) ?>">
 

@@ -1,6 +1,7 @@
 <?php
 // Database connection
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 
 // Get the search term
@@ -21,7 +22,7 @@ if (empty($products)) {
 foreach ($products as $product): ?>
   <div class="col-6 col-md-4 col-lg-3 my-2 col-sm-6" style="max-height: 450px; max-width: 300px;">
     <div class="card h-100">
-      <img src="<?= isset($product['image_url']) && $product['image_url'] ? "../" . htmlspecialchars($product['image_url']) : "../uploads/default-product.png" ?>"
+      <img src="<?= isset($product['image_url']) && $product['image_url'] ? "" . htmlspecialchars($product['image_url']) : "uploads/default-product.png" ?>"
            class="product-img"
            alt="<?= htmlspecialchars($product['name']) ?>">
 

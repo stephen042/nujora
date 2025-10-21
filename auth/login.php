@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       // Redirect based on role
       if ($user['role'] === 'buyer') {
-        header('Location: ../customer/home.php');
+        header('Location: ../index.php');
         exit;
       } elseif ($user['role'] === 'seller') {
         header('Location: ../seller/seller-dashboard.php');

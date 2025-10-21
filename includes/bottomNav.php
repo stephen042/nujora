@@ -1,10 +1,10 @@
 <?php
-// get current page name, e.g. "home.php"
+// get current page name, e.g. "home"
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
 <nav class="nav nav-pills nav-fill nav-bottom">
-    <a class="nav-link <?= ($currentPage == 'home.php') ? 'active' : '' ?>" href="home.php">
+    <a class="nav-link <?= ($currentPage == 'index.php') ? 'active' : '' ?>" href="index.php">
         <i class="fas fa-home"></i>
         <span>Home</span>
     </a>

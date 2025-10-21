@@ -1,5 +1,6 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 // Helper function to get proof of payment for a transaction
 function getProofOfPayment($pdo, $transaction_reference)
@@ -51,7 +52,7 @@ function getUserTransactionsWithProofs($pdo, $user_id)
 
 // Enhanced security check
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../auth/login.php');
+    header('Location: auth/login.php');
     exit;
 }
 
@@ -97,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
         }
 
         // Create upload directory if it doesn't exist
-        $upload_dir = '../uploads/payment_proofs/';
+        $upload_dir = 'uploads/payment_proofs/';
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0755, true);
         }
@@ -369,8 +370,8 @@ if (isset($_SESSION['applied_promo'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout | <?= APP_NAME ?></title>
-    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" type="image/png" href="../uploads/default-product.png">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="uploads/default-product.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -624,7 +625,7 @@ if (isset($_SESSION['applied_promo'])) {
                                     <li class="list-group-item">
                                         <div class="row align-items-center">
                                             <div class="col-3 col-md-2">
-                                                <img src="../<?= htmlspecialchars($item['image_url'] ?? "../uploads/default-product.png") ?>"
+                                                <img src="<?= htmlspecialchars($item['image_url'] ?? "uploads/default-product.png") ?>"
                                                     class="img-fluid product-img"
                                                     alt="<?= htmlspecialchars($item['name']) ?>">
                                             </div>

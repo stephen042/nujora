@@ -1,5 +1,6 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 $order_id = filter_input(INPUT_GET, 'order_id', FILTER_SANITIZE_NUMBER_INT);
 
@@ -36,9 +37,9 @@ if (!$order) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation | <?= APP_NAME ?></title>
-    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="../uploads/default-product.png">
+    <link rel="icon" type="image/png" href="uploads/default-product.png">
     <style>
         body {
             font-family: 'Open Sans', sans-serif;

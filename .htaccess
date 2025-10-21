@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Don't rewrite 404.php itself
+    RewriteCond %{REQUEST_URI} !^/404\.php$
+
+    # Only rewrite if the file or directory doesn't exist
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Redirect to 404.php
+    RewriteRule ^.*$ 404.php [L]
+</IfModule>

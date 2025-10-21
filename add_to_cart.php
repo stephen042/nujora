@@ -1,9 +1,10 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../auth/login.php');
+    header('Location: auth/login.php');
     $msg = '<div class="alert alert-warning text-center">You need to login or create account to complete your order</div>';
     $_SESSION['statusMessage'] = $msg;
     exit;

@@ -1,9 +1,10 @@
 <?php
-require '../app/config.php';
+// Include configuration (once)
+require_once __DIR__ . '/app/config.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../auth/login.php');
+    header('Location: auth/login.php');
     $msg = '<div class="alert alert-warning text-center">You need to login or create account to complete your order</div>';
     $_SESSION['statusMessage'] = $msg;
     exit;
@@ -53,8 +54,8 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Cart | <?= APP_NAME ?></title>
-    <link rel="icon" type="image/png" href="../uploads/default-product.png">
-    <link href="../assets/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="uploads/default-product.png">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -215,7 +216,7 @@ try {
                             <div class="product-card p-3">
                                 <div class="row align-items-center">
                                     <div class="col-md-2 mb-3 mb-md-0">
-                                        <img src="../<?= htmlspecialchars($item['image_url']) ?? "../uploads/default-product.png" ?>"
+                                        <img src="<?= htmlspecialchars($item['image_url']) ?? "uploads/default-product.png" ?>"
                                             alt="<?= htmlspecialchars($item['name']) ?>"
                                             class="img-fluid product-img">
                                     </div>
