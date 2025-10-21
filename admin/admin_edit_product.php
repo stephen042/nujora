@@ -30,7 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
     $subCategoryId = $_POST['sub_category'] ?? '';
 
     // Validate category
-    $validCategoryIds = array_map(fn($c) => $c->id, $categories);
+    $validCategoryIds = array_map(function($c) {
+        return $c->id;
+    }, $categories);
+
     if (!in_array($categoryId, $validCategoryIds)) {
         $statusMessage = '<div class="alert alert-danger">Please select a valid category.</div>';
     } else {
