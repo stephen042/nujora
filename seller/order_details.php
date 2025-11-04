@@ -1,7 +1,5 @@
 <?php
-// filepath: c:\laragon\www\trendymart\order_details.php
-session_start();
-require 'db.php';
+require '../app/db.php';
 
 // Get order ID from URL
 $order_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -45,7 +43,7 @@ if ($pdo->query("SHOW TABLES LIKE 'order_status_history'")->rowCount() > 0) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Order Details #<?= htmlspecialchars($order_id) ?> | TrendyMart</title>
+    <title>Order Details #<?= htmlspecialchars($order_id) ?> | <?= htmlspecialchars($order['shop_name']) ?></title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
         .order-summary-card { border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }

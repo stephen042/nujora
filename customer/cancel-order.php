@@ -1,6 +1,4 @@
 <?php
-// filepath: c:\laragon\www\trendymart\cancel-order.php
-session_start();
 require 'db.php';
 
 // Security: Only buyers can cancel their own orders

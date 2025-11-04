@@ -1,19 +1,14 @@
 <?php
 require '../app/config.php';
 
-// Check if seller is logged in
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'seller') {
-    header("Location: login.php");
-    exit;
-}
 
 $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $statusMessage = '';
 $uploadDir = '../uploads/';
 
 // Fetch product
-$stmt = $pdo->prepare("SELECT * FROM products WHERE id = ? AND seller_id = ?");
-$stmt->execute([$product_id, $_SESSION['user_id']]);
+$stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
+$stmt->execute([$product_id]);
 $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$product) {
@@ -25,7 +20,7 @@ $stmt = $pdo->query("SELECT * FROM categories ORDER BY id DESC");
 $categories = $stmt->fetchAll(PDO::FETCH_OBJ);
 
 // Handle update
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
     $name        = trim($_POST['name']);
     $price       = floatval($_POST['price']);
     $description = trim($_POST['description']);
@@ -38,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $validCategoryIds = array_map(function ($c) {
         return $c->id;
     }, $categories);
+
     if (!in_array($categoryId, $validCategoryIds)) {
         $statusMessage = '<div class="alert alert-danger">Please select a valid category.</div>';
     } else {
@@ -63,6 +59,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Existing images
         $mainImage = $product['image_url'];
         $photos = json_decode($product['photos'], true) ?? [];
+        // Handle photo deletions
+        if (!empty($_POST['delete_photos'])) {
+            foreach ($_POST['delete_photos'] as $photoToDelete) {
+                // Remove from the array
+                $key = array_search($photoToDelete, $photos);
+                if ($key !== false) {
+                    unset($photos[$key]);
+                    // Optionally delete the actual file
+                    if (file_exists($photoToDelete)) {
+                        unlink($photoToDelete);
+                    }
+                }
+            }
+            // Re-index array to avoid gaps
+            $photos = array_values($photos);
+        }
 
         // Update main image if uploaded
         if (!empty($_FILES['product_image']['name']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
@@ -96,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("
                 UPDATE products 
                 SET name=?, price=?, description=?, stock=?, status=?, category=?, sub_category=?, image_url=?, photos=? 
-                WHERE id=? AND seller_id=?");
+                WHERE id=?");
             $stmt->execute([
                 $name,
                 $finalPrice,
@@ -108,7 +120,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $mainImage,
                 json_encode($photos),
                 $product_id,
-                $_SESSION['user_id']
             ]);
 
             $statusMessage = '<div class="alert alert-success">Product updated successfully!</div>';
@@ -135,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
     <div class="container mt-4 mb-5">
-        <a href="seller-dashboard.php?tab=products" class="btn btn-secondary mb-3"><i class="bi bi-arrow-left"></i> Back to Products</a>
+        <a href="seller-dashboard.php" class="btn btn-secondary mb-3"><i class="bi bi-arrow-left"></i> Back to Products</a>
         <hr>
         <h4>Edit Product</h4>
         <?= $statusMessage; ?>
@@ -209,14 +220,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Extra Photos -->
             <div class="mb-3">
                 <label class="form-label">Extra Photos</label><br>
-                <?php foreach (json_decode($product['photos'], true) ?? [] as $photo): ?>
-                    <img src="<?= $photo ?>" class="img-thumbnail me-2 mb-2" style="max-width:100px;">
+                <?php foreach (json_decode($product['photos'], true) ?? [] as $index => $photo): ?>
+                    <div class="d-inline-block text-center me-2 mb-2" style="position: relative;">
+                        <img src="<?= htmlspecialchars($photo) ?>" class="img-thumbnail" style="max-width:100px;">
+                        <div>
+                            <label class="form-check-label small">
+                                <input type="checkbox" name="delete_photos[]" value="<?= htmlspecialchars($photo) ?>">
+                                Delete
+                            </label>
+                        </div>
+                    </div>
                 <?php endforeach; ?>
                 <input type="file" name="product_photos[]" class="form-control mt-2" multiple accept="image/*" onchange="previewMultipleImages(event)">
                 <div id="multiImagePreview" class="mt-2 d-flex flex-wrap"></div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Update Product</button>
+            <button type="submit" name="update" class="btn btn-primary w-100">Update Product</button>
         </form>
     </div>
 

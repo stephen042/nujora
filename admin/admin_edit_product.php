@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
     $subCategoryId = $_POST['sub_category'] ?? '';
 
     // Validate category
-    $validCategoryIds = array_map(function($c) {
+    $validCategoryIds = array_map(function ($c) {
         return $c->id;
     }, $categories);
 
@@ -59,6 +59,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
         // Existing images
         $mainImage = $product['image_url'];
         $photos = json_decode($product['photos'], true) ?? [];
+        // Handle photo deletions
+        if (!empty($_POST['delete_photos'])) {
+            foreach ($_POST['delete_photos'] as $photoToDelete) {
+                // Remove from the array
+                $key = array_search($photoToDelete, $photos);
+                if ($key !== false) {
+                    unset($photos[$key]);
+                    // Optionally delete the actual file
+                    if (file_exists($photoToDelete)) {
+                        unlink($photoToDelete);
+                    }
+                }
+            }
+            // Re-index array to avoid gaps
+            $photos = array_values($photos);
+        }
 
         // Update main image if uploaded
         if (!empty($_FILES['product_image']['name']) && $_FILES['product_image']['error'] === UPLOAD_ERR_OK) {
@@ -204,8 +220,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
             <!-- Extra Photos -->
             <div class="mb-3">
                 <label class="form-label">Extra Photos</label><br>
-                <?php foreach (json_decode($product['photos'], true) ?? [] as $photo): ?>
-                    <img src="<?= $photo ?>" class="img-thumbnail me-2 mb-2" style="max-width:100px;">
+                <?php foreach (json_decode($product['photos'], true) ?? [] as $index => $photo): ?>
+                    <div class="d-inline-block text-center me-2 mb-2" style="position: relative;">
+                        <img src="<?= htmlspecialchars($photo) ?>" class="img-thumbnail" style="max-width:100px;">
+                        <div>
+                            <label class="form-check-label small">
+                                <input type="checkbox" name="delete_photos[]" value="<?= htmlspecialchars($photo) ?>">
+                                Delete
+                            </label>
+                        </div>
+                    </div>
                 <?php endforeach; ?>
                 <input type="file" name="product_photos[]" class="form-control mt-2" multiple accept="image/*" onchange="previewMultipleImages(event)">
                 <div id="multiImagePreview" class="mt-2 d-flex flex-wrap"></div>
