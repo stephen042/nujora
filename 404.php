@@ -91,13 +91,13 @@ http_response_code(404); // Set HTTP status to 404 Not Found
 </head>
 <body>
   <main role="main" aria-labelledby="notfound-title">
-    <img src="images/404.jpg"
+    <img src="https://nujora.ng/images/404.jpg"
       alt="Lost in the ocean illustration">
 
     <h1 id="notfound-title">404 — Page Not Found</h1>
     <p>Oops! The page you’re looking for doesn’t exist or may have been moved. Let’s get you back on track.</p>
 
-    <a href="index.php" class="btn">← Go Back</a>
+    <a href="https://nujora.ng/" class="btn">← Go Back Home</a>
     <div class="hint">If there’s no previous page, you’ll be redirected to the homepage.</div>
   </main>
 </body>

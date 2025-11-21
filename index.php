@@ -74,12 +74,6 @@ function getSellerBadge($avg_rating)
   }
 }
 
-// Fetch reviews for products
-$stmt = $pdo->prepare("SELECT product_id, review_text, rating FROM product_reviews");
-$stmt->execute();
-$reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
-error_log("SQL Query: SELECT product_id, review_text, rating FROM product_reviews");
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -643,24 +637,57 @@ error_log("SQL Query: SELECT product_id, review_text, rating FROM product_review
                   <h5 class="card-title mobile-text-bold"><?= htmlspecialchars($product['name']) ?></h5>
                   <p class="card-text mobile-text-bold">₦<?= number_format($product['price'], 2) ?></p>
 
-                  <!-- Rating stars -->
-                  <div class="mobile-spacing-sm">
-                    <?php
+                  <!-- Rating stars and PHP-->
+                  <?php
+                  // Fetch rating summary for this product
+                  try {
+                    $rating_stmt = $pdo->prepare("
+                                            SELECT 
+                                                ROUND(AVG(rating), 1) AS avg_rating,
+                                                COUNT(*) AS review_count
+                                            FROM product_reviews
+                                            WHERE product_id = ?
+                                        ");
+                    $rating_stmt->execute([$product['id']]);
+                    $rating_data = $rating_stmt->fetch(PDO::FETCH_ASSOC);
+
+                    $avg_rating = $rating_data['avg_rating'] ?? 0;
+                    $review_count = $rating_data['review_count'] ?? 0;
+                  } catch (PDOException $e) {
+                    error_log('Rating fetch error: ' . $e->getMessage());
                     $avg_rating = 0;
-                    if (!empty($grouped_reviews[$product['id']])) {
-                      $ratings = array_column($grouped_reviews[$product['id']], 'rating');
-                      $avg_rating = round(array_sum($ratings) / count($ratings), 1);
-                    }
-                    ?>
+                    $review_count = 0;
+                  }
+
+                  // Half star calculation
+                  $fullStars  = floor($avg_rating);
+                  $halfStar   = ($avg_rating - $fullStars) >= 0.5 ? 1 : 0;
+                  $emptyStars = 5 - ($fullStars + $halfStar);
+                  ?>
+
+                  <!-- Rating stars -->
+                  <div class="rating-mobile">
                     <div class="d-flex align-items-center">
-                      <?php for ($i = 1; $i <= 5; $i++): ?>
-                        <?php if ($i <= floor($avg_rating)): ?>
-                          <span style="color: gold; font-size: 0.8rem;">&#9733;</span>
-                        <?php else: ?>
-                          <span style="color: #ccc; font-size: 0.8rem;">&#9733;</span>
-                        <?php endif; ?>
+
+                      <!-- Full stars -->
+                      <?php for ($i = 0; $i < $fullStars; $i++): ?>
+                        <span style="color: gold;">&#9733;</span>
                       <?php endfor; ?>
-                      <small class="ms-1 mobile-text-small">(<?= $avg_rating ?>)</small>
+
+                      <!-- Half star -->
+                      <?php if ($halfStar): ?>
+                        <span style="color: gold;">&#x2BEA;</span>
+                        <!-- You can change this symbol if you want -->
+                      <?php endif; ?>
+
+                      <!-- Empty stars -->
+                      <?php for ($i = 0; $i < $emptyStars; $i++): ?>
+                        <span style="color: #ccc;">&#9733;</span>
+                      <?php endfor; ?>
+
+                      <small class="ms-1">(<?= $avg_rating ?>)</small>
+                      <small class="ms-2 text-muted"><?= $review_count ?> reviews</small>
+
                     </div>
                   </div>
 

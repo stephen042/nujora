@@ -69,21 +69,6 @@ try {
     error_log("Database error: " . $e->getMessage());
 }
 
-// Fetch reviews for ratings
-try {
-    $stmt = $pdo->prepare("SELECT product_id, rating FROM reviews");
-    $stmt->execute();
-    $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Group reviews by product_id
-    $grouped_reviews = [];
-    foreach ($reviews as $review) {
-        $grouped_reviews[$review['product_id']][] = $review;
-    }
-} catch (PDOException $e) {
-    $grouped_reviews = [];
-    error_log("Error fetching reviews: " . $e->getMessage());
-}
 ?>
 
 
@@ -643,22 +628,60 @@ if (!empty($selected_category) && isset($category_meta[$selected_category]['imag
                                     </a>
                                     <p class="card-text">₦<?= number_format($product['price'], 2) ?></p>
 
+                                    <!-- Rating stars and PHP-->
+                                    <?php
+                                    // Fetch rating summary for this product
+                                    try {
+                                        $rating_stmt = $pdo->prepare("
+                                            SELECT 
+                                                ROUND(AVG(rating), 1) AS avg_rating,
+                                                COUNT(*) AS review_count
+                                            FROM product_reviews
+                                            WHERE product_id = ?
+                                        ");
+                                        $rating_stmt->execute([$product['id']]);
+                                        $rating_data = $rating_stmt->fetch(PDO::FETCH_ASSOC);
+
+                                        $avg_rating = $rating_data['avg_rating'] ?? 0;
+                                        $review_count = $rating_data['review_count'] ?? 0;
+                                    } catch (PDOException $e) {
+                                        error_log('Rating fetch error: ' . $e->getMessage());
+                                        $avg_rating = 0;
+                                        $review_count = 0;
+                                    }
+
+                                    // Half star calculation
+                                    $fullStars  = floor($avg_rating);
+                                    $halfStar   = ($avg_rating - $fullStars) >= 0.5 ? 1 : 0;
+                                    $emptyStars = 5 - ($fullStars + $halfStar);
+                                    ?>
+
                                     <!-- Rating stars -->
                                     <div class="rating-mobile">
-                                        <?php
-                                        $avg_rating = 0;
-                                        if (!empty($grouped_reviews[$product['id']])) {
-                                            $ratings = array_column($grouped_reviews[$product['id']], 'rating');
-                                            $avg_rating = round(array_sum($ratings) / count($ratings), 1);
-                                        }
-                                        ?>
                                         <div class="d-flex align-items-center">
-                                            <?php for ($i = 1; $i <= 5; $i++): ?>
-                                                <span style="color: <?= $i <= floor($avg_rating) ? 'gold' : '#ccc' ?>;">&#9733;</span>
+
+                                            <!-- Full stars -->
+                                            <?php for ($i = 0; $i < $fullStars; $i++): ?>
+                                                <span style="color: gold;">&#9733;</span>
                                             <?php endfor; ?>
+
+                                            <!-- Half star -->
+                                            <?php if ($halfStar): ?>
+                                                <span style="color: gold;">&#x2BEA;</span>
+                                                <!-- You can change this symbol if you want -->
+                                            <?php endif; ?>
+
+                                            <!-- Empty stars -->
+                                            <?php for ($i = 0; $i < $emptyStars; $i++): ?>
+                                                <span style="color: #ccc;">&#9733;</span>
+                                            <?php endfor; ?>
+
                                             <small class="ms-1">(<?= $avg_rating ?>)</small>
+                                            <small class="ms-2 text-muted"><?= $review_count ?> reviews</small>
+
                                         </div>
                                     </div>
+
 
                                     <!-- Shop name -->
                                     <small class="text-muted d-block">
