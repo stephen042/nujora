@@ -1,6 +1,13 @@
 <?php
 require '../app/config.php';
 
+require_once  '../../app/rate_limiter.php';
+
+if (!global_rate_limit(50, 60)) {
+    http_response_code(429);
+    die("Too many admin requests. Try again in a 3 minute.");
+}
+
 // Fetch the latest seller info from the database
 $stmt = $pdo->prepare("SELECT is_approved, profile_complete FROM users WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);

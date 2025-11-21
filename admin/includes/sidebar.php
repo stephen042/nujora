@@ -26,18 +26,18 @@ if (!isset($_SESSION['user_id'])) {
         ?>
         <li class="dropdown <?= $isUsers ? 'active' : '' ?>">
             <a href="#" class="dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#usersMenu" aria-expanded="<?= $isUsers ? 'true' : 'false' ?>">
-            <i class="bi bi-people"></i> Users
+                <i class="bi bi-people"></i> Users
             </a>
             <ul id="usersMenu" class="collapse list-unstyled ps-3 <?= $isUsers ? 'show' : '' ?>">
-            <li class="<?= $current_page == 'all_admins.php' ? 'active' : '' ?>">
-                <a href="all_admins.php"><i class="bi bi-person-lines-fill"></i> All Admins</a>
-            </li>
-            <li class="<?= $current_page == 'admin_sellers.php' ? 'active' : '' ?>">
-                <a href="admin_sellers.php"><i class="bi bi-person-badge"></i> Sellers</a>
-            </li>
-            <li class="<?= $current_page == 'admin_buyers.php' ? 'active' : '' ?>">
-                <a href="admin_buyers.php"><i class="bi bi-person"></i> Buyers</a>
-            </li>
+                <li class="<?= $current_page == 'all_admins.php' ? 'active' : '' ?>">
+                    <a href="all_admins.php"><i class="bi bi-person-lines-fill"></i> All Admins</a>
+                </li>
+                <li class="<?= $current_page == 'admin_sellers.php' ? 'active' : '' ?>">
+                    <a href="admin_sellers.php"><i class="bi bi-person-badge"></i> Sellers</a>
+                </li>
+                <li class="<?= $current_page == 'admin_buyers.php' ? 'active' : '' ?>">
+                    <a href="admin_buyers.php"><i class="bi bi-person"></i> Buyers</a>
+                </li>
             </ul>
         </li>
         <li class="<?= $current_page == 'admin_products.php' ? 'active' : '' ?>">
@@ -46,6 +46,11 @@ if (!isset($_SESSION['user_id'])) {
         <li class="<?= $current_page == 'admin_orders.php' ? 'active' : '' ?>">
             <a href="admin_orders.php"><i class="bi bi-cart"></i> Orders</a>
         </li>
+        <li class="<?= $current_page == 'coupons.php' ? 'active' : '' ?>">
+            <a href="coupons.php"><i class="bi bi-gift"></i>
+                Coupons
+            </a>
+        </li>
         <li class="<?= $current_page == 'admin_reports.php' ? 'active' : '' ?>">
             <a href="admin_reports.php"><i class="bi bi-flag"></i> Reports</a>
         </li>
@@ -53,7 +58,7 @@ if (!isset($_SESSION['user_id'])) {
 
         <!-- Transactions Dropdown -->
         <?php
-        $isTransactions = in_array($current_page, ['bank_transfers.php', 'automatic_transactions.php','bank_transfer_details.php']);
+        $isTransactions = in_array($current_page, ['bank_transfers.php', 'automatic_transactions.php', 'bank_transfer_details.php']);
         ?>
         <li class="dropdown <?= $isTransactions ? 'active' : '' ?>">
             <a href="#" class="dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#transactionsMenu" aria-expanded="<?= $isTransactions ? 'true' : 'false' ?>">

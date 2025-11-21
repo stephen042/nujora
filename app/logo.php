@@ -1,5 +1,5 @@
 <a class="navbar-brand fw-bold fs-3 p-2 d-flex align-items-center"
-    href="../customer/home.php"
+    href="../index.php"
     style="text-decoration: none; color: #f57c00; gap: 5px;">
 
     <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="26" height="26" viewBox="0 0 256 256">

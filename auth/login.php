@@ -16,9 +16,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $_SESSION['user_id'] = $user['id'];
       $_SESSION['role'] = $user['role'];
 
+      // Merge guest cart into database
+      if (isset($_SESSION['guest_cart']) && !empty($_SESSION['guest_cart'])) {
+        foreach ($_SESSION['guest_cart'] as $pid => $qty) {
+          $stmt = $pdo->prepare("SELECT id, quantity FROM cart_items WHERE buyer_id = ? AND product_id = ?");
+          $stmt->execute([$user['id'], $pid]);
+          $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+
+          if ($existing) {
+            $stmt = $pdo->prepare("UPDATE cart_items SET quantity = quantity + ? WHERE id = ?");
+            $stmt->execute([$qty, $existing['id']]);
+          } else {
+            $stmt = $pdo->prepare("INSERT INTO cart_items (buyer_id, product_id, quantity) VALUES (?, ?, ?)");
+            $stmt->execute([$user['id'], $pid, $qty]);
+          }
+        }
+        unset($_SESSION['guest_cart']);
+      }
+
+      if (isset($_SESSION['pending_checkout'])) {
+        // Merge guest cart into user cart
+        if (!empty($_SESSION['pending_checkout']['cart'])) {
+          $stmt = $pdo->prepare("
+              INSERT INTO cart_items (buyer_id, product_id, quantity)
+              VALUES (?, ?, ?)
+              ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)
+          ");
+          foreach ($_SESSION['pending_checkout']['cart'] as $product_id => $qty) {
+            $stmt->execute([$_SESSION['user_id'], $product_id, $qty]);
+          }
+        }
+
+        // Clear session
+        unset($_SESSION['pending_checkout']);
+
+        // Redirect to checkout continuation
+        header("Location: ../checkout.php?continue=true");
+        exit;
+      }
+
+
       // Redirect based on role
       if ($user['role'] === 'buyer') {
-        header('Location: ../customer/home.php');
+        header('Location: ../index.php');
         exit;
       } elseif ($user['role'] === 'seller') {
         header('Location: ../seller/seller-dashboard.php');
@@ -41,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Nujora</title>
+  <title>Login | <?= APP_NAME ?></title>
   <link rel="icon" type="image/png" href="../uploads/default-product.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>

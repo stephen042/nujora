@@ -1,20 +1,20 @@
 <?php
 require '../app/config.php';
+require_once '../lib/mail_functions.php'; // Include mail functions
 
 $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $name = trim($_POST['name'] ?? '');
-  $email = trim($_POST['email'] ?? '');
-  $country = trim($_POST['country'] ?? '');
-  $phone = trim($_POST['phone'] ?? '');
+  $name        = trim($_POST['name'] ?? '');
+  $email       = trim($_POST['email'] ?? '');
+  $country     = trim($_POST['country'] ?? '');
+  $phone       = trim($_POST['phone'] ?? '');
   $countryCode = trim($_POST['country_code'] ?? '');
-  $password = trim($_POST['password'] ?? '');
-  $role = trim($_POST['role'] ?? 'buyer');
-  $shop_name = trim($_POST['shop_name'] ?? '');
+  $password    = trim($_POST['password'] ?? '');
+  $role        = trim($_POST['role'] ?? 'buyer');
+  $shop_name   = trim($_POST['shop_name'] ?? '');
 
-  // Concatenate country code and phone number
   $fullPhone = $countryCode . $phone;
 
   if (empty($name) || empty($email) || empty($password) || empty($country) || empty($phone)) {
@@ -30,31 +30,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($emailExists) {
       $error = "Email already exists.";
     } else {
-      // Hash the password
       $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-      // Insert user into the database
+      // Buyer auto-approved, Seller pending
+      $is_approved     = ($role === 'buyer') ? 1 : 0;
+      $approval_status = ($role === 'buyer') ? 'approved' : 'pending';
+
       try {
         $stmt = $pdo->prepare("
-          INSERT INTO users (
-            name, email, password_hash, role, shop_name, 
-            badge_level, rating, created_at, is_approved, approval_status, profile_complete,
-            country, phone
-          ) VALUES (
-            ?, ?, ?, ?, ?, 
-            'New', 0.00, NOW(), 0, 'pending', 0,
-            ?, ?
-          )
-        ");
-        $stmt->execute([$name, $email, $hashed_password, $role, $shop_name, $country, $fullPhone]);
+                    INSERT INTO users (
+                        name, email, password_hash, role, shop_name, 
+                        badge_level, rating, created_at, is_approved, approval_status, profile_complete,
+                        country, phone
+                    ) VALUES (
+                        ?, ?, ?, ?, ?, 
+                        'New', 0.00, NOW(), ?, ?, 0,
+                        ?, ?
+                    )
+                ");
+        $stmt->execute([
+          $name,
+          $email,
+          $hashed_password,
+          $role,
+          $shop_name,
+          $is_approved,
+          $approval_status,
+          $country,
+          $fullPhone
+        ]);
 
         $userId = $pdo->lastInsertId();
-
-        // Store user ID in session for potential profile completion
-        $_SESSION['temp_user_id'] = $userId;
+        $_SESSION['temp_user_id']   = $userId;
         $_SESSION['temp_user_role'] = $role;
 
-        $success = "User registered successfully.";
+        // 🎉 Send Email Based on Role
+        if ($role === 'seller') {
+          send_mail(
+            $email,
+            "Thank You for Registering as a Seller",
+            "Welcome, {$name}!",
+            "Thank you for signing up as a seller on our marketplace! Your account is currently under review. Our team will verify your details and notify you once approved.",
+            "Visit Dashboard",
+            "https://yourdomain.com/login"
+          );
+        } else {
+          send_mail(
+            $email,
+            "Welcome to Nujora",
+            "Welcome, {$name}!",
+            "Thank you for joining Nujora! You can now explore amazing products and connect with trusted sellers.",
+            "Start Shopping",
+            "https://yourdomain.com/login"
+          );
+        }
+
+        $success = "User registered successfully. A confirmation email has been sent.";
       } catch (PDOException $e) {
         $error = "Error: " . $e->getMessage();
       }
@@ -79,6 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 40px;
     }
 
     .register-box {
@@ -123,9 +155,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Display success or error message -->
     <?php if (!empty($success)): ?>
       <div class="alert alert-success text-center"><?= htmlspecialchars($success) ?></div>
-      <?php if ($role === 'buyer'): ?>
+      <?php if ($role === 'seller'): ?>
         <div class="alert alert-info text-center">
-          After your account is approved, you'll be asked to complete your profile information.
+          Before you can start selling, we will need to verify your details. Our team will review your application and notify you once your account is approved.
         </div>
       <?php endif; ?>
     <?php endif; ?>

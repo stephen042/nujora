@@ -28,6 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
     $status      = htmlspecialchars($_POST['status']);
     $categoryId  = $_POST['category'] ?? '';
     $subCategoryId = $_POST['sub_category'] ?? '';
+    $free_delivery = intval($_POST['free_delivery'] ?? 1);
+    $pay_on_delivery = intval($_POST['pay_on_delivery'] ?? 1);
 
     // Validate category
     $validCategoryIds = array_map(function ($c) {
@@ -107,19 +109,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
         try {
             $stmt = $pdo->prepare("
                 UPDATE products 
-                SET name=?, price=?, description=?, stock=?, status=?, category=?, sub_category=?, image_url=?, photos=? 
-                WHERE id=?");
+                SET name=?, price=?, description=?, stock=?, status=?, category=?, sub_category=?, image_url=?, photos=?, free_delivery=?, pay_on_delivery=?
+                WHERE id=?
+            ");
+
             $stmt->execute([
                 $name,
                 $finalPrice,
                 $description,
                 $stock,
                 $status,
-                $categoryName,     // save category name instead of id
-                $subCategoryName,  // save subcategory name instead of id
+                $categoryName,
+                $subCategoryName,
                 $mainImage,
                 json_encode($photos),
-                $product_id,
+                $free_delivery,
+                $pay_on_delivery,
+                $product_id
             ]);
 
             $statusMessage = '<div class="alert alert-success">Product updated successfully!</div>';
@@ -172,24 +178,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
 
             <div class="mb-3">
                 <label class="form-label">Sub Category </label>
-                <span class="badge bg-info text-dark me-2">(<?= htmlspecialchars($product['sub_category']) ?>)</span>
+                <span class="badge bg-info text-white me-2">(<?= htmlspecialchars($product['sub_category']) ?>)</span>
                 <select name="sub_category" id="subCategorySelect" class="form-select">
                     <option value="<?= $product['sub_category'] ?>"><?= $product['sub_category'] ?></option>
                 </select>
             </div>
 
             <!-- Price -->
-            <div class="row mb-3">
-                <div class="col-md-6">
+            <div class="row mb-3 text-white">
+                <div class="col-md-6 bg-info p-1 rounded m-1">
                     <label class="form-label">Price (₦)</label>
                     <input type="number" id="priceInput" name="price" class="form-control" step="0.01"
                         value="<?= htmlspecialchars($product['price']) ?>" required>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Final Price</label>
+                <div class="col-md-5 bg-success p-1 rounded m-1">
+                    <label class="form-label">Final Price (Price customer will see) (₦)</label>
                     <input type="text" id="finalPrice" class="form-control" value="<?= htmlspecialchars($product['price']) ?>" readonly>
                 </div>
             </div>
+
+            <!-- Free Delivery & Pay on Delivery -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Free Delivery</label>
+                    <select class="form-select" name="free_delivery">
+                        <option value="1" <?= $product['free_delivery'] == 1 ? 'selected' : '' ?>>False</option>
+                        <option value="2" <?= $product['free_delivery'] == 2 ? 'selected' : '' ?>>True</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Pay on Delivery</label>
+                    <select class="form-select" name="pay_on_delivery">
+                        <option value="1" <?= $product['pay_on_delivery'] == 1 ? 'selected' : '' ?>>False</option>
+                        <option value="2" <?= $product['pay_on_delivery'] == 2 ? 'selected' : '' ?>>True</option>
+                    </select>
+                </div>
+            </div>
+
 
             <div class="mb-3">
                 <label class="form-label">Description</label>
@@ -248,7 +273,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
             updateFinalPrice();
 
             fetch('fetch_subcategories.php?category_id=' + categoryId)
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error('Network response was not ok');
+                    return res.json();
+                })
                 .then(data => {
                     let subCatSelect = document.getElementById('subCategorySelect');
                     subCatSelect.innerHTML = '<option value="">Select a sub-category</option>';
