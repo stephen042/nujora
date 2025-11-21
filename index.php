@@ -75,10 +75,10 @@ function getSellerBadge($avg_rating)
 }
 
 // Fetch reviews for products
-$stmt = $pdo->prepare("SELECT product_id, review_text, rating FROM reviews");
+$stmt = $pdo->prepare("SELECT product_id, review_text, rating FROM product_reviews");
 $stmt->execute();
 $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
-error_log("SQL Query: SELECT product_id, review_text, rating FROM reviews");
+error_log("SQL Query: SELECT product_id, review_text, rating FROM product_reviews");
 
 ?>
 <!DOCTYPE html>
