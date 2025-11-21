@@ -2,3 +2,4 @@
 /uploads
 /app/db.php
 /lib
+/app/rate_limits.json
