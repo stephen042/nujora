@@ -1,7 +1,7 @@
 <?php
 require '../app/config.php';
 
-require_once  '../../app/rate_limiter.php';
+require_once  '../app/rate_limiter.php';
 
 if (!global_rate_limit(50, 60)) {
     http_response_code(429);
@@ -310,6 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:image" content="uploads/default-product.png" />
     <title>Seller Dashboard | <?= APP_NAME ?></title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
