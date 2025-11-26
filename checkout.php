@@ -199,116 +199,57 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
 
 <head>
     <meta charset="UTF-8">
-    <title>Checkout - <?= APP_NAME ?></title>
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Checkout | <?= APP_NAME ?></title>
     <link rel="icon" type="image/png" href="uploads/default-product.png">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         body {
-            background: #f8f9fa;
-            font-family: 'Open Sans';
+            background: #f7f9fc;
+            font-family: "Poppins", sans-serif;
+            padding: 0;
+            margin: 0;
         }
 
-        .summary-box,
-        .checkout-box {
+        .checkout-box,
+        .summary-box {
             background: #fff;
+            border-radius: 12px;
             padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        h3,
+        h5 {
+            font-weight: 600;
+        }
+
+        label {
+            margin-top: 12px;
+            font-weight: 500;
+        }
+
+        .btn-success {
+            padding: 12px;
+            font-size: 1.1rem;
             border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
 
-        input {
-            height: 48px;
+        .summary-box {
+            position: sticky;
+            top: 90px;
         }
 
-        /* ============================================
-        STRICT MOBILE LAYOUT FOR CHECKOUT PAGE
-        ============================================ */
-        @media (max-width: 768px) {
-
-            /* Stop ALL horizontal stretching */
-            html,
-            body {
-                width: 100%;
-                overflow-x: hidden !important;
-                padding: 0 !important;
-                margin: 0 !important;
+        @media (max-width: 767px) {
+            .summary-box {
+                position: static;
+                margin-top: 15px;
             }
 
-            /* Force the row stack vertically */
-            .checkout-container,
-            .row.g-4,
-            .row {
-                display: block !important;
-                width: 100%;
-            }
-
-            /* Left section (checkout form) */
-            .col-lg-7 {
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            /* Right section (summary box) */
-            .col-lg-5 {
-                width: 100% !important;
-                max-width: 100% !important;
-                margin-top: 20px !important;
-                padding: 0 !important;
-            }
-
-            /* Boxes resize correctly */
-            .summary-box,
-            .checkout-box {
-                width: 100% !important;
-                margin: 0 0 20px 0 !important;
-                padding: 20px !important;
-                box-sizing: border-box !important;
-            }
-
-            /* Inputs full width */
-            .checkout-box input,
-            .checkout-box .input-group input {
-                width: 100% !important;
-                box-sizing: border-box !important;
-            }
-
-            /* Input-group (coupon) */
-            .input-group {
-                width: 100% !important;
-                flex-wrap: nowrap !important;
-            }
-
-            .input-group .form-control {
-                width: 70% !important;
-            }
-
-            .input-group .btn {
-                width: 30% !important;
-            }
-
-            /* Summary table full width and wrap text */
-            .summary-box table {
-                width: 100% !important;
-                table-layout: fixed !important;
-                word-wrap: break-word;
-                word-break: break-word;
-            }
-
-            /* Fix bottom nav white space */
-            .bottom-nav,
-            .mobile-bottom-nav,
-            .fixed-bottom {
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            footer {
-                margin-bottom: 0 !important;
-                padding-bottom: 0 !important;
+            .btn-success {
+                font-size: 1rem;
             }
         }
     </style>
@@ -319,9 +260,9 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
     <?php include 'includes/nav.php'; ?>
 
     <div class="container my-4">
-        <div class="row g-4">
+        <div class="row gy-4">
 
-            <!-- ========================= LEFT SIDE ========================= -->
+            <!-- LEFT SIDE -->
             <div class="col-lg-7">
                 <h3 class="mb-3">Checkout</h3>
 
@@ -331,53 +272,41 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
                     </div>
                 <?php endif; ?>
 
-                <!-- Only show form for guests -->
                 <?php if (!$isLoggedIn): ?>
                     <div class="checkout-box">
 
-                        <form method="POST">    
+                        <form method="POST">
 
-                            <!-- NAME -->
                             <label>Full Name *</label>
                             <input class="form-control" name="full_name" required
                                 value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>">
 
-                            <!-- EMAIL -->
                             <label>Email *</label>
                             <input class="form-control" type="email" name="email" required
                                 value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
 
-                            <!-- PHONE -->
                             <label>Phone *</label>
                             <input class="form-control" name="phone" required
                                 value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
 
-                            <!-- ADDRESS -->
                             <label>Address *</label>
                             <input class="form-control" name="address" required
                                 value="<?= htmlspecialchars($_POST['address'] ?? '') ?>">
 
-                            <!-- STATE -->
                             <label>State *</label>
-                            <select class="form-control mb-2" name="state" id="state_select" required>
+                            <select class="form-control" id="state_select" name="state" required>
                                 <option value="">Select State</option>
-                                <?php
-                                $states = $pdo->query("SELECT id, name FROM states ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
-                                foreach ($states as $s):
-                                ?>
+                                <?php foreach ($states as $s): ?>
                                     <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
 
-                            <!-- LGA -->
                             <label>LGA *</label>
-                            <select class="form-control mb-2" name="city" id="lga_select" required>
+                            <select class="form-control" id="lga_select" name="city" required>
                                 <option value="">Select LGA</option>
                             </select>
 
-
-                            <!-- COUPON APPLY FIELD -->
-                            <label>Promo Code</label>
+                            <label class="mt-3">Promo Code</label>
                             <div class="input-group">
                                 <input class="form-control" name="coupon_code"
                                     value="<?= htmlspecialchars($_POST['coupon_code'] ?? ($_SESSION['applied_coupon']['code'] ?? '')) ?>">
@@ -385,17 +314,17 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
                             </div>
                             <small><?= $couponMessage ?></small>
 
-                            <button class="btn btn-success w-100 mt-4" name="proceed_payment">Proceed to Payment</button>
-                        </form>
+                            <button class="btn btn-success w-100 mt-4" name="proceed_payment">
+                                Proceed to Payment
+                            </button>
 
+                        </form>
                     </div>
 
                 <?php else: ?>
+
                     <div class="checkout-box mb-3">
-
-                        <!-- COUPON FIELD FOR LOGGED-IN USERS -->
                         <form method="POST">
-
                             <label>Promo Code</label>
                             <div class="input-group">
                                 <input class="form-control" name="coupon_code"
@@ -403,25 +332,24 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
                                 <button class="btn btn-primary" name="apply_coupon">Apply</button>
                             </div>
                             <small><?= $couponMessage ?></small>
-
                         </form>
                     </div>
 
-                    <!-- PAYMENT BUTTON -->
-                    <a href="place_order.php" class="btn btn-success w-100 btn-lg mt-2">
+                    <a href="place_order.php" class="btn btn-success w-100 btn-lg">
                         Proceed to Payment
                     </a>
+
                 <?php endif; ?>
             </div>
 
-            <!-- ========================= RIGHT SIDE SUMMARY ========================= -->
+            <!-- RIGHT SUMMARY -->
             <div class="col-lg-5">
                 <div class="summary-box">
 
                     <h5 class="mb-3">Order Summary</h5>
 
                     <?php if (!empty($cartItems)): ?>
-                        <table class="table table-sm">
+                        <table class="table table-borderless table-sm">
 
                             <?php foreach ($cartItems as $item): ?>
                                 <tr>
@@ -430,7 +358,7 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
                                 </tr>
                             <?php endforeach; ?>
 
-                            <tr>
+                            <tr class="border-top">
                                 <td><strong>Subtotal</strong></td>
                                 <td class="text-end">₦<?= number_format($totalAmount) ?></td>
                             </tr>
@@ -442,10 +370,11 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
                                 </tr>
                             <?php endif; ?>
 
-                            <tr>
+                            <tr class="border-top">
                                 <td><strong>Total</strong></td>
                                 <td class="text-end fw-bold">₦<?= number_format($grandTotal) ?></td>
                             </tr>
+
                         </table>
 
                     <?php else: ?>
@@ -461,15 +390,12 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
     <?php include 'includes/footer.php'; ?>
     <?php include 'includes/bottomNav.php'; ?>
     <?php include 'includes/script.php'; ?>
+
     <script>
         document.getElementById("state_select").addEventListener("change", function() {
-            const stateID = this.value;
-
-            fetch("get_lgas.php?state_id=" + stateID)
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById("lga_select").innerHTML = data;
-                });
+            fetch("get_lgas.php?state_id=" + this.value)
+                .then(r => r.text())
+                .then(data => document.getElementById("lga_select").innerHTML = data);
         });
     </script>
 
