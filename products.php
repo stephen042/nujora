@@ -604,7 +604,7 @@ if (!empty($selected_category) && isset($category_meta[$selected_category]['imag
                     <div class="col-6 col-sm-6 col-md-4 col-lg-3">
                         <div class="card h-100">
                             <div class="position-relative">
-                                <a href="product_details.php?id=<?= $product['id'] ?>">
+                                <a href="product_details.php?slug=<?= $product['slug'] ?>">
                                     <img src="<?php echo isset($product['image_url']) && $product['image_url']
                                                     ? htmlspecialchars($product['image_url'])
                                                     : 'uploads/default-product.png'; ?>"

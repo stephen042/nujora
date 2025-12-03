@@ -112,7 +112,7 @@ $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </td>
                         <td>
                             <?php if ($it['image_url']): ?>
-                                <img src="<?= htmlspecialchars($it['image_url']); ?>"
+                                <img src="../<?=htmlspecialchars($it['image_url']); ?>"
                                     width="50" class="mt-2 rounded">
                             <?php endif; ?>
                         </td>

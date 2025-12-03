@@ -10,14 +10,136 @@ if (!global_rate_limit(50, 60)) {
 $cartCount = 0;
 
 if (isset($_SESSION['user_id'])) {
+    // LOGGED IN USER
     $buyerId = $_SESSION['user_id'];
     $stmt = $pdo->prepare("SELECT SUM(quantity) AS total_items FROM cart_items WHERE buyer_id = ?");
     $stmt->execute([$buyerId]);
     $cartCount = $stmt->fetchColumn() ?? 0;
-} elseif (isset($_SESSION['guest_cart'])) {
-    $cartCount = array_sum($_SESSION['guest_cart']);
+} elseif (!empty($_SESSION['guest_cart'])) {
+    // GUEST USER
+    foreach ($_SESSION['guest_cart'] as $item) {
+        $cartCount += intval($item['quantity']);
+    }
 }
+
 ?>
+<!-- TOP BANNER STRIP -->
+<style>
+    /* Desktop default */
+    .top-banner {
+        width: 100%;
+        background-color: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 100px;
+        margin: 0;
+        height: 60px;
+        border-bottom: 1px solid #eee;
+        overflow: hidden;
+    }
+
+    .top-banner img {
+        height: 60px;
+        width: auto;
+        max-width: 100%;
+        object-fit: cover;
+        flex-grow: 1;
+    }
+
+    /* Mobile View Fix */
+    @media (max-width: 600px) {
+        .top-banner {
+            height: 70px;
+            /* Slightly taller on mobile */
+            padding: 0;
+            /* Reduce side padding on mobile */
+        }
+
+        .top-banner img {
+            width: 100%;
+            /* Fill full width on mobile */
+            height: 70px;
+            /* Match container */
+            object-fit: cover;
+        }
+    }
+</style>
+<!-- TOP BANNER STRIP -->
+<div class="top-banner">
+    <img src="uploads/topbar.gif" alt="Promo Banner">
+</div>
+
+<!-- Contact Us NAV -->
+<style>
+    .contact-bar {
+        width: 100%;
+        background-color: #f8f8f8;
+        border-bottom: 1px solid #e5e5e5;
+        padding: 6px 0;
+        font-size: 0.85rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .contact-wrapper {
+        width: 95%;
+        max-width: 1200px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #333;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 500;
+    }
+
+    .contact-item i {
+        color: #ff9900;
+        /* Jumia-style orange accent */
+        font-size: 1rem;
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+        .contact-wrapper {
+            /* flex-direction: column; */
+            gap: 4px;
+            text-align: center;
+            padding: 0 20px;
+        }
+    }
+</style>
+<!-- CONTACT INFO BAR -->
+<div class="contact-bar">
+    <div class="contact-wrapper">
+
+        <div class="contact-item">
+            <i class="fas fa-phone-alt"></i>
+            <span> <a href="tel:+<?=APP_PHONE?>"><?= APP_PHONE ?></a></span>
+        </div>
+
+        <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <span><a href="mailto:<?= APP_EMAIL ?>"><?= APP_EMAIL ?></a></span>
+        </div>
+
+        <div class="contact-item d-none d-md-flex">
+            <i class="fas fa-headset"></i>
+            <span>24/7 Customer Support</span>
+        </div>
+
+    </div>
+</div>
+
+
+</div>
+<!-- NAVIGATION BAR -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
     <div class="container d-flex justify-content-between align-items-center flex-nowrap">
         <?php include 'app/logo.php'; ?>

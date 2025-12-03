@@ -2,8 +2,6 @@
 require 'app/config.php';
 header('Content-Type: application/json');
 
-session_start();
-
 $user_id = $_SESSION['user_id'] ?? null;
 $id = $_POST['id'] ?? null;
 $change = intval($_POST['change'] ?? 0);
@@ -33,19 +31,32 @@ try {
         echo json_encode(['success' => true, 'message' => 'Quantity updated']);
         exit;
     } else {
-        // === Guest user ===
-        if (!isset($_SESSION['guest_cart'][$id])) {
-            echo json_encode(['success' => false, 'message' => 'Item not found']);
+        // ----------------------
+        // Guest cart update
+        // ----------------------
+        if (!$user_id) {
+
+            if (!isset($_SESSION['guest_cart'][$id])) {
+                echo json_encode(['success' => false, 'message' => 'Item not found in guest cart']);
+                exit;
+            }
+
+            // Ensure quantity exists
+            if (!isset($_SESSION['guest_cart'][$id]['quantity'])) {
+                $_SESSION['guest_cart'][$id]['quantity'] = 1;
+            }
+
+            // Update quantity
+            $_SESSION['guest_cart'][$id]['quantity'] += $change;
+
+            // Prevent below 1
+            if ($_SESSION['guest_cart'][$id]['quantity'] < 1) {
+                $_SESSION['guest_cart'][$id]['quantity'] = 1;
+            }
+
+            echo json_encode(['success' => true]);
             exit;
         }
-
-        $_SESSION['guest_cart'][$id] += $change;
-        if ($_SESSION['guest_cart'][$id] < 1) {
-            $_SESSION['guest_cart'][$id] = 1;
-        }
-
-        echo json_encode(['success' => true, 'message' => 'Quantity updated']);
-        exit;
     }
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'Database error']);

@@ -65,6 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['temp_user_role'] = $role;
 
         // 🎉 Send Email Based on Role
+        $site_url = APP_URL;
+        $site_name = APP_NAME;
         if ($role === 'seller') {
           send_mail(
             $email,
@@ -72,16 +74,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "Welcome, {$name}!",
             "Thank you for signing up as a seller on our marketplace! Your account is currently under review. Our team will verify your details and notify you once approved.",
             "Visit Dashboard",
-            "https://yourdomain.com/login"
+            "$site_url"
           );
         } else {
           send_mail(
             $email,
-            "Welcome to Nujora",
+            "Welcome to $site_name",
             "Welcome, {$name}!",
-            "Thank you for joining Nujora! You can now explore amazing products and connect with trusted sellers.",
-            "Start Shopping",
-            "https://yourdomain.com/login"
+            "Welcome to $site_name we’re excited to have you join our growing community! 🚀
+            You’ve just unlocked a world where discovering amazing products is effortless and connecting with trusted, verified sellers is as smooth as it gets. From everyday essentials to unique finds, $site_name brings the best of online shopping directly to your fingertips.
+            Here’s what’s waiting for you:
+            ✨ Amazing Products across multiple categories
+            🤝 Verified Sellers you can trust
+            ⚡ Fast, smooth shopping experience
+            💬 Direct communication with sellers
+            🛍️ A marketplace built for YOU
+            You're officially part of something big and this is only the beginning.
+            Go ahead, explore your dashboard and start discovering items that match your style, your needs, and your vibe.
+            If you ever need help, our support team is always here for you.
+            Welcome to the future of online shopping.
+            Welcome to $site_name. 💛",
+            "Start exploring now!",
+            "$site_url"
           );
         }
 

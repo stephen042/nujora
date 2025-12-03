@@ -84,8 +84,8 @@ if ($pdo->query("SHOW TABLES LIKE 'order_status_history'")->rowCount() > 0) {
                     </ul>
                     <?php endforeach; ?>
                     <ul class="list-group list-group-flush mb-3">
-                        <li class="list-group-item"><strong>Order Date:</strong> <?= date('d M Y, H:i', strtotime($order['created_at'])) ?></li>
-                        <li class="list-group-item"><strong>Delivery Address:</strong> <?= htmlspecialchars($order['delivery_address'] ?? 'N/A') ?></li>
+                        <li class="list-group-item"><strong>Order Date:</strong> <?= date('d M Y, H:i A', strtotime($order['created_at'])) ?></li>
+                        <li class="list-group-item"><strong>Delivery Address:</strong> <?= htmlspecialchars($order['shipping_address'] ?? 'N/A') ?></li>
                         <li class="list-group-item"><strong>Payment Method:</strong> <?= htmlspecialchars($order['payment_method']) ?></li>
                     </ul>
                 </div>
@@ -109,7 +109,7 @@ if ($pdo->query("SHOW TABLES LIKE 'order_status_history'")->rowCount() > 0) {
                                 <tr>
                                     <td><?= ucfirst(htmlspecialchars($hist['status'])) ?></td>
                                     <td><?= htmlspecialchars($hist['changed_by']) ?></td>
-                                    <td><?= date('d M Y, H:i', strtotime($hist['changed_at'])) ?></td>
+                                    <td><?= date('d M Y, H:i a', strtotime($hist['changed_at'])) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -133,7 +133,7 @@ if ($pdo->query("SHOW TABLES LIKE 'order_status_history'")->rowCount() > 0) {
                     <strong>Order Actions</strong>
                 </div>
                 <div class="card-body">
-                    <a href="seller-dashboard.php?tab=orders" class="btn btn-outline-secondary mb-2 w-100">Back to Seller Dashboard</a>
+                    <a href="seller-dashboard.php?tab=orders" class="btn btn-primary btn-outline-primary mb-2 w-100 text-white">Back to Seller Dashboard</a>
                     <?php if ($order['status'] === 'pending'): ?>
                         <a href="update_order_status.php?order_id=<?= $order_id ?>&status=cancelled" class="btn btn-danger w-100" onclick="return confirm('Cancel this order?')">Cancel Order</a>
                     <?php endif; ?>

@@ -1,4 +1,15 @@
 RewriteEngine On
+
+# Redirect /customer/... to /...
+RewriteCond %{REQUEST_URI} ^/customer/(.*)$
+RewriteRule ^customer/(.*)$ /$1 [R=301,L]
+
+# If you want /customer or /customer/index to go to homepage:
+RewriteCond %{REQUEST_URI} ^/customer/?$ [OR]
+RewriteCond %{REQUEST_URI} ^/customer/index(\.php)?/?$
+RewriteRule ^$ / [R=301,L]
+
+# Existing 404 rule
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^.*$ /404.php [L]

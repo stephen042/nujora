@@ -329,60 +329,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
             color: var(--dark-text);
         }
 
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            position: fixed;
-            background-color: #343a40;
-            color: white;
-        }
-
         .main-content {
             margin-left: 250px;
             padding: 20px;
         }
 
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 2000;
+        }
+
         @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
 
             .main-content {
                 margin-left: 0;
             }
         }
 
-        .sidebar-header {
-            padding: 20px;
-            background-color: #212529;
+        @media (min-width: 992px) {
+            .content {
+                margin-left: 250px !important;
+            }
         }
 
-        .sidebar-menu {
-            padding: 0;
-            list-style: none;
-        }
-
-        .sidebar-menu li {
-            padding: 10px 20px;
-            border-bottom: 1px solid #495057;
-        }
-
-        .sidebar-menu li a {
-            color: #adb5bd;
-            text-decoration: none;
-            display: block;
-        }
-
-        .sidebar-menu li a:hover,
-        .sidebar-menu li.active a {
-            color: white;
-        }
-
-        .sidebar-menu li.active {
-            background-color: #495057;
-        }
 
         .card {
             border-radius: 10px;
@@ -396,11 +369,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
             padding: 20px;
             color: white;
             border-radius: 10px;
+            margin: 10px 0;
         }
 
         .product-img {
             height: 200px;
-            object-fit: cover;
+            object-fit: contain;
             width: 100%;
         }
 
@@ -467,32 +441,120 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
 
 <body>
     <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h4><?= htmlspecialchars($seller['shop_name'] ?? $seller['name']) ?></h4>
-            <small>Seller Dashboard</small>
+    <div id="sellerSidebar"
+        class="sidebar bg-dark text-white p-3 d-none d-lg-flex flex-column flex-shrink-0 border-end">
+
+        <!-- Header -->
+        <div class="mb-4 mt-3">
+            <h5 class="mb-0"><?= htmlspecialchars($seller['shop_name'] ?? $seller['name']) ?></h5>
+            <small class="text-light">Seller Dashboard</small>
         </div>
-        <ul class="sidebar-menu">
-            <li class="<?= $current_tab === 'dashboard' ? 'active' : '' ?>">
-                <a href="seller-dashboard.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
+
+        <!-- Menu -->
+        <ul class="nav nav-pills flex-column mb-auto">
+
+            <li class="nav-item">
+                <a href="seller-dashboard.php"
+                    class="nav-link text-white <?= $current_tab === 'dashboard' ? 'active bg-secondary' : '' ?>">
+                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                </a>
             </li>
-            <li class="<?= $current_tab === 'products' ? 'active' : '' ?>">
-                <a href="seller-dashboard.php?tab=products"><i class="bi bi-box-seam"></i> Products</a>
-            </li>
-            <li class="<?= $current_tab === 'messages' ? 'active' : '' ?>">
-                <a href="seller-dashboard.php?tab=messages"><i class="bi bi-chat-dots"></i> Messages</a>
-            </li>
-            <li class="<?= $current_tab === 'coupons' ? 'active' : '' ?>">
-                <a href="seller-dashboard.php?tab=coupons"><i class="bi bi-percent"></i> Coupons</a>
-            </li>
-            <li class="<?= $current_tab === 'orders' ? 'active' : '' ?>">
-                <a href="seller-dashboard.php?tab=orders"><i class="bi bi-cart"></i> Orders</a>
-            </li>
+
             <li>
-                <a href="../auth/logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                <a href="seller-dashboard.php?tab=products"
+                    class="nav-link text-white <?= $current_tab === 'products' ? 'active bg-secondary' : '' ?>">
+                    <i class="bi bi-box-seam me-2"></i> Products
+                </a>
             </li>
+
+            <li>
+                <a href="seller-dashboard.php?tab=messages"
+                    class="nav-link text-white <?= $current_tab === 'messages' ? 'active bg-secondary' : '' ?>">
+                    <i class="bi bi-chat-dots me-2"></i> Messages
+                </a>
+            </li>
+
+            <!-- <li>
+                <a href="seller-dashboard.php?tab=coupons"
+                    class="nav-link text-white <?= $current_tab === 'coupons' ? 'active bg-secondary' : '' ?>">
+                    <i class="bi bi-percent me-2"></i> Coupons
+                </a>
+            </li> -->
+
+            <li>
+                <a href="seller-dashboard.php?tab=orders"
+                    class="nav-link text-white <?= $current_tab === 'orders' ? 'active bg-secondary' : '' ?>">
+                    <i class="bi bi-cart me-2"></i> Orders
+                </a>
+            </li>
+
+            <li class="mt-3">
+                <a href="../auth/logout.php" class="nav-link text-danger">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </a>
+            </li>
+
         </ul>
     </div>
+
+    <!-- Mobile Sidebar -->
+    <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="mobileSidebar">
+
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title"><?= htmlspecialchars($seller['shop_name'] ?? $seller['name']) ?></h5>
+            <button class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+
+        <div class="offcanvas-body">
+            <ul class="nav nav-pills flex-column mb-auto">
+
+                <li class="nav-item">
+                    <a href="seller-dashboard.php"
+                        class="nav-link text-white <?= $current_tab === 'dashboard' ? 'active bg-secondary' : '' ?>">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a href="seller-dashboard.php?tab=products"
+                        class="nav-link text-white <?= $current_tab === 'products' ? 'active bg-secondary' : '' ?>">
+                        <i class="bi bi-box-seam me-2"></i> Products
+                    </a>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="seller-dashboard.php?tab=messages"
+                        class="nav-link text-white <?= $current_tab === 'messages' ? 'active bg-secondary' : '' ?>">
+                        <i class="bi bi-chat-dots me-2"></i> Messages
+                    </a>
+                </li>
+
+                <!-- <li>
+                    <a href="seller-dashboard.php?tab=coupons"
+                        class="nav-link text-white <?= $current_tab === 'coupons' ? 'active bg-secondary' : '' ?>">
+                        <i class="bi bi-percent me-2"></i> Coupons
+                    </a>
+                </li> -->
+
+                <li>
+                    <a href="seller-dashboard.php?tab=orders"
+                        class="nav-link text-white <?= $current_tab === 'orders' ? 'active bg-secondary' : '' ?>">
+                        <i class="bi bi-cart me-2"></i> Orders
+                    </a>
+                </li>
+
+                <li class="mt-3">
+                    <a href="../auth/logout.php" class="nav-link text-danger">
+                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+
 
     <!-- Main Content -->
     <div class="main-content">
@@ -501,6 +563,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
             <div class="text-end">
                 <span class="badge bg-success">Approved</span>
             </div>
+            <!-- Mobile Sidebar Toggle -->
+            <button class="btn btn-dark d-lg-none mb-2" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+                <i class="bi bi-list"></i>
+            </button>
         </div>
 
         <?php if (isset($statusMessage)) echo $statusMessage; ?>
@@ -521,13 +587,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
                     <p>Customers</p>
                 </div>
             </div>
-            <div class="col-md-3">
+            <!-- <div class="col-md-3">
                 <div class="stat-card bg-info">
                     <i class="bi bi-percent"></i>
                     <h3><?= count($coupons) ?></h3>
                     <p>Active Coupons</p>
                 </div>
-            </div>
+            </div> -->
             <div class="col-md-3">
                 <div class="stat-card bg-warning">
                     <i class="bi bi-cash"></i>
@@ -538,24 +604,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
         </div>
 
         <!-- Tab Content -->
-        <ul class="nav nav-tabs mb-4" id="dashboardTabs">
-            <li class="nav-item">
-                <a class="nav-link <?= $current_tab === 'products' ? 'active' : '' ?>"
-                    href="?tab=products">Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= $current_tab === 'messages' ? 'active' : '' ?>"
-                    href="?tab=messages">Messages</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= $current_tab === 'coupons' ? 'active' : '' ?>"
-                    href="?tab=coupons">Coupons</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= $current_tab === 'orders' ? 'active' : '' ?>"
-                    href="?tab=orders">Orders</a>
-            </li>
-        </ul>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-4" style="background-color: #f8f9fa; padding: 10px 15px;">
+                <li class="breadcrumb-item">
+                    <a href="?tab=products" class="<?= $current_tab === 'products' ? 'fw-bold text-primary' : '' ?>">
+                        Products
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="?tab=messages" class="<?= $current_tab === 'messages' ? 'fw-bold text-primary' : '' ?>">
+                        Messages
+                    </a>
+                </li>
+                <!-- <li class="breadcrumb-item">
+                    <a href="?tab=coupons" class="<?= $current_tab === 'coupons' ? 'fw-bold text-primary' : '' ?>">
+                        Coupons
+                    </a>
+                </li> -->
+                <li class="breadcrumb-item">
+                    <a href="?tab=orders" class="<?= $current_tab === 'orders' ? 'fw-bold text-primary' : '' ?>">
+                        Orders
+                    </a>
+                </li>
+            </ol>
+        </nav>
+
 
         <!-- Products Tab -->
         <div class="tab-content" id="productsTab" style="<?= $current_tab === 'products' ? '' : 'display:none;' ?>">
@@ -767,7 +840,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
         </div>
 
         <!-- Orders Tab -->
-        <!-- <div class="tab-content" id="ordersTab" style="<?= $current_tab === 'orders' ? '' : 'display:none;' ?>">
+        <div class="tab-content" id="ordersTab" style="<?= $current_tab === 'orders' ? '' : 'display:none;' ?>">
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>Order Management</span>
@@ -792,48 +865,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
                                 </thead>
                                 <tbody>
                                     <?php foreach ($orders as $order): ?>
-                                    <tr>
-                                        <td>#<?= htmlspecialchars($order['id']) ?></td>
-                                        <td><?= htmlspecialchars($order['product_name']) ?></td>
-                                        <td><?= htmlspecialchars($order['buyer_name']) ?></td>
-                                        <td><?= date('M j, Y', strtotime($order['created_at'])) ?></td>
-                                        <td><?= htmlspecialchars($order['quantity']) ?></td>
-                                        <td>₦<?= number_format($order['price'] * $order['quantity'], 2) ?></td>
-                                        <td>
-                                            <span class="badge 
+                                        <tr>
+                                            <td>#<?= htmlspecialchars($order['id']) ?></td>
+                                            <td><?= htmlspecialchars($order['product_name']) ?></td>
+                                            <td><?= htmlspecialchars($order['buyer_name']) ?></td>
+                                            <td><?= date('M j, Y', strtotime($order['created_at'])) ?></td>
+                                            <td><?= htmlspecialchars($order['quantity']) ?></td>
+                                            <td>₦<?= number_format($order['price'] * $order['quantity'], 2) ?></td>
+                                            <td>
+                                                <span class="badge 
                                                 <?= $order['current_status'] === 'completed' ? 'bg-success' : '' ?>
                                                 <?= $order['current_status'] === 'cancelled' ? 'bg-danger' : '' ?>
                                                 <?= $order['current_status'] === 'shipped' ? 'bg-info' : '' ?>
                                                 <?= $order['current_status'] === 'processing' ? 'bg-warning' : '' ?>
                                                 <?= $order['current_status'] === 'pending' ? 'bg-secondary' : '' ?>
                                             ">
-                                                <?= ucfirst($order['current_status'] ?? 'pending') ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex">
-                                                <form method="post" class="me-2" 
-                                                    onsubmit="return confirm('Are you sure you want to update this order status?')">
-                                                    <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                                    <div class="input-group input-group-sm">
-                                                        <select name="status" class="form-select form-select-sm" required>
-                                                            <option value="pending" <?= $order['current_status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
-                                                            <option value="processing" <?= $order['current_status'] === 'processing' ? 'selected' : '' ?>>Processing</option>
-                                                            <option value="shipped" <?= $order['current_status'] === 'shipped' ? 'selected' : '' ?>>Shipped</option>
-                                                            <option value="completed" <?= $order['current_status'] === 'completed' ? 'selected' : '' ?>>Completed</option>
-                                                            <option value="cancelled" <?= $order['current_status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
-                                                        </select>
-                                                        <button type="submit" name="update_order_status" class="btn btn-primary btn-sm">
-                                                            <i class="bi bi-check"></i>
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                                <a href="order_details.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-outline-secondary">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                                    <?= ucfirst($order['current_status'] ?? 'pending') ?>
+                                                </span>
+                                            </td>
+                                            <td width="220px">
+                                                <div class="d-flex">
+                                                    <form method="post" class="me-2"
+                                                        onsubmit="return confirm('Are you sure you want to update this order status?')">
+                                                        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                                                        <div class="input-group input-group-sm">
+                                                            <select name="status" class="form-select form-select-sm" required>
+                                                                <option value="pending" <?= $order['current_status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                                                <option value="processing" <?= $order['current_status'] === 'processing' ? 'selected' : '' ?>>Processing</option>
+                                                                <option value="shipped" <?= $order['current_status'] === 'shipped' ? 'selected' : '' ?>>Shipped</option>
+                                                                <option value="completed" <?= $order['current_status'] === 'completed' ? 'selected' : '' ?>>Completed</option>
+                                                                <option value="cancelled" <?= $order['current_status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                                            </select>
+                                                            <button type="submit" name="update_order_status" class="btn btn-primary btn-sm">
+                                                                <i class="bi bi-check"></i>
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                    <a href="order_details.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
@@ -842,442 +915,125 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
-        <!-- Create Coupon Modal -->
-        <div class="modal fade" id="createCouponModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <form method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Create New Coupon</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Create Coupon Modal -->
+    <div class="modal fade" id="createCouponModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Create New Coupon</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Coupon Type Toggle -->
+                        <div class="mb-3">
+                            <label class="form-label">Coupon Type</label>
+                            <div class="d-flex">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="radio" name="coupon_type" id="couponTypeOnline" value="online" checked>
+                                    <label class="form-check-label" for="couponTypeOnline">
+                                        Online
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="coupon_type" id="couponTypeOffline" value="offline">
+                                    <label class="form-check-label" for="couponTypeOffline">
+                                        Offline
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="modal-body">
-                            <!-- Coupon Type Toggle -->
-                            <div class="mb-3">
-                                <label class="form-label">Coupon Type</label>
-                                <div class="d-flex">
-                                    <div class="form-check me-3">
-                                        <input class="form-check-input" type="radio" name="coupon_type" id="couponTypeOnline" value="online" checked>
-                                        <label class="form-check-label" for="couponTypeOnline">
-                                            Online
+
+                        <!-- Coupon Code -->
+                        <div class="mb-3">
+                            <label for="couponCode" class="form-label">Coupon Code</label>
+                            <input type="text" class="form-control" id="couponCode" name="code" required
+                                placeholder="e.g., SUMMER20" pattern="[A-Z0-9]{4,20}">
+                            <small class="text-muted">Uppercase letters and numbers only (4-20 characters)</small>
+                        </div>
+
+                        <!-- Discount Details -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Discount Type</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="discount_type"
+                                            id="discountPercentage" value="percentage" checked>
+                                        <label class="form-check-label" for="discountPercentage">
+                                            Percentage
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="coupon_type" id="couponTypeOffline" value="offline">
-                                        <label class="form-check-label" for="couponTypeOffline">
-                                            Offline
+                                        <input class="form-check-input" type="radio" name="discount_type"
+                                            id="discountFixed" value="fixed">
+                                        <label class="form-check-label" for="discountFixed">
+                                            Fixed Amount
                                         </label>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Coupon Code -->
-                            <div class="mb-3">
-                                <label for="couponCode" class="form-label">Coupon Code</label>
-                                <input type="text" class="form-control" id="couponCode" name="code" required
-                                    placeholder="e.g., SUMMER20" pattern="[A-Z0-9]{4,20}">
-                                <small class="text-muted">Uppercase letters and numbers only (4-20 characters)</small>
-                            </div>
-
-                            <!-- Discount Details -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Discount Type</label>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="discount_type"
-                                                id="discountPercentage" value="percentage" checked>
-                                            <label class="form-check-label" for="discountPercentage">
-                                                Percentage
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="discount_type"
-                                                id="discountFixed" value="fixed">
-                                            <label class="form-check-label" for="discountFixed">
-                                                Fixed Amount
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="discountValue" class="form-label">Discount Value</label>
-                                        <input type="number" class="form-control" id="discountValue" name="discount_value"
-                                            min="1" max="100" step="0.01" required>
-                                    </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="discountValue" class="form-label">Discount Value</label>
+                                    <input type="number" class="form-control" id="discountValue" name="discount_value"
+                                        min="1" max="100" step="0.01" required>
                                 </div>
                             </div>
-
-
-
-                            <!-- Minimum Spend -->
-                            <div class="mb-3">
-                                <label for="minSpend" class="form-label">Minimum Spend (₦)</label>
-                                <input type="number" class="form-control" id="minSpend" name="min_spend"
-                                    min="0" step="100" required>
-                            </div>
-
-                            <!-- Expiry Date -->
-                            <div class="mb-3">
-                                <label for="expiryDate" class="form-label">Expiry Date</label>
-                                <input type="date" class="form-control" id="expiryDate" name="expiry_date"
-                                    min="<?= date('Y-m-d', strtotime('+1 day')) ?>" required>
-                            </div>
-
-                            <!-- Commission Preview -->
-                            <div class="alert alert-info" id="commissionPreview">
-                                <strong>Estimated Commission:</strong> ₦0.00 (2.5% of discount value)
-                            </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" name="create_coupon" class="btn btn-primary">Create Coupon</button>
+
+
+
+                        <!-- Minimum Spend -->
+                        <div class="mb-3">
+                            <label for="minSpend" class="form-label">Minimum Spend (₦)</label>
+                            <input type="number" class="form-control" id="minSpend" name="min_spend"
+                                min="0" step="100" required>
                         </div>
-                    </form>
-                </div>
+
+                        <!-- Expiry Date -->
+                        <div class="mb-3">
+                            <label for="expiryDate" class="form-label">Expiry Date</label>
+                            <input type="date" class="form-control" id="expiryDate" name="expiry_date"
+                                min="<?= date('Y-m-d', strtotime('+1 day')) ?>" required>
+                        </div>
+
+                        <!-- Commission Preview -->
+                        <div class="alert alert-info" id="commissionPreview">
+                            <strong>Estimated Commission:</strong> ₦0.00 (2.5% of discount value)
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="create_coupon" class="btn btn-primary">Create Coupon</button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
 
-        <script>
-            function updateCommissionPreview() {
-                const minSpend = parseFloat(document.getElementById('minSpend').value) || 0;
+    <script>
+        function updateCommissionPreview() {
+            const minSpend = parseFloat(document.getElementById('minSpend').value) || 0;
 
-                // Calculate 2.5% commission on minSpend
-                const commission = minSpend * 0.025;
+            // Calculate 2.5% commission on minSpend
+            const commission = minSpend * 0.025;
 
-                // Display result
-                document.getElementById('commissionPreview').innerHTML = `
+            // Display result
+            document.getElementById('commissionPreview').innerHTML = `
             <strong>Estimated Commission:</strong> ₦${commission.toFixed(2)} (2.5% of Minimum Spend)
         `;
-            }
+        }
 
-            // Add event listener only for minSpend since discount type/value are no longer relevant
-            document.getElementById('minSpend').addEventListener('input', updateCommissionPreview);
+        // Add event listener only for minSpend since discount type/value are no longer relevant
+        document.getElementById('minSpend').addEventListener('input', updateCommissionPreview);
 
-            // Initialize preview
-            updateCommissionPreview();
-        </script>
+        // Initialize preview
+        updateCommissionPreview();
+    </script>
 
 </body>
 
 </html>
-
-
-
-<!-- Coupons Tab -->
-<div class="tab-content" id="couponsTab" style="<?= isset($_GET['tab']) && $_GET['tab'] === 'coupons' ? '' : 'display:none;' ?>">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Your Coupons</h4>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createCouponModal">
-            <i class="bi bi-plus"></i> Create Coupon
-        </button>
-    </div>
-
-    <?php if (empty($coupons)): ?>
-        <div class="alert alert-info">
-            You haven't created any coupons yet. Create your first coupon to attract more customers.
-        </div>
-    <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>Discount</th>
-                        <th>Min Spend</th>
-                        <th>Expires</th>
-                        <th>Redemptions</th>
-                        <th>Total Sales</th>
-                        <th>Commission</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($coupons as $coupon):
-                        $is_expired = strtotime($coupon['expiry_date']) < time();
-                        $discount_display = ($coupon['discount_type'] === 'percentage')
-                            ? $coupon['discount_value'] . '%'
-                            : '₦' . number_format($coupon['discount_value'], 2);
-                    ?>
-                        <tr class="<?= $is_expired ? 'table-secondary' : '' ?>">
-                            <td><strong><?= htmlspecialchars($coupon['code']) ?></strong></td>
-                            <td><?= $discount_display ?></td>
-                            <td>₦<?= number_format($coupon['min_spend'], 2) ?></td>
-                            <td><?= date('M j, Y', strtotime($coupon['expiry_date'])) ?></td>
-                            <td><?= $coupon['redemption_count'] ?></td>
-                            <td>₦<?= number_format($coupon['total_sales'] ?? 0, 2) ?></td>
-                            <td>₦<?= number_format($coupon['platform_commission'] ?? 0, 2) ?></td>
-                            <td>
-                                <?php if ($is_expired): ?>
-                                    <span class="badge bg-danger">Expired</span>
-                                <?php else: ?>
-                                    <span class="badge bg-success">Active</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-secondary">Details</button>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    <?php endif; ?>
-</div>
-<?php
-// Handle order status update
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_order_status'])) {
-    $order_id = (int)$_POST['order_id'];
-    $new_status = $_POST['status'];
-
-    // Validate status
-    $allowed_statuses = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
-    if (!in_array($new_status, $allowed_statuses)) {
-        $statusMessage = '<div class="alert alert-danger">Invalid order status</div>';
-    } else {
-        try {
-            // Verify the order belongs to this seller
-            $stmt = $pdo->prepare("
-                SELECT o.id 
-                FROM orders o
-                JOIN order_items oi ON o.id = oi.order_id
-                JOIN products p ON oi.product_id = p.id
-                WHERE o.id = ? AND p.seller_id = ?
-                LIMIT 1
-            ");
-            $stmt->execute([$order_id, $seller_id]);
-            $valid_order = $stmt->fetch();
-
-            if ($valid_order) {
-                // Update status
-                $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
-                $stmt->execute([$new_status, $order_id]);
-
-                // Record status change
-                $stmt = $pdo->prepare("
-                    INSERT INTO order_status_history 
-                    (order_id, status, changed_by, changed_at)
-                    VALUES (?, ?, 'seller', NOW())
-                ");
-                $stmt->execute([$order_id, $new_status]);
-
-                $statusMessage = '<div class="alert alert-success">Order status updated successfully</div>';
-            } else {
-                $statusMessage = '<div class="alert alert-danger">Order not found or not yours</div>';
-            }
-        } catch (PDOException $e) {
-            $statusMessage = '<div class="alert alert-danger">Error updating order: ' . $e->getMessage() . '</div>';
-        }
-    }
-}
-
-// Fetch orders with status history
-try {
-    $stmt = $pdo->prepare("
-        SELECT o.*, oi.product_id, p.name as product_name, 
-               u.name as buyer_name, oi.quantity, oi.price,
-               (SELECT status FROM order_status_history 
-                WHERE order_id = o.id 
-                ORDER BY changed_at DESC LIMIT 1) as current_status
-        FROM orders o
-        JOIN order_items oi ON o.id = oi.order_id
-        JOIN products p ON oi.product_id = p.id
-        JOIN users u ON o.buyer_id = u.id
-        WHERE p.seller_id = ?
-        ORDER BY o.created_at DESC
-    ");
-    $stmt->execute([$seller_id]);
-    $orders = $stmt->fetchAll();
-} catch (PDOException $e) {
-    $orders = [];
-    error_log("Error fetching orders: " . $e->getMessage());
-}
-?>
-
-<!-- In the orders tab section: -->
-<div class="tab-content" id="ordersTab" style="<?= $current_tab === 'orders' ? '' : 'display:none;' ?>">
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Order Management</span>
-            <div class="btn-group">
-                <button class="btn btn-sm btn-outline-secondary">Export</button>
-            </div>
-        </div>
-        <div class="card-body">
-            <?php if (empty($orders)): ?>
-                <div class="alert alert-info">No orders found</div>
-            <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Product</th>
-                                <th>Buyer</th>
-                                <th>Date</th>
-                                <th>Qty</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($orders as $order): ?>
-                                <tr>
-                                    <td>#<?= htmlspecialchars($order['id']) ?></td>
-                                    <td><?= htmlspecialchars($order['product_name']) ?></td>
-                                    <td><?= htmlspecialchars($order['buyer_name']) ?></td>
-                                    <td><?= date('M j, Y', strtotime($order['created_at'])) ?></td>
-                                    <td><?= htmlspecialchars($order['quantity']) ?></td>
-                                    <td>₦<?= number_format($order['price'] * $order['quantity'], 2) ?></td>
-                                    <td>
-                                        <span class="badge 
-                                        <?= $order['current_status'] === 'completed' ? 'bg-success' : '' ?>
-                                        <?= $order['current_status'] === 'cancelled' ? 'bg-danger' : '' ?>
-                                        <?= $order['current_status'] === 'shipped' ? 'bg-info' : '' ?>
-                                        <?= $order['current_status'] === 'processing' ? 'bg-warning' : '' ?>
-                                        <?= $order['current_status'] === 'pending' ? 'bg-secondary' : '' ?>
-                                    ">
-                                            <?= ucfirst($order['current_status'] ?? 'pending') ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex">
-                                            <form method="post" class="me-2"
-                                                onsubmit="return confirm('Are you sure you want to update this order status?')">
-                                                <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                                <div class="input-group input-group-sm">
-                                                    <select name="status" class="form-select form-select-sm" required>
-                                                        <option value="pending" <?= $order['current_status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
-                                                        <option value="processing" <?= $order['current_status'] === 'processing' ? 'selected' : '' ?>>Processing</option>
-                                                        <option value="shipped" <?= $order['current_status'] === 'shipped' ? 'selected' : '' ?>>Shipped</option>
-                                                        <option value="completed" <?= $order['current_status'] === 'completed' ? 'selected' : '' ?>>Completed</option>
-                                                        <option value="cancelled" <?= $order['current_status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
-                                                    </select>
-                                                    <button type="submit" name="update_order_status" class="btn btn-primary btn-sm">
-                                                        <i class="bi bi-check"></i>
-                                                    </button>
-                                                </div>
-                                            </form>
-                                            <a href="order_details.php?id=<?= $order['id'] ?>" class="btn btn-sm btn-outline-secondary">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-</div>
-<!-- Create Coupon Modal -->
-<div class="modal fade" id="createCouponModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create New Coupon</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="couponCode" class="form-label">Coupon Code</label>
-                        <input type="text" class="form-control" id="couponCode" name="code" required
-                            placeholder="e.g., SUMMER20" pattern="[A-Z0-9]{4,20}">
-                        <small class="text-muted">Uppercase letters and numbers only (4-20 characters)</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Discount Type</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="discount_type"
-                                id="discountPercentage" value="percentage" checked>
-                            <label class="form-check-label" for="discountPercentage">
-                                Percentage
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="discount_type"
-                                id="discountFixed" value="fixed">
-                            <label class="form-check-label" for="discountFixed">
-                                Fixed Amount
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="discountValue" class="form-label">Discount Value</label>
-                        <input type="number" class="form-control" id="discountValue" name="discount_value"
-                            min="1" max="100" step="0.01" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="minSpend" class="form-label">Minimum Spend (₦)</label>
-                        <input type="number" class="form-control" id="minSpend" name="min_spend"
-                            min="0" step="100" required>
-                        <label for="expiryDate" class="form-label">Expiry Date</label>
-                        <input type="date" class="form-control" id="expiryDate" name="expiry_date"
-                            min="<?= date('Y-m-d') ?>" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" name="create_coupon" class="btn btn-primary">Create Coupon</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Auto-scroll chat to bottom
-        const chatContainer = document.getElementById('chatContainer');
-        if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        // Update discount value constraints based on type
-        const discountPercentage = document.getElementById('discountPercentage');
-        const discountFixed = document.getElementById('discountFixed');
-        const discountValue = document.getElementById('discountValue');
-
-        discountPercentage.addEventListener('change', function() {
-            discountValue.max = 100;
-            discountValue.placeholder = "Percentage (1-100)";
-        });
-
-        discountFixed.addEventListener('change', function() {
-            discountValue.removeAttribute('max');
-            discountValue.placeholder = "Fixed amount";
-        });
-
-        // Tab switching
-        document.querySelectorAll('.nav-tabs .nav-link').forEach(tab => {
-            tab.addEventListener('click', function(e) {
-                e.preventDefault();
-                const tabId = this.getAttribute('href').substring(1);
-
-                // Hide all tab contents
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.style.display = 'none';
-                });
-
-                // Show selected tab content
-                document.getElementById(tabId + 'Tab').style.display = 'block';
-
-                // Update URL without reload
-                history.pushState(null, null, '?tab=' + tabId);
-            });
-        });
-    </script>
-    </body>
-
-    </html>
-    <!-- end of dashboard -->

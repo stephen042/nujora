@@ -15,7 +15,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <a class="nav-link <?= ($currentPage == 'cart.php') ? 'active' : '' ?>" href="cart.php">
         <i class="fas fa-shopping-cart"></i>
         <span>Cart</span>
-        <span id="cart-count" class="position-absolute top-80 start-10 translate-middle badge rounded-pill bg-danger">
+        <span id="bottom-cart-count" class="position-absolute top-80 start-10 translate-middle badge rounded-pill bg-danger">
             <?php echo $cartCount ?? 0 ?>
         </span>
     </a>

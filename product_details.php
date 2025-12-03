@@ -1,17 +1,23 @@
 <?php
 require 'app/config.php';
 
-// GET PRODUCT
-$product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+// ✅ GET PRODUCT SLUG (as string)
+$slug = $_GET['slug'] ?? '';
+
+if (!$slug) {
+  header("Location: 404.php");
+  exit;
+}
 
 try {
+  // ✅ Fetch product by slug
   $stmt = $pdo->prepare("
-        SELECT p.*, u.name AS seller_name, u.shop_name, u.role AS seller_role 
-        FROM products p 
-        JOIN users u ON p.seller_id = u.id 
-        WHERE p.id = ?
-    ");
-  $stmt->execute([$product_id]);
+      SELECT p.*, u.name AS seller_name, u.shop_name, u.role AS seller_role 
+      FROM products p 
+      JOIN users u ON p.seller_id = u.id 
+      WHERE p.slug = ?
+  ");
+  $stmt->execute([$slug]);
   $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if (!$product) {
@@ -19,13 +25,44 @@ try {
     exit;
   }
 
-  // RELATED PRODUCTS
+  // ✅ Fetch product variants using product ID
+  $stmt = $pdo->prepare("
+    SELECT v.id AS variant_id,
+           o.option_name,
+           o.option_value
+    FROM product_variants v
+    JOIN product_variant_options o ON o.variant_id = v.id
+    WHERE v.product_id = ?
+");
+  $stmt->execute([$product['id']]);
+  $raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  // Convert to a structured format
+  $variants = [];
+  $attributes = [];
+
+  foreach ($raw as $row) {
+    $variants[$row['variant_id']][$row['option_name']] = $row['option_value'];
+    $attributes[$row['option_name']][] = $row['option_value'];
+  }
+
+  // Remove duplicates
+  foreach ($attributes as $key => $values) {
+    $attributes[$key] = array_unique($values);
+  }
+
+  $has_variants = count($variants) > 0;
+
+
+
+
+  // ✅ Fetch related products using product ID
   $related_stmt = $pdo->prepare("
-        SELECT * FROM products 
-        WHERE category = ? AND id != ? 
-        LIMIT 4
-    ");
-  $related_stmt->execute([$product['category'], $product_id]);
+      SELECT * FROM products 
+      WHERE category = ? AND id != ?
+      LIMIT 4
+  ");
+  $related_stmt->execute([$product['category'], $product['id']]);
   $related_products = $related_stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
   die("Error: " . $e->getMessage());
@@ -35,33 +72,33 @@ try {
 // ---------------- REVIEWS SECTION ----------------
 //
 
-// FETCH FIRST 5 REVIEWS
+// ✅ FETCH FIRST 5 REVIEWS using product ID
 try {
   $review_stmt = $pdo->prepare("
-        SELECT r.*, u.name AS user_name
-        FROM product_reviews r
-        JOIN users u ON r.buyer_id = u.id
-        WHERE r.product_id = ?
-        ORDER BY r.created_at DESC
-        LIMIT 5
-    ");
-  $review_stmt->execute([$product_id]);
+      SELECT r.*, u.name AS user_name
+      FROM product_reviews r
+      JOIN users u ON r.buyer_id = u.id
+      WHERE r.product_id = ?
+      ORDER BY r.created_at DESC
+      LIMIT 5
+  ");
+  $review_stmt->execute([$product['id']]);
   $reviews = $review_stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
   error_log('Review fetch error: ' . $e->getMessage());
   $reviews = [];
 }
 
-// AVERAGE RATING + TOTAL COUNT
+// ✅ AVERAGE RATING + TOTAL COUNT using product ID
 try {
   $rating_stmt = $pdo->prepare("
-        SELECT 
-            ROUND(AVG(rating), 1) AS avg_rating,
-            COUNT(*) AS review_count
-        FROM product_reviews
-        WHERE product_id = ?
-    ");
-  $rating_stmt->execute([$product_id]);
+      SELECT 
+          ROUND(AVG(rating), 1) AS avg_rating,
+          COUNT(*) AS review_count
+      FROM product_reviews
+      WHERE product_id = ?
+  ");
+  $rating_stmt->execute([$product['id']]);
   $rating_data = $rating_stmt->fetch(PDO::FETCH_ASSOC);
 
   $avg_rating = $rating_data['avg_rating'] ?? 0;
@@ -80,14 +117,40 @@ try {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title><?= htmlspecialchars($product['name']) ?> | <?= APP_NAME ?></title>
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://<?= $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ?>">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="<?= htmlspecialchars($product['image_url'] ?? 'uploads/default-product.png') ?>">
+
+  <!-- SEO -->
+  <meta name="robots" content="index, follow">
+  <meta name="description" content="<?= htmlspecialchars(substr($product['description'] ?? $product['name'], 0, 160)) ?>">
+
+  <!-- ✅ OPEN GRAPH (for Facebook, WhatsApp, Instagram) -->
+  <meta property="og:type" content="product" />
+  <meta property="og:title" content="<?= htmlspecialchars($product['name']) ?> | <?= APP_NAME ?>" />
+  <meta property="og:description" content="<?= htmlspecialchars(substr($product['description'] ?? $product['name'], 0, 160)) ?>" />
+  <meta property="og:url" content="https://<?= $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ?>" />
+  <meta property="og:image" content="https://<?= $_SERVER['HTTP_HOST'] ?>/<?= htmlspecialchars($product['image_url'] ?? 'uploads/default-product.png') ?>" />
+  <meta property="og:image:alt" content="<?= htmlspecialchars($product['name']) ?>" />
+
+  <!-- ✅ TWITTER CARD -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<?= htmlspecialchars($product['name']) ?> | <?= APP_NAME ?>">
+  <meta name="twitter:description" content="<?= htmlspecialchars(substr($product['description'] ?? $product['name'], 0, 160)) ?>">
+  <meta name="twitter:image" content="https://<?= $_SERVER['HTTP_HOST'] ?>/<?= htmlspecialchars($product['image_url'] ?? 'uploads/default-product.png') ?>">
+
+  <!-- Google Verification -->
+  <meta name="google-site-verification" content="ZlNr6S6JXMI9jO0JTdQHvBJc0V1aYZfiMDkNhziPCP4" />
+
+  <!-- Styles -->
   <link href="assets/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="uploads/default-product.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="canonical" href="<?php echo 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>" />
-  <meta name="robots" content="index, follow">
-  <meta name="google-site-verification" content="ZlNr6S6JXMI9jO0JTdQHvBJc0V1aYZfiMDkNhziPCP4" />
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1RW7L87K4D"></script>
@@ -113,11 +176,16 @@ try {
   </script>
   <style>
     :root {
-      --primary-color: #FF6B6B;
-      --secondary-color: #4ECDC4;
-      --dark-color: #292F36;
-      --light-color: #F7FFF7;
-      --accent-color: #FFE66D;
+      --primary-color: #f57c00;
+      /* Bright Orange */
+      --secondary-color: #ef6c00;
+      /* Deep Orange */
+      --accent-color: #ffb74d;
+      /* Soft Yellow-Orange */
+      --light-bg: #fff8f0;
+      /* Warm Light Background */
+      --dark-text: #1e1e1e;
+      /* Darker Text for Better Contrast */
     }
 
     body {
@@ -220,7 +288,7 @@ try {
     }
 
     .btn-add-to-cart:hover {
-      background: #e05555;
+      /* background: #e05555; */
       transform: translateY(-2px);
     }
 
@@ -365,7 +433,7 @@ try {
               } else {
                 // Fallback if no images
                 ?>
-                <img src="uploads/default-product.png"
+                <img src="<?= htmlspecialchars($product['image_url']) ?? "uploads/default-product.png" ?>"
                   class="thumbnail active"
                   onclick="changeImage(this)">
               <?php
@@ -395,8 +463,8 @@ try {
                 </span>
               <?php endif; ?>
             </div>
-            <?php if (isset($product['shipping_fee']) && $product['shipping_fee'] > 0): ?>
-              <small class="text-muted">+ ₦<?= number_format($product['shipping_fee'], 2) ?> shipping fee</small>
+            <?php if (isset($product['free_delivery']) && $product['free_delivery'] == 1): ?>
+              <small class="text-muted">+ ₦1,200 shipping fee</small>
             <?php else: ?>
               <small class="text-success">Free Shipping</small>
             <?php endif; ?>
@@ -415,43 +483,36 @@ try {
             </ul>
           </div>
 
-          <div class="mb-4">
-            <div class="row g-2">
-              <div class="col-md-6">
-                <label for="quantity" class="form-label">Quantity</label>
-                <div class="input-group">
-                  <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity(-1)">-</button>
-                  <input type="number" id="quantity" class="form-control text-center" value="1" min="1" max="<?= $product['stock'] ?>">
-                  <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity(1)">+</button>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Color</label>
-                <select class="form-select">
-                  <option>Red</option>
-                  <option>Blue</option>
-                  <option>Black</option>
-                  <option>White</option>
+          <?php if ($has_variants): ?>
+
+            <?php foreach ($attributes as $attrName => $values): ?>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Select <?= ucfirst($attrName) ?></label>
+                <select class="form-select variant-select" data-attr="<?= $attrName ?>">
+                  <option value="">Choose <?= $attrName ?></option>
+
+                  <?php foreach ($values as $v): ?>
+                    <option value="<?= $v ?>"><?= ucfirst($v) ?></option>
+                  <?php endforeach; ?>
+
                 </select>
               </div>
-            </div>
-          </div>
+            <?php endforeach; ?>
+
+            <!-- Hidden variant_id -->
+            <input type="hidden" id="selected-variant-id">
+
+          <?php endif; ?>
+
+
+
 
           <div class="d-grid gap-2">
             <!-- Add to Cart Button -->
-            <button class="btn btn-add-to-cart btn-lg p-2 text-white add-to-cart w-50" data-id="<?= $product['id'] ?>" <?= $product['stock'] == 0 ? 'disabled' : '' ?>>
-              <i class="fas fa-shopping-cart"></i>
+            <button class="btn btn-add-to-cart btn-lg p-1 text-white add-to-cart w-100" data-id="<?= $product['id'] ?>" <?= $product['stock'] == 0 ? 'disabled' : '' ?>>
+              <i class="fas fa-shopping-cart float-start m-2"></i>
               Add to Cart
             </button>
-
-            <!-- Buy Now Button -->
-            <form method="POST" action="checkout.php">
-              <input type="hidden" name="product_id" value="<?= htmlspecialchars($product['id']) ?>">
-              <input type="hidden" name="quantity" id="buyNowQuantity" value="1">
-              <button class="btn btn-buy-now btn-lg p-2 text-white" <?= $product['stock'] == 0 ? 'disabled' : '' ?>>
-                <i class="fas fa-buy"></i> Buy Now
-              </button>
-            </form>
           </div>
           <!-- Notify When Available Button -->
           <?php if ($product['stock'] == 0): ?>
@@ -460,17 +521,16 @@ try {
               <button class="btn btn-outline-secondary btn-lg">
                 <i class="fas fa-bell me-2"></i> Notify When Available
               </button>
-
             </form>
           <?php endif; ?>
         </div>
 
         <div class="mt-3 d-flex justify-content-between">
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="addWarranty">
+            <!-- <input class="form-check-input" type="checkbox" id="addWarranty">
             <label class="form-check-label" for="addWarranty">
               Add 1-Year Warranty (+₦1,500)
-            </label>
+            </label> -->
           </div>
           <a href="#" class="text-decoration-none"><i class="far fa-heart"></i> Add to Wishlist</a>
         </div>
@@ -705,9 +765,6 @@ try {
                 <?php if (isset($related['original_price']) && $related['original_price'] > $related['price']): ?>
                   <small class="text-muted text-decoration-line-through">₦<?= number_format($related['original_price'], 2) ?></small>
                 <?php endif; ?>
-              </div>
-              <div class="text-warning">
-                <i class="fas fa-star"></i> 4.5
               </div>
             </div>
           </div>

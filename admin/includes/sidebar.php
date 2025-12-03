@@ -100,6 +100,10 @@ if (!isset($_SESSION['user_id'])) {
         <li class="<?= $current_page == 'admin_settings.php' ? 'active' : '' ?>">
             <a href="admin_settings.php"><i class="bi bi-gear"></i> Settings</a>
         </li>
+
+        <li class="<?= $current_page == 'create_slug.php' ? 'active' : '' ?>">
+            <a href="create_slug.php"><i class="bi bi-gear"></i> Create Slug</a>
+        </li>
         <li>
             <a href="../auth/logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a>
         </li>

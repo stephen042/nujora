@@ -45,15 +45,17 @@ if (isset($_POST['product_action'])) {
             $stmt = $pdo->prepare("UPDATE products SET is_featured = NOT is_featured WHERE id = ?");
             $stmt->execute([$product_id]);
             $_SESSION['success'] = "Product feature status updated.";
+            header("Location: admin_products.php");
+            exit;
         }
-    } catch (PDOException $e) {
+        } catch (PDOException $e) {
         $_SESSION['error'] = " Error updating product: " . $e->getMessage();
+        }
     }
-}
-?>
+    ?>
 
-<!DOCTYPE html>
-<html lang="en">
+    <!DOCTYPE html>
+    <html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -116,7 +118,11 @@ if (isset($_POST['product_action'])) {
                         <th>ID</th>
                         <th>Name</th>
                         <th>Category</th>
-                        <th>Price</th>
+                        <th>Seller's Name</th>
+                        <th>Seller's Phone</th>
+                        <th>Original Price</th>
+                        <th>Price after %</th>
+                        <th>Profit</th>
                         <th>Stock</th>
                         <th>Created At</th>
                         <th>Image</th>
@@ -128,12 +134,23 @@ if (isset($_POST['product_action'])) {
                     <?php
                     $i = 1; // initialize counter
                     ?>
-                    <?php foreach ($products as $product): ?>
+                    <?php foreach ($products as $product): 
+                        $seller_stmt = $pdo->prepare("SELECT name, phone FROM users WHERE id = ?");
+                        $seller_stmt->execute([$product['seller_id']]);
+                        $seller = $seller_stmt->fetch(PDO::FETCH_ASSOC);
+                        ?>
                         <tr>
                             <td><?= $i++ ?></td>
                             <td><?= htmlspecialchars($product['name']) ?></td>
                             <td><?= htmlspecialchars($product['category']) ?></td>
+                            <td><?= htmlspecialchars($seller['name'] ?? 'N/A') ?></td>
+                            <td><?= htmlspecialchars($seller['phone'] ?? 'N/A') ?></td>
+                            <td>₦<?= number_format($product['original_price'], 2) ?></td>
                             <td>₦<?= number_format($product['price'], 2) ?></td>
+                            <td>₦<?php 
+                                $profit = $product['price'] - $product['original_price'] ?? 0; 
+                                echo number_format($profit, 2);
+                            ?></td>
                             <td><?= htmlspecialchars($product['stock']) ?></td>
                             <td><?= htmlspecialchars($product['created_at']) ?></td>
                             <td>

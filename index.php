@@ -567,7 +567,7 @@ function getSellerBadge($avg_rating)
         <div class="category-scroll-wrapper overflow-hidden position-relative">
           <div id="featuredGoods" class="d-flex flex-row flex-nowrap gap-3 px-4 py-2 overflow-auto" style="scroll-behavior: smooth;">
             <?php foreach ($featured_products as $product): ?>
-              <a href="product_details.php?id=<?= $product['id'] ?>" style="text-decoration: none;">
+              <a href="product_details.php?slug=<?= $product['slug'] ?>" style="text-decoration: none;">
                 <div class="card" style="min-width: 180px; max-width: 200px;">
                   <img src="<?php echo isset($product['image_url']) && $product['image_url']
                               ? "" . htmlspecialchars($product['image_url'])
@@ -577,7 +577,7 @@ function getSellerBadge($avg_rating)
                   <div class="card-body p-2">
                     <h6 class="card-title text-truncate"><?= htmlspecialchars($product['name']) ?></h6>
                     <p class="card-text text-primary fw-bold mb-2">₦<?= number_format($product['price'], 2) ?></p>
-                    <a href="product_details.php?id=<?= $product['id'] ?>" class="btn btn-sm btn-primary w-100">View</a>
+                    <a href="product_details.php?slug=<?= $product['slug'] ?>" class="btn btn-sm btn-primary w-100">View</a>
                   </div>
                 </div>
               </a>
@@ -612,7 +612,7 @@ function getSellerBadge($avg_rating)
       <?php else: ?>
         <?php foreach ($products as $product): ?>
           <div class="col-6 col-sm-6 col-md-4 col-lg-3 product-card-mobile">
-            <a href="product_details.php?id=<?= $product['id'] ?>" style="text-decoration: none;">
+            <a href="product_details.php?slug=<?= $product['slug'] ?>" style="text-decoration: none;">
               <div class="card h-100 mobile-rounded">
                 <div class="position-relative">
                   <img src="<?php echo isset($product['image_url']) && $product['image_url']
@@ -692,7 +692,7 @@ function getSellerBadge($avg_rating)
                   </div>
 
                   <div class="d-flex justify-content-between align-items-center mt-2">
-                    <a href="product_details.php?id=<?= $product['id'] ?>" class="btn btn-primary btn-sm flex-grow-1">
+                    <a href="product_details.php?slug=<?= $product['slug'] ?>" class="btn btn-primary btn-sm flex-grow-1">
                       <i class="fas fa-eye me-1 d-none d-md-inline"></i>
                       <span class="d-md-none">View</span>
                       <span class="d-none d-md-inline">View Details</span>

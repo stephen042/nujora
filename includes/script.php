@@ -2,39 +2,111 @@
 <script src="../assets/js/jquery.min.js"></script>
 <script src="../assets/js/owl.carousel.min.js"></script>
 
+<!-- livechat JIvoChat -->
+<script src="//code.jivosite.com/widget/VuNSxCgqcu" async></script>
+
 <!-- for carting items  -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+
+        const variants = <?= json_encode($variants) ?>;
+        // Example structure:
+        // {
+        //    "12": {"color":"red","size":"M"},
+        //    "13": {"color":"red","size":"L"},
+        //    "14": {"color":"blue","size":"M"}
+        // }
+
+        const selects = document.querySelectorAll(".variant-select");
+        const variantInput = document.getElementById("selected-variant-id");
+
+        function detectVariant() {
+            let chosen = {};
+
+            selects.forEach(sel => {
+                const name = sel.dataset.attr;
+                const value = sel.value;
+                if (value) chosen[name] = value;
+            });
+
+            // Find matching variant
+            variantInput.value = "";
+            for (let variantId in variants) {
+                const variant = variants[variantId];
+                let match = true;
+
+                for (let attr in chosen) {
+                    if (variant[attr] !== chosen[attr]) {
+                        match = false;
+                        break;
+                    }
+                }
+
+                if (match && Object.keys(chosen).length === Object.keys(variant).length) {
+                    variantInput.value = variantId;
+                    break;
+                }
+            }
+        }
+
+        selects.forEach(sel => {
+            sel.addEventListener("change", detectVariant);
+        });
+
+
+        // Override "Add to Cart" button behavior
         document.querySelectorAll(".add-to-cart").forEach(btn => {
             btn.addEventListener("click", function(e) {
                 e.preventDefault();
-                e.stopPropagation();
 
                 const productId = this.dataset.id;
+                const variantId = variantInput ? variantInput.value : "";
+                let body = `product_id=${productId}&quantity=1`;
+
+                // If there are variants, collect options
+                if (selects.length > 0) {
+                    if (!variantId) {
+                        showToast("Please choose product options", "error");
+                        return;
+                    }
+
+                    body += `&variant_id=${variantId}`;
+
+                    selects.forEach(sel => {
+                        const attr = sel.dataset.attr;
+                        const value = sel.value;
+                        body += `&${attr}=${value}`;
+                    });
+                }
 
                 fetch("add_to_cart.php", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/x-www-form-urlencoded"
                         },
-                        body: `product_id=${productId}&quantity=1`
+                        body: body
                     })
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            // Update cart badge
-                            const badge = document.querySelector(".badge.bg-danger");
-                            if (badge) badge.textContent = data.count;
 
-                            // Show toast
+                            // Update top navbar cart count
+                            const topBadge = document.getElementById("cart-count");
+                            if (topBadge) topBadge.textContent = data.count;
+
+                            // Update bottom navbar cart count
+                            const bottomBadge = document.getElementById("bottom-cart-count");
+                            if (bottomBadge) bottomBadge.textContent = data.count;
+
                             showToast(data.message, "success");
                         } else {
-                            showToast(data.message || "Error adding item.", "error");
+                            showToast(data.message, "error");
                         }
                     })
-                    .catch(() => showToast("Network error. Try again.", "error"));
+                    .catch(() => showToast("Network error", "error"));
             });
         });
+
     });
 </script>
 
@@ -211,28 +283,35 @@
 
 <!-- for toast -->
 <script>
+    function closeToast(toast) {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 400);
+    }
+
     function showToast(message, type = "info", duration = 3000) {
         const container = document.getElementById("toast-container");
         const toast = document.createElement("div");
 
         toast.className = `custom-toast ${type}`;
         toast.innerHTML = `
-    <div class="d-flex justify-content-between align-items-center">
-      <span>${message}</span>
-      <button type="button" class="btn-close btn-close-white ms-2" onclick="this.closest('.custom-toast').remove()"></button>
-    </div>
-  `;
+            <div class="d-flex justify-content-between align-items-center">
+                <span>${message}</span>
+                <button class="toast-close-btn"><i class="fas fa-times"></i></button>
+            </div>
+        `;
 
         container.appendChild(toast);
 
-        // Slide-in animation
-        setTimeout(() => toast.classList.add("show"), 100);
+        // Close button click
+        toast.querySelector(".toast-close-btn").addEventListener("click", () => {
+            closeToast(toast);
+        });
 
-        // Auto dismiss after `duration`
-        setTimeout(() => {
-            toast.classList.remove("show");
-            setTimeout(() => toast.remove(), 400);
-        }, duration);
+        // Slide in
+        setTimeout(() => toast.classList.add("show"), 50);
+
+        // Auto close
+        setTimeout(() => closeToast(toast), duration);
     }
 </script>
 
@@ -263,25 +342,23 @@
         transform: translateX(0);
     }
 
-    .custom-toast.success {
-        background-color: #198754;
-        /* Bootstrap success */
+    .custom-toast.success { background-color: #04a459ff; }
+    .custom-toast.error { background-color: #dc3545; }
+    .custom-toast.info { background-color: #0d6efd; }
+    .custom-toast.warning { 
+        background-color: #ffc107; 
+        color: #000; 
     }
 
-    .custom-toast.error {
-        background-color: #dc3545;
-        /* Bootstrap danger */
-    }
-
-    .custom-toast.info {
-        background-color: #0d6efd;
-        /* Bootstrap primary */
-    }
-
-    .custom-toast.warning {
-        background-color: #ffc107;
-        /* Bootstrap warning */
-        color: #000;
+    /* NEW: Ensure close button works everywhere */
+    .toast-close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        padding: 0 6px;
     }
 </style>
-<div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
+<div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index:1080;"></div>
