@@ -131,18 +131,35 @@ try {
   <meta name="description" content="<?= htmlspecialchars(substr($product['description'] ?? $product['name'], 0, 160)) ?>">
 
   <!-- ✅ OPEN GRAPH (for Facebook, WhatsApp, Instagram) -->
+  <?php
+  // Normalize the product image path (remove ../ and leading slash)
+  $image = $product['image_url'] ?? 'uploads/default-product.png';
+  $image = str_replace(['../', './'], '', $image);
+  $image = ltrim($image, '/'); // remove starting slash
+
+  // Build full absolute URL using APP_URL
+  $fullImageUrl = APP_URL . '/' . $image;
+  ?>
+  <!-- OPEN GRAPH (FB, Whatsapp, Instagram) -->
   <meta property="og:type" content="product" />
   <meta property="og:title" content="<?= htmlspecialchars($product['name']) ?> | <?= APP_NAME ?>" />
   <meta property="og:description" content="<?= htmlspecialchars(substr($product['description'] ?? $product['name'], 0, 160)) ?>" />
-  <meta property="og:url" content="https://<?= $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ?>" />
-  <meta property="og:image" content="https://<?= $_SERVER['HTTP_HOST'] ?>/<?= htmlspecialchars($product['image_url'] ?? 'uploads/default-product.png') ?>" />
+  <meta property="og:url" content="<?= APP_URL . $_SERVER['REQUEST_URI'] ?>" />
+
+  <meta property="og:image" content="<?= htmlspecialchars($fullImageUrl) ?>" />
+  <meta property="og:image:secure_url" content="<?= htmlspecialchars($fullImageUrl) ?>" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="<?= htmlspecialchars($product['name']) ?>" />
 
-  <!-- ✅ TWITTER CARD -->
+  <!-- TWITTER CARD -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="<?= htmlspecialchars($product['name']) ?> | <?= APP_NAME ?>">
   <meta name="twitter:description" content="<?= htmlspecialchars(substr($product['description'] ?? $product['name'], 0, 160)) ?>">
-  <meta name="twitter:image" content="https://<?= $_SERVER['HTTP_HOST'] ?>/<?= htmlspecialchars($product['image_url'] ?? 'uploads/default-product.png') ?>">
+  <meta name="twitter:image" content="<?= htmlspecialchars($fullImageUrl) ?>">
+
+
 
   <!-- Google Verification -->
   <meta name="google-site-verification" content="ZlNr6S6JXMI9jO0JTdQHvBJc0V1aYZfiMDkNhziPCP4" />

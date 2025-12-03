@@ -61,7 +61,7 @@ if (empty($cartItems)) {
     CALCULATE SUBTOTAL
 ============================================================ */
 foreach ($cartItems as $item) {
-    $totalAmount += $item['price'] * $item['quantity'];
+    $totalAmount += (float)$item['price'] * (int)$item['quantity'];
 }
 
 /* ============================================================
