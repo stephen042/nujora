@@ -542,14 +542,43 @@ try {
           <?php endif; ?>
         </div>
 
-        <div class="mt-3 d-flex justify-content-between">
-          <div class="form-check">
-            <!-- <input class="form-check-input" type="checkbox" id="addWarranty">
-            <label class="form-check-label" for="addWarranty">
-              Add 1-Year Warranty (+₦1,500)
-            </label> -->
+        <?php
+        $shareMessage = "Hey, I saw this product on Nujora — check it out!";
+        $fullUrl = APP_URL . $_SERVER['REQUEST_URI'];
+        ?>
+        <div class="mt-3 d-flex justify-content-between align-items-center">
+
+          <!-- SHARE BUTTONS -->
+          <div class="share-buttons d-flex gap-3">
+
+            <!-- WhatsApp -->
+            <a href="https://wa.me/?text=<?= urlencode($shareMessage . ' ' . $product['name'] . ' - ' . $fullUrl) ?>"
+              target="_blank"
+              class="text-success fs-5">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode($fullUrl) ?>&quote=<?= urlencode($shareMessage . ' ' . $product['name']) ?>"
+              target="_blank"
+              class="text-primary fs-5">
+              <i class="fab fa-facebook"></i>
+            </a>
+
+            <!-- Twitter (X) -->
+            <a href="https://twitter.com/intent/tweet?text=<?= urlencode($shareMessage . ' - ' . $product['name']) ?>&url=<?= urlencode($fullUrl) ?>"
+              target="_blank"
+              class="text-info fs-5">
+              <i class="fab fa-twitter"></i>
+            </a>
+
           </div>
-          <a href="#" class="text-decoration-none"><i class="far fa-heart"></i> Add to Wishlist</a>
+
+          <!-- Wishlist -->
+          <a href="#" class="text-decoration-none">
+            <i class="far fa-heart"></i> Add to Wishlist
+          </a>
+
         </div>
       </div>
     </div>
