@@ -354,7 +354,7 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
                             <?php foreach ($cartItems as $item): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($item['name']) ?> × <?= $item['quantity'] ?></td>
-                                    <td class="text-end">₦<?= number_format($item['price'] * $item['quantity']) ?></td>
+                                    <td class="text-end">₦<?= number_format((float)$item['price'] * (int)$item['quantity']) ?></td>
                                 </tr>
                             <?php endforeach; ?>
 

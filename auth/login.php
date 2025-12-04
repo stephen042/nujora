@@ -18,43 +18,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       // Merge guest cart into database
       if (isset($_SESSION['guest_cart']) && !empty($_SESSION['guest_cart'])) {
-        foreach ($_SESSION['guest_cart'] as $pid => $qty) {
-          $stmt = $pdo->prepare("SELECT id, quantity FROM cart_items WHERE buyer_id = ? AND product_id = ?");
-          $stmt->execute([$user['id'], $pid]);
+
+        foreach ($_SESSION['guest_cart'] as $key => $item) {
+
+          // Extract proper values
+          $product_id = intval($item['product_id']);
+          $quantity   = intval($item['quantity']);
+          $variant_id = $item['variant_id'] ?: null;
+
+          // Check if already in user's cart
+          $stmt = $pdo->prepare("
+                  SELECT id, quantity 
+                  FROM cart_items 
+                  WHERE buyer_id = ? AND product_id = ? AND variant_id <=> ?
+              ");
+          $stmt->execute([$user['id'], $product_id, $variant_id]);
           $existing = $stmt->fetch(PDO::FETCH_ASSOC);
 
           if ($existing) {
+            // Update quantity
             $stmt = $pdo->prepare("UPDATE cart_items SET quantity = quantity + ? WHERE id = ?");
-            $stmt->execute([$qty, $existing['id']]);
+            $stmt->execute([$quantity, $existing['id']]);
           } else {
-            $stmt = $pdo->prepare("INSERT INTO cart_items (buyer_id, product_id, quantity) VALUES (?, ?, ?)");
-            $stmt->execute([$user['id'], $pid, $qty]);
+            // Insert new cart row
+            $stmt = $pdo->prepare("
+                      INSERT INTO cart_items (buyer_id, product_id, variant_id, quantity)
+                      VALUES (?, ?, ?, ?)
+                  ");
+            $stmt->execute([$user['id'], $product_id, $variant_id, $quantity]);
           }
         }
+
+        // Clear guest cart
         unset($_SESSION['guest_cart']);
       }
 
       if (isset($_SESSION['pending_checkout'])) {
         // Merge guest cart into user cart
         if (!empty($_SESSION['pending_checkout']['cart'])) {
+
           $stmt = $pdo->prepare("
-              INSERT INTO cart_items (buyer_id, product_id, quantity)
-              VALUES (?, ?, ?)
-              ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)
-          ");
+            INSERT INTO cart_items (buyer_id, product_id, quantity)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)
+        ");
+
           foreach ($_SESSION['pending_checkout']['cart'] as $product_id => $qty) {
+
+            // Force INT type to avoid SQLSTATE 1265 errors
+            $product_id = intval($product_id);
+            $qty        = intval($qty);
+
+            // Skip invalid items
+            if ($product_id <= 0 || $qty <= 0) {
+              continue;
+            }
+
+            // Insert/merge into DB
             $stmt->execute([$_SESSION['user_id'], $product_id, $qty]);
           }
         }
 
-        // Clear session
+        // Clear guest pending checkout data
         unset($_SESSION['pending_checkout']);
 
-        // Redirect to checkout continuation
+        // Redirect to continue checkout
         header("Location: ../checkout.php?continue=true");
         exit;
       }
-
 
       // Redirect based on role
       if ($user['role'] === 'buyer') {

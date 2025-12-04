@@ -623,7 +623,7 @@ if (!empty($selected_category) && isset($category_meta[$selected_category]['imag
                             <div class="card-body d-flex flex-column">
                                 <!-- Product details -->
                                 <div class="card-content">
-                                    <a href="product_details.php?id=<?= $product['id'] ?>" style="text-decoration:none; color:inherit;">
+                                    <a href="product_details.php?slug=<?= $product['slug'] ?>" style="text-decoration:none; color:inherit;">
                                         <h5 class="card-title"><?= htmlspecialchars($product['name']) ?></h5>
                                     </a>
                                     <p class="card-text">₦<?= number_format($product['price'], 2) ?></p>

@@ -305,7 +305,7 @@ try {
     }
 
     .btn-add-to-cart:hover {
-      /* background: #e05555; */
+      background: #f39440ff;
       transform: translateY(-2px);
     }
 

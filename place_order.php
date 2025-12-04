@@ -34,11 +34,24 @@ if (!isset($_SESSION['user_id'])) {
 $buyer_id = $_SESSION['user_id'];
 
 // Fetch cart items with delivery and COD info
-$stmt = $pdo->prepare("SELECT ci.product_id, ci.quantity, p.name, p.price, p.image_url, p.seller_id, 
-                       p.free_delivery, p.pay_on_delivery
-                       FROM cart_items ci
-                       JOIN products p ON ci.product_id = p.id
-                       WHERE ci.buyer_id = ?");
+$stmt = $pdo->prepare("
+    SELECT 
+        ci.id AS cart_id,
+        ci.product_id,
+        ci.quantity,
+        ci.variant_id,
+        ci.variant_options,
+        p.name,
+        p.price,
+        p.image_url,
+        p.seller_id,
+        p.free_delivery,
+        p.pay_on_delivery,
+        (p.price * ci.quantity) AS item_total
+    FROM cart_items ci
+    JOIN products p ON ci.product_id = p.id
+    WHERE ci.buyer_id = ?
+");
 $stmt->execute([$buyer_id]);
 $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -184,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     <title>Place Order | <?= APP_NAME ?></title>
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="uploads/default-product.png">
-    
+
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
@@ -563,7 +576,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
         <?php endif; ?>
 
-        <?php if (isset($_SESSION['auto_account_info'])): 
+        <?php if (isset($_SESSION['auto_account_info'])):
             $auto_info = $_SESSION['auto_account_info'];
             $email = $auto_info['email'];
             $autoPass = $auto_info['password'];
@@ -584,16 +597,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                         <th>Product</th>
                         <th>Qty</th>
                         <th>Price</th>
+                        <th>Image</th>
                         <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($cart_items as $item): ?>
                         <tr>
-                            <td><?= htmlspecialchars($item['name']) ?></td>
+                            <td>
+                                <?= htmlspecialchars($item['name']) ?>
+
+                                <!-- VARIANT DISPLAY -->
+                                <?php if (!empty($item['variant_options'])): ?>
+                                    <?php
+                                    // Convert JSON string → array
+                                    $opts = is_string($item['variant_options'])
+                                        ? json_decode($item['variant_options'], true)
+                                        : $item['variant_options'];
+                                    ?>
+
+                                    <?php if (!empty($opts)): ?>
+                                        <div class="mt-1 text-muted small">
+                                            <?php foreach ($opts as $key => $value): ?>
+                                                <div>
+                                                    <?= ucfirst($key) ?>:
+                                                    <strong><?= htmlspecialchars($value) ?></strong>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </td>
+
                             <td><?= $item['quantity'] ?></td>
+
                             <td>₦<?= number_format($item['price'], 2) ?></td>
-                            <td>₦<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+
+                            <td>
+                                <img src="<?= htmlspecialchars($item['image_url']) ?>"
+                                    alt="<?= htmlspecialchars($item['name']) ?>"
+                                    style="max-width: 80px; max-height: 80px; border-radius: 6px;">
+                            </td>
+
+                            <td>₦<?= number_format($item['item_total'], 2) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -709,7 +755,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                         <input type="radio" name="payment_method" value="cod" id="cod_payment" <?= !$all_items_support_cod ? 'disabled' : '' ?>>
                         <label for="cod_payment">
                             <strong>Cash on Delivery (COD)</strong>
-                            <div style="font-size: 0.9rem; color: #6c757d;">Pay when you receive your order</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">
+                                Pay when you receive your order
+                                <?php if (!$all_items_support_cod): ?> <span class="text-danger"> (Not available for This Order) </span> <?php endif; ?>
+                            </div>
                         </label>
                     </div>
                     <div class="payment-details mb-3" id="cod_details">
