@@ -8,6 +8,10 @@ $discount = 0;
 $totalAmount = 0;
 $delivery_fee = 0; // Free delivery
 
+// Fetch states for the state dropdown
+$stmt = $pdo->query("SELECT id, name FROM states ORDER BY name ASC");
+$states = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 /* ============================================================
     FUNCTION: GET CART ITEMS
 ============================================================ */
@@ -132,64 +136,81 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
     $email     = trim($_POST['email']);
     $phone     = trim($_POST['phone']);
     $address   = trim($_POST['address']);
-    $state     = trim($_POST['state']);
-    $city      = trim($_POST['city']);
+    $state_id  = trim($_POST['state_id']);
+    $lga_id    = trim($_POST['lga_id']);
+    $country = "Nigeria"; // Default country
 
-    // Required fields check
-    if (!$full_name || !$email || !$phone || !$address) {
+    // Required fields
+    if (!$full_name || !$email || !$phone || !$address || !$state_id || !$lga_id) {
         $errors[] = "All required fields must be filled.";
     }
 
     if (empty($errors)) {
 
-        // Does email already exist?
+        // Does email exist? → Redirect to login
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email=?");
         $stmt->execute([$email]);
         $exists = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($exists) {
-            // Redirect to login with cart preserved
+
             $_SESSION['pending_checkout'] = [
-                'cart'         => $_SESSION['guest_cart'] ?? [],
-                'full_name'    => $full_name,
-                'email'        => $email,
-                'phone'        => $phone,
-                'address'      => $address,
-                'state'        => $state,
-                'city'         => $city,
-                'grand_total'  => $grandTotal
+                'cart'        => $_SESSION['guest_cart'] ?? [],
+                'full_name'   => $full_name,
+                'email'       => $email,
+                'phone'       => $phone,
+                'address'     => $address,
+                'state_id'    => $state_id,
+                'lga_id'      => $lga_id,
+                'grand_total' => $grandTotal
             ];
+
             header("Location: auth/login.php?redirect=checkout");
             exit;
         }
 
-        // Create auto account
-        $autoPass = substr(md5(time()), 0, 8);
-        $hashedPass = password_hash($autoPass, PASSWORD_BCRYPT);
+        // ============================================================
+        // CREATE AUTO ACCOUNT (password = phone number)
+        // ============================================================
+        $rawPassword = substr(str_shuffle("0123456789"), 0, 6);
+        $hashedPass = password_hash($rawPassword, PASSWORD_BCRYPT);
 
-        $stmt = $pdo->prepare("INSERT INTO users (name,email,phone,password_hash,address,state,lga, approval_status) 
-                               VALUES (?,?,?,?,?,?,?, 'approved')");
-        $stmt->execute([$full_name, $email, $phone, $hashedPass, $address, $state, $city]);
+        $stmt = $pdo->prepare("
+            INSERT INTO users (name, email, phone, country, password_hash, address, state_id, lga_id, approval_status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'approved')
+        ");
+        // die(var_dump($_POST));
+        $stmt->execute([$full_name, $email, $phone, $country, $hashedPass, $address, $state_id, $lga_id]);
 
         $newID = $pdo->lastInsertId();
         $_SESSION['user_id'] = $newID;
 
-        // Transfer guest cart into DB
+        // ============================================================
+        // MERGE GUEST CART INTO USER CART
+        // ============================================================
         if (!empty($_SESSION['guest_cart'])) {
+
+            $q = $pdo->prepare("
+                INSERT INTO cart_items (buyer_id, product_id, quantity)
+                VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)
+            ");
+
             foreach ($_SESSION['guest_cart'] as $pid => $qty) {
-                $q = $pdo->prepare("INSERT INTO cart_items (buyer_id,product_id,quantity)
-                                    VALUES (?,?,?)
-                                    ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)");
-                $q->execute([$newID, $pid, $qty]);
+                $q->execute([$newID, intval($pid), intval($qty)]);
             }
+
             unset($_SESSION['guest_cart']);
         }
 
-        header("Location: place_order.php");
+        // Save info to notify user later
         $_SESSION['auto_account_info'] = [
             'email'    => $email,
-            'password' => $autoPass
+            'password' => $rawPassword  // show them phone = password
         ];
+
+        // Continue checkout
+        header("Location: place_order.php");
         exit;
     }
 }
@@ -206,11 +227,47 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        :root {
+            --primary-color: #f57c00;
+            /* Bright Orange */
+            --secondary-color: #ef6c00;
+            /* Deep Orange */
+            --accent-color: #ffb74d;
+            /* Soft Yellow-Orange */
+            --light-bg: #fff8f0;
+            /* Warm Light Background */
+            --dark-text: #1e1e1e;
+            /* Darker Text for Better Contrast */
+        }
+
         body {
-            background: #f7f9fc;
-            font-family: "Poppins", sans-serif;
-            padding: 0;
-            margin: 0;
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* ================= BUTTONS ================= */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #e65100;
+            border-color: #e65100;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
         }
 
         .checkout-box,
@@ -289,12 +346,13 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
                             <input class="form-control" name="phone" required
                                 value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
 
-                            <label>Address *</label>
-                            <input class="form-control" name="address" required
-                                value="<?= htmlspecialchars($_POST['address'] ?? '') ?>">
+                            <label>Address * (can be used as shipping address)</label>
+                            <textarea class="form-control" name="address" rows="3" required>
+                                <?= htmlspecialchars($_POST['address'] ?? '') ?>
+                            </textarea>
 
                             <label>State *</label>
-                            <select class="form-control" id="state_select" name="state" required>
+                            <select class="form-control" id="state_select" name="state_id" required>
                                 <option value="">Select State</option>
                                 <?php foreach ($states as $s): ?>
                                     <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
@@ -302,7 +360,7 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
                             </select>
 
                             <label>LGA *</label>
-                            <select class="form-control" id="lga_select" name="city" required>
+                            <select class="form-control" id="lga_select" name="lga_id" required>
                                 <option value="">Select LGA</option>
                             </select>
 

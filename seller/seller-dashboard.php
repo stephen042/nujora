@@ -878,7 +878,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
                                                 <?= $order['current_status'] === 'cancelled' ? 'bg-danger' : '' ?>
                                                 <?= $order['current_status'] === 'shipped' ? 'bg-info' : '' ?>
                                                 <?= $order['current_status'] === 'processing' ? 'bg-warning' : '' ?>
-                                                <?= $order['current_status'] === 'pending' ? 'bg-secondary' : '' ?>
+                                                <?= $order['current_status'] === 'pending' ? 'bg-info' : 'text-muted' ?>
                                             ">
                                                     <?= ucfirst($order['current_status'] ?? 'pending') ?>
                                                 </span>

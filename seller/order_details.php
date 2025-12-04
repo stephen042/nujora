@@ -85,8 +85,29 @@ if ($pdo->query("SHOW TABLES LIKE 'order_status_history'")->rowCount() > 0) {
                     <?php endforeach; ?>
                     <ul class="list-group list-group-flush mb-3">
                         <li class="list-group-item"><strong>Order Date:</strong> <?= date('d M Y, H:i A', strtotime($order['created_at'])) ?></li>
+                        <li class="list-group-item"><strong>Delivery Method:</strong> 
+                            <?php if ($order['delivery_method'] == 'home') {
+                                echo "Home Delivery";
+                            } elseif ($order['delivery_method'] == 'pickup_station') {
+                                echo "Pickup Station";
+                            } ?>
+                        </li>
+
                         <li class="list-group-item"><strong>Delivery Address:</strong> <?= htmlspecialchars($order['shipping_address'] ?? 'N/A') ?></li>
-                        <li class="list-group-item"><strong>Payment Method:</strong> <?= htmlspecialchars($order['payment_method']) ?></li>
+                        <li class="list-group-item"><strong>Payment Method:</strong> 
+                            <?php 
+                                if ($order['payment_method'] == 'card') {
+                                    $payment_method = "Paid With Card";
+                                }elseif($order['payment_method'] == 'bank_transfer' || $order['payment_method'] == 'pay_with_transfer'){
+                                    $payment_method = "Paid With Bank Transfer";
+                                }elseif($order['payment_method'] == 'cod'){
+                                    $payment_method = "Cash on Delivery";
+                                } else {
+                                    $payment_method = "N/A";
+                                };
+                                echo htmlspecialchars($payment_method);
+                            ?>
+                        </li>
                     </ul>
                 </div>
             </div>

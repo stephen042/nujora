@@ -2,6 +2,10 @@
 require '../app/config.php';
 require_once '../lib/mail_functions.php'; // Include mail functions
 
+// Fetch states for the state dropdown
+$stmt = $pdo->query("SELECT id, name FROM states ORDER BY name ASC");
+$states = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $success = '';
 $error = '';
 
@@ -10,6 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email       = trim($_POST['email'] ?? '');
   $country     = trim($_POST['country'] ?? '');
   $phone       = trim($_POST['phone'] ?? '');
+  $state_id   = trim($_POST['state_id'] ?? '');
+  $lga_id    = trim($_POST['lga_id'] ?? '');
   $countryCode = trim($_POST['country_code'] ?? '');
   $password    = trim($_POST['password'] ?? '');
   $role        = trim($_POST['role'] ?? 'buyer');
@@ -41,11 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     INSERT INTO users (
                         name, email, password_hash, role, shop_name, 
                         badge_level, rating, created_at, is_approved, approval_status, profile_complete,
-                        country, phone
+                        country, phone, state_id, lga_id
                     ) VALUES (
                         ?, ?, ?, ?, ?, 
                         'New', 0.00, NOW(), ?, ?, 0,
-                        ?, ?
+                        ?, ?, ?, ?
                     )
                 ");
         $stmt->execute([
@@ -57,7 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $is_approved,
           $approval_status,
           $country,
-          $fullPhone
+          $fullPhone,
+          $state_id,
+          $lga_id
         ]);
 
         $userId = $pdo->lastInsertId();
@@ -192,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <!-- Country Select with Phone Code -->
       <div class="mb-3">
         <label for="country" class="form-label">Country</label>
-        <select id="country" name="country" class="form-select" onchange="updatePhoneCode()">
+        <select id="country" name="country" class="form-select" onchange="updatePhoneCode(),updateState()" required>
           <option value="" data-code="">-- Select Country --</option>
           <option value="Afghanistan" data-code="+93">Afghanistan (+93)</option>
           <option value="Albania" data-code="+355">Albania (+355)</option>
@@ -369,6 +377,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="hidden" name="country_code" id="country_code" value="">
       </div>
 
+      <div class="mb-3 toggle-address d-none">
+        <label>State *</label>
+        <select class="form-control" id="state_select" name="state_id" required>
+          <option value="">Select State</option>
+          <?php foreach ($states as $s): ?>
+            <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div class="mb-3 toggle-address d-none">
+        <label>LGA *</label>
+        <select class="form-control" id="lga_select" name="lga_id" required>
+          <option value="">Select LGA</option>
+        </select>
+      </div>
 
       <div class="mb-3 position-relative">
         <label for="password" class="form-label">Password</label>
@@ -439,7 +463,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       document.getElementById("phoneCode").textContent = code ? code : "+000";
       document.getElementById("country_code").value = code ? code : "";
     }
+
+    function updateState() {
+      const countrySelect = document.getElementById("country");
+      const toggleAddressDivs = document.querySelectorAll(".toggle-address");
+
+      if (countrySelect.value === "Nigeria") {
+        toggleAddressDivs.forEach(div => div.classList.remove("d-none"));
+      } else {
+        toggleAddressDivs.forEach(div => div.classList.add("d-none"));
+      }
+    }
   </script>
+  <script>
+    document.getElementById("state_select").addEventListener("change", function() {
+      fetch("../get_lgas.php?state_id=" + this.value)
+        .then(r => r.text())
+        .then(data => document.getElementById("lga_select").innerHTML = data);
+    });
+  </script>
+
   <script>
     function togglePassword() {
       const passwordInput = document.getElementById("password");

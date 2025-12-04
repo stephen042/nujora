@@ -7,6 +7,10 @@ if (!isset($_SESSION['user_id']) && empty($_SESSION['pending_checkout'])) {
     exit;
 }
 
+// Fetch states for the state dropdown
+$stmt = $pdo->query("SELECT id, name FROM states ORDER BY name ASC");
+$states = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Handle guest checkout info (auto-account creation)
 if (!isset($_SESSION['user_id'])) {
     $guest_email = $_SESSION['pending_checkout']['email'] ?? null;
@@ -139,6 +143,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['payment_proof'])) {
 // Handle order placement
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     $payment_method = $_POST['payment_method'] ?? '';
+    $country = $_POST['country'] ?? '';
+    $state = $_POST['state'] ?? '';
+    $lga = $_POST['lga'] ?? '';
+    $address = $_POST['address'] ?? '';
+    $delivery_method = $_POST['delivery_method'] ?? 'pickup_station';
+
+    if ($delivery_method ==  'home') {
+        // Concatenate address fields into one string
+        $address = trim($address);
+        $full_address = trim($country . ', ' . $state . ', ' . $lga . ', ' . $address);
+
+        // Optionally, you can save $full_address to the database or use it as needed
+        $pickup_address = $full_address;
+    } else {
+        $pickup_address  = 'Suite 45 Maikassu Plaza, Hajj Camp, Kano';
+    }
+
 
     // Validation based on payment method
     if ($payment_method === 'bank_transfer' && !isset($_SESSION['payment_proof_reference'])) {
@@ -156,9 +177,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             $txn_ref = $payment_method === 'bank_transfer' ? $_SESSION['payment_proof_reference'] : 'TXN_' . strtoupper(uniqid()) . '_' . time();
 
             // Insert order
-            $stmt = $pdo->prepare("INSERT INTO orders (buyer_id, transaction_reference, subtotal, total, payment_method, status, created_at)
-                                   VALUES (?, ?, ?, ?, ?, 'pending', NOW())");
-            $stmt->execute([$buyer_id, $txn_ref, $subtotal, $total, $payment_method]);
+            $stmt = $pdo->prepare("INSERT INTO orders (buyer_id, transaction_reference, subtotal, total, payment_method, shipping_address, delivery_method ,status, created_at)
+                                   VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())");
+            $stmt->execute([$buyer_id, $txn_ref, $subtotal, $total, $payment_method, $pickup_address, $delivery_method]);
             $order_id = $pdo->lastInsertId();
 
             // Insert order items
@@ -195,20 +216,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Place Order | <?= APP_NAME ?></title>
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="uploads/default-product.png">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body {
-            font-family: 'Open Sans', sans-serif;
-            background: #f8f9fa;
-            color: #2B2A26;
-            padding-bottom: 80px;
+        :root {
+            --primary-color: #f57c00;
+            /* Bright Orange */
+            --secondary-color: #ef6c00;
+            /* Deep Orange */
+            --accent-color: #ffb74d;
+            /* Soft Yellow-Orange */
+            --light-bg: #fff8f0;
+            /* Warm Light Background */
+            --dark-text: #1e1e1e;
+            /* Darker Text for Better Contrast */
         }
 
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+        }
+
+        h1,
         h2,
+        h3,
         h4 {
             font-family: 'Poppins', sans-serif;
+        }
+
+        /* ================= BUTTONS ================= */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #e65100;
+            border-color: #e65100;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
         }
 
         .checkout-container {
@@ -655,6 +708,143 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                 <p class="total-row"><span>Total:</span> <span>₦<?= number_format($total, 2) ?></span></p>
             </div>
 
+            <div class="order-summary">
+                <h4>Delivery Method</h4>
+
+                <div class="mb-3">
+                    <label class="form-check">
+                        <input type="radio" name="delivery_method" value="home" class="form-check-input" checked>
+                        <span class="form-check-label">Deliver to My Address</span>
+                    </label>
+
+                    <label class="form-check mt-2">
+                        <input type="radio" name="delivery_method" value="pickup_station" class="form-check-input">
+                        <span class="form-check-label">Pick-up Station</span>
+                    </label>
+                </div>
+                <hr>
+                <!-- Pickup Station Box -->
+                <div id="pickup_box" class="alert alert-info" style="display:none;">
+                    <strong>Pickup Station Address:</strong><br>
+                    Suite 45 Maikassu Plaza, Hajj Camp, Kano
+                </div>
+
+                <!-- Address Box -->
+                <div id="address_box">
+                    <?php
+                    // Fetch buyer's shipping address details
+                    $stmt = $pdo->prepare("
+                                SELECT 
+                                    u.address,
+                                    u.country,
+                                    u.state_id,
+                                    u.lga_id,
+                                    s.name AS state,
+                                    lg.name AS lga
+                                FROM users u
+                                LEFT JOIN states s ON u.state_id = s.id
+                                LEFT JOIN local_governments lg ON u.lga_id = lg.id
+                                WHERE u.id = ?
+                            ");
+                    $stmt->execute([$buyer_id]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    ?>
+                    <h4>Shipping Address</h4>
+                    <p><strong><span>Edit the address below if you wish to deliver to a different address.</span></strong> </p>
+                    <form>
+                        <!-- Country Select with Phone Code -->
+                        <div class="mb-3">
+                            <label for="country" class="form-label">Country</label>
+                            <select id="country" name="country" class="form-select" required>
+                                <option value="" data-code="">-- Select Country --</option>
+                                <option value="Afghanistan" data-code="+93" <?= ($user['country'] ?? '') === 'Afghanistan' ? 'selected' : '' ?>>Afghanistan (+93)</option>
+                                <option value="Albania" data-code="+355" <?= ($user['country'] ?? '') === 'Albania' ? 'selected' : '' ?>>Albania (+355)</option>
+                                <option value="Algeria" data-code="+213" <?= ($user['country'] ?? '') === 'Algeria' ? 'selected' : '' ?>>Algeria (+213)</option>
+                                <option value="Andorra" data-code="+376" <?= ($user['country'] ?? '') === 'Andorra' ? 'selected' : '' ?>>Andorra (+376)</option>
+                                <option value="Angola" data-code="+244" <?= ($user['country'] ?? '') === 'Angola' ? 'selected' : '' ?>>Angola (+244)</option>
+                                <option value="Argentina" data-code="+54" <?= ($user['country'] ?? '') === 'Argentina' ? 'selected' : '' ?>>Argentina (+54)</option>
+                                <option value="Armenia" data-code="+374" <?= ($user['country'] ?? '') === 'Armenia' ? 'selected' : '' ?>>Armenia (+374)</option>
+                                <option value="Australia" data-code="+61" <?= ($user['country'] ?? '') === 'Australia' ? 'selected' : '' ?>>Australia (+61)</option>
+                                <option value="Austria" data-code="+43" <?= ($user['country'] ?? '') === 'Austria' ? 'selected' : '' ?>>Austria (+43)</option>
+                                <option value="Bangladesh" data-code="+880" <?= ($user['country'] ?? '') === 'Bangladesh' ? 'selected' : '' ?>>Bangladesh (+880)</option>
+                                <option value="Belgium" data-code="+32" <?= ($user['country'] ?? '') === 'Belgium' ? 'selected' : '' ?>>Belgium (+32)</option>
+                                <option value="Brazil" data-code="+55" <?= ($user['country'] ?? '') === 'Brazil' ? 'selected' : '' ?>>Brazil (+55)</option>
+                                <option value="Canada" data-code="+1" <?= ($user['country'] ?? '') === 'Canada' ? 'selected' : '' ?>>Canada (+1)</option>
+                                <option value="China" data-code="+86" <?= ($user['country'] ?? '') === 'China' ? 'selected' : '' ?>>China (+86)</option>
+                                <option value="Denmark" data-code="+45" <?= ($user['country'] ?? '') === 'Denmark' ? 'selected' : '' ?>>Denmark (+45)</option>
+                                <option value="Egypt" data-code="+20" <?= ($user['country'] ?? '') === 'Egypt' ? 'selected' : '' ?>>Egypt (+20)</option>
+                                <option value="France" data-code="+33" <?= ($user['country'] ?? '') === 'France' ? 'selected' : '' ?>>France (+33)</option>
+                                <option value="Germany" data-code="+49" <?= ($user['country'] ?? '') === 'Germany' ? 'selected' : '' ?>>Germany (+49)</option>
+                                <option value="Ghana" data-code="+233" <?= ($user['country'] ?? '') === 'Ghana' ? 'selected' : '' ?>>Ghana (+233)</option>
+                                <option value="India" data-code="+91" <?= ($user['country'] ?? '') === 'India' ? 'selected' : '' ?>>India (+91)</option>
+                                <option value="Italy" data-code="+39" <?= ($user['country'] ?? '') === 'Italy' ? 'selected' : '' ?>>Italy (+39)</option>
+                                <option value="Japan" data-code="+81" <?= ($user['country'] ?? '') === 'Japan' ? 'selected' : '' ?>>Japan (+81)</option>
+                                <option value="Kenya" data-code="+254" <?= ($user['country'] ?? '') === 'Kenya' ? 'selected' : '' ?>>Kenya (+254)</option>
+                                <option value="Mexico" data-code="+52" <?= ($user['country'] ?? '') === 'Mexico' ? 'selected' : '' ?>>Mexico (+52)</option>
+                                <option value="Netherlands" data-code="+31" <?= ($user['country'] ?? '') === 'Netherlands' ? 'selected' : '' ?>>Netherlands (+31)</option>
+                                <option value="Nigeria" data-code="+234" <?= ($user['country'] ?? '') === 'Nigeria' ? 'selected' : '' ?>>Nigeria (+234)</option>
+                                <option value="Norway" data-code="+47" <?= ($user['country'] ?? '') === 'Norway' ? 'selected' : '' ?>>Norway (+47)</option>
+                                <option value="Pakistan" data-code="+92" <?= ($user['country'] ?? '') === 'Pakistan' ? 'selected' : '' ?>>Pakistan (+92)</option>
+                                <option value="Russia" data-code="+7" <?= ($user['country'] ?? '') === 'Russia' ? 'selected' : '' ?>>Russia (+7)</option>
+                                <option value="Saudi Arabia" data-code="+966" <?= ($user['country'] ?? '') === 'Saudi Arabia' ? 'selected' : '' ?>>Saudi Arabia (+966)</option>
+                                <option value="South Africa" data-code="+27" <?= ($user['country'] ?? '') === 'South Africa' ? 'selected' : '' ?>>South Africa (+27)</option>
+                                <option value="Spain" data-code="+34" <?= ($user['country'] ?? '') === 'Spain' ? 'selected' : '' ?>>Spain (+34)</option>
+                                <option value="Sweden" data-code="+46" <?= ($user['country'] ?? '') === 'Sweden' ? 'selected' : '' ?>>Sweden (+46)</option>
+                                <option value="Turkey" data-code="+90" <?= ($user['country'] ?? '') === 'Turkey' ? 'selected' : '' ?>>Turkey (+90)</option>
+                                <option value="Uganda" data-code="+256" <?= ($user['country'] ?? '') === 'Uganda' ? 'selected' : '' ?>>Uganda (+256)</option>
+                                <option value="United Arab Emirates" data-code="+971" <?= ($user['country'] ?? '') === 'United Arab Emirates' ? 'selected' : '' ?>>United Arab Emirates (+971)</option>
+                                <option value="United Kingdom" data-code="+44" <?= ($user['country'] ?? '') === 'United Kingdom' ? 'selected' : '' ?>>United Kingdom (+44)</option>
+                                <option value="United States" data-code="+1" <?= ($user['country'] ?? '') === 'United States' ? 'selected' : '' ?>>United States (+1)</option>
+                                <option value="Zimbabwe" data-code="+263" <?= ($user['country'] ?? '') === 'Zimbabwe' ? 'selected' : '' ?>>Zimbabwe (+263)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 toggle-address">
+                            <label>State * (Nigeria Only)</label>
+                            <select class="form-control" id="state_select" name="state_id" required>
+                                <option value="">Select State</option>
+
+                                <?php foreach ($states as $s): ?>
+                                    <option value="<?= $s['id'] ?>"
+                                        <?= ($user['state_id'] == $s['id']) ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($s['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 toggle-address">
+                            <label>LGA * (Nigeria Only)</label>
+                            <select class="form-control" id="lga_select" name="lga_id" required>
+                                <option value="">Select LGA</option>
+
+                                <?php if (!empty($user['lga_id'])): ?>
+                                    <?php
+                                    $stmt = $pdo->prepare("SELECT id, name FROM local_governments WHERE state_id = ?");
+                                    $stmt->execute([$user['state_id']]);
+                                    $lgas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                    ?>
+
+                                    <?php foreach ($lgas as $lga): ?>
+                                        <option value="<?= $lga['id'] ?>"
+                                            <?= ($user['lga_id'] == $lga['id']) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($lga['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Address</label>
+                            <textarea name="address" class="form-control" rows="3"><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
             <div class="payment-section">
                 <h4>Payment Method</h4>
                 <form method="POST" enctype="multipart/form-data" id="checkoutForm">
@@ -744,7 +934,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                         </div>
 
                         <?php if (!$proof_uploaded): ?>
-                            <button type="submit" class="btn btn-primary" style="margin-top: 15px;">Upload Proof</button>
+                            <button type="button" class="btn btn-primary" id="upload_btn" style="margin-top: 15px;">
+                                Upload Proof
+                            </button>
+                            <div id="upload_status" style="margin-top: 10px;"></div>
                         <?php else: ?>
                             <div class="alert alert-success" style="margin-top: 15px;">✓ Payment proof uploaded successfully!</div>
                         <?php endif; ?>
@@ -777,7 +970,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
                     <hr style="margin: 30px 0;">
                     <button type="submit" name="place_order" class="btn btn-success btn-lg" id="place_order_btn" disabled>
-                        Place Order - ₦<?= number_format($total, 2) ?>
+                        Place Order ₦<?= number_format($total, 2) ?>
                     </button>
                 </form>
             </div>
@@ -787,6 +980,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     <?php include 'includes/footer.php'; ?>
     <?php include 'includes/bottomNav.php'; ?>
     <?php include 'includes/script.php'; ?>
+
+    <script>
+        document.getElementById("state_select").addEventListener("change", function() {
+            fetch("get_lgas.php?state_id=" + this.value)
+                .then(r => r.text())
+                .then(data => document.getElementById("lga_select").innerHTML = data);
+        });
+
+        // Toggle delivery method
+        const addressBox = document.getElementById("address_box");
+        const pickupBox = document.getElementById("pickup_box");
+
+        document.querySelectorAll("input[name='delivery_method']").forEach(radio => {
+            radio.addEventListener("change", function() {
+                if (this.value === "home") {
+                    addressBox.style.display = "block";
+                    pickupBox.style.display = "none";
+                } else {
+                    addressBox.style.display = "none";
+                    pickupBox.style.display = "block";
+                }
+            });
+        });
+    </script>
 
     <script>
         let selectedPaymentMethod = null;
@@ -859,8 +1076,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             }
         }
 
-
-
         // File preview functionality
         document.getElementById('payment_proof')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -910,6 +1125,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
         // Update button state on page load
         updatePlaceOrderButton();
+
+        document.getElementById("upload_btn").addEventListener("click", function() {
+            let fileInput = document.getElementById("payment_proof");
+            let file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select a file first.");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("payment_proof", file);
+
+            // Show loading
+            const statusDiv = document.getElementById("upload_status");
+            statusDiv.innerHTML = `<div class="alert alert-info">Uploading...</div>`;
+
+            fetch("upload_proof.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+
+                    if (data.status === "success") {
+                        statusDiv.innerHTML = `<div class="alert alert-success">✔ ${data.message}</div>`;
+
+                        // Store reference in JS
+                        window.proofUploaded = true;
+
+                        // Enable Place Order button
+                        updatePlaceOrderButton();
+
+                        // Auto-show preview
+                        if (file.type.startsWith("image/")) {
+                            document.getElementById("preview_image").src = data.preview;
+                            document.getElementById("file_preview").classList.add("active");
+                        }
+
+                    } else {
+                        statusDiv.innerHTML = `<div class="alert alert-danger">❌ ${data.message}</div>`;
+                    }
+                })
+                .catch(err => {
+                    statusDiv.innerHTML = `<div class="alert alert-danger">Upload failed. Try again.</div>`;
+                });
+        });
+
+        // override PHP value with JS
+        window.proofUploaded = <?= $proof_uploaded ? 'true' : 'false' ?>;
+
+        function updatePlaceOrderButton() {
+            const btn = document.getElementById("place_order_btn");
+
+            if (!selectedPaymentMethod) {
+                btn.disabled = true;
+                return;
+            }
+
+            if (selectedPaymentMethod === "bank_transfer" && !window.proofUploaded) {
+                btn.disabled = true;
+            } else {
+                btn.disabled = false;
+            }
+        }
     </script>
 </body>
 

@@ -70,7 +70,19 @@ $orders = $pdo->query("
                                 <td><?=$o+1; ?></td>
                                 <td><?=htmlspecialchars($order['buyer_name']); ?></td>
                                 <td>$<?=number_format($order['total'], 2); ?></td>
-                                <td><?=ucfirst($order['payment_method']); ?></td>
+                                <td>
+                                    <?php 
+                                        if ($order['payment_method'] == 'cod') {
+                                            echo 'Cash on Delivery';
+                                        }elseif ($order['payment_method'] == 'pay_with_transfer' || $order['payment_method'] == 'bank_transfer') {
+                                            echo 'Bank Transfer';
+                                        }elseif ($order['payment_method'] == 'card') {
+                                            echo 'Credit Card';
+                                        } else {
+                                            echo ucfirst($order['payment_method']);
+                                        }
+                                    ?>
+                                </td>
                                 <td>
                                     <?php
                                     $status = $order['status'];

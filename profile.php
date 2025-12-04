@@ -9,7 +9,16 @@ if (!isset($_SESSION['user_id'])) {
 
 // Fetch user details
 $user_id = $_SESSION['user_id'];
-$stmt = $pdo->prepare("SELECT name, email, phone, country FROM users WHERE id = ?");
+$stmt = $pdo->prepare("
+    SELECT 
+        u.*, 
+        s.name AS state_name, 
+        l.name AS lga_name
+    FROM users u
+    LEFT JOIN states s ON u.state_id = s.id
+    LEFT JOIN local_governments l ON u.lga_id = l.id
+    WHERE u.id = ?
+");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
@@ -102,6 +111,9 @@ if (!$user) {
                 <a href="edit-profile.php" class="btn btn-outline-primary btn-sm">
                     <i class="fas fa-pencil"></i> Edit My Profile
                 </a>
+                <a href="settings.php" class="btn btn-info text-white btn-sm">
+                    <i class="fas fa-cog"></i> change Password (Settings)
+                </a>
             </div>
         </div>
         <hr>
@@ -113,6 +125,10 @@ if (!$user) {
                 <p><strong>Email:</strong> <?= htmlspecialchars($user['email']) ?></p>
                 <p><strong>Phone:</strong> <?= htmlspecialchars($user['phone'] ?? '') ?></p>
                 <p><strong>Country:</strong> <?= htmlspecialchars($user['country'] ?? '') ?></p>
+                <p><strong>State:</strong> <?= htmlspecialchars($user['state_name'] ?? '') ?></p>
+                <p><strong>LGA:</strong> <?= htmlspecialchars($user['lga_name'] ?? '') ?></p>
+                <p><strong>Address (can be used as shipping address):</strong> <?= htmlspecialchars($user['address'] ?? '') ?></p>
+
             </div>
         </div>
     </div>

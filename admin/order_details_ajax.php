@@ -51,7 +51,7 @@ $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="row mt-3">
             <div class="col-md-6">
                 <p><strong>Order ID:</strong> #<?= $order['id']; ?></p>
-                <p><strong>Reference:</strong> <?=htmlspecialchars($order['transaction_reference']); ?></p>
+                <p><strong>Reference:</strong> <?= htmlspecialchars($order['transaction_reference']); ?></p>
                 <p><strong>Status:</strong>
                     <span class="badge 
                         <?php
@@ -80,9 +80,9 @@ $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </p>
             </div>
             <div class="col-md-6">
-                <p><strong>Buyer:</strong> <?=htmlspecialchars($order['buyer_name']); ?></p>
-                <p><strong>Email:</strong> <?=htmlspecialchars($order['buyer_email']); ?></p>
-                <p><strong>Order Date:</strong> <?=date("d M Y, H:i A", strtotime($order['order_date'])); ?></p>
+                <p><strong>Buyer:</strong> <?= htmlspecialchars($order['buyer_name']); ?></p>
+                <p><strong>Email:</strong> <?= htmlspecialchars($order['buyer_email']); ?></p>
+                <p><strong>Order Date:</strong> <?= date("d M Y, H:i A", strtotime($order['order_date'])); ?></p>
             </div>
         </div>
     </div>
@@ -112,7 +112,7 @@ $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </td>
                         <td>
                             <?php if ($it['image_url']): ?>
-                                <img src="../<?=htmlspecialchars($it['image_url']); ?>"
+                                <img src="../<?= htmlspecialchars($it['image_url']); ?>"
                                     width="50" class="mt-2 rounded">
                             <?php endif; ?>
                         </td>
@@ -134,7 +134,21 @@ $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <p><strong>Subtotal:</strong> $<?= number_format($order['subtotal'], 2); ?></p>
         <p><strong>Discount:</strong> -$<?= number_format($order['discount'], 2); ?></p>
         <p><strong>Total:</strong> <span class="fw-bold text-success">$<?= number_format($order['total'], 2); ?></span></p>
-        <p><strong>Payment Method:</strong> <?= ucfirst($order['payment_method']); ?></p>
+        <p>
+            <strong>Payment Method:</strong>
+            <?php
+            if ($order['payment_method'] == 'card') {
+                $payment_method = "Paid With Card";
+            } elseif ($order['payment_method'] == 'bank_transfer' || $order['payment_method'] == 'pay_with_transfer') {
+                $payment_method = "Paid With Bank Transfer";
+            } elseif ($order['payment_method'] == 'cod') {
+                $payment_method = "Cash on Delivery";
+            } else {
+                $payment_method = "N/A";
+            };
+            echo htmlspecialchars($payment_method);
+            ?>
+        </p>
     </div>
 
     <hr>
@@ -142,10 +156,17 @@ $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Delivery Info -->
     <div class="mb-4">
         <h5 class="fw-bold"><i class="fa fa-truck me-2"></i>Delivery Information</h5>
-        <p><strong>Delivery Method:</strong> <?= htmlspecialchars($order['delivery_method']); ?></p>
+        <p>
+            <strong>Delivery Method:</strong>
+            <?php if ($order['delivery_method'] == 'home') {
+                echo "Home Delivery";
+            } elseif ($order['delivery_method'] == 'pickup_station') {
+                echo "Pickup Station";
+            } ?>
+        </p>
 
-        <?php if ($order['delivery_method'] == "pickup"): ?>
-            <p><strong>Pickup Location:</strong> <?= htmlspecialchars($order['pickup_location']); ?></p>
+        <?php if ($order['delivery_method'] == "pickup_station"): ?>
+            <p><strong>Pickup Location:</strong> Suite 45 Maikassu Plaza, Hajj Camp, Kano</p>
         <?php else: ?>
             <p><strong>Shipping Address:</strong></p>
             <div class="border rounded p-2 bg-light"><?= nl2br(htmlspecialchars($order['shipping_address'])); ?></div>
