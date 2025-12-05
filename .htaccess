@@ -18,9 +18,8 @@ RewriteCond %{THE_REQUEST} "\s/product_details\.php\?id=[0-9]+"
 RewriteRule ^product_details\.php$ /products.php [R=301,L]
 
 
-
 #############################################
-# Redirect /customer/... → /...
+# Redirect /customer/... → root
 #############################################
 RewriteCond %{REQUEST_URI} ^/customer/(.*)$
 RewriteRule ^customer/(.*)$ /$1 [R=301,L]
@@ -31,20 +30,23 @@ RewriteRule ^customer/(.*)$ /$1 [R=301,L]
 RewriteRule ^customer/?$ / [R=301,L]
 RewriteRule ^customer/index(\.php)?/?$ / [R=301,L]
 
+
 #############################################
-# Pretty URL for product details:
+# Pretty URL for product details
 # /product_details.php/my-slug
-# Internally → product_details.php?slug=my-slug
+# → product_details.php?slug=my-slug
 #############################################
+RewriteCond %{REQUEST_URI} ^/product_details\.php/.+
 RewriteRule ^product_details\.php/([A-Za-z0-9-_]+)/?$ product_details.php?slug=$1 [L,QSA]
 
 
 #############################################
-# Handle real 404s
+# Handle real 404s (MUST BE LAST)
 #############################################
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^.*$ /404.php [L]
+
 
 #############################################
 # PHP Handler (cPanel)
