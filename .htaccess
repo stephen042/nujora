@@ -1,22 +1,54 @@
 RewriteEngine On
 
-# Redirect /customer/... to /...
+#############################################
+# FIX OLD GOOGLE LINKS FOR PRODUCT DETAILS
+# Redirect all old id-based product URLs → /products.php
+#############################################
+
+# /customer/home.php/product_details.php?id=138
+RewriteCond %{THE_REQUEST} "\s/customer/home\.php/product_details\.php\?id=[0-9]+"
+RewriteRule ^customer/home\.php/product_details\.php$ /products.php [R=301,L]
+
+# /customer/product_details.php?id=138
+RewriteCond %{THE_REQUEST} "\s/customer/product_details\.php\?id=[0-9]+"
+RewriteRule ^customer/product_details\.php$ /products.php [R=301,L]
+
+# /product_details.php?id=138
+RewriteCond %{THE_REQUEST} "\s/product_details\.php\?id=[0-9]+"
+RewriteRule ^product_details\.php$ /products.php [R=301,L]
+
+
+
+#############################################
+# Redirect /customer/... → /...
+#############################################
 RewriteCond %{REQUEST_URI} ^/customer/(.*)$
 RewriteRule ^customer/(.*)$ /$1 [R=301,L]
 
-# If you want /customer or /customer/index to go to homepage:
-RewriteCond %{REQUEST_URI} ^/customer/?$ [OR]
-RewriteCond %{REQUEST_URI} ^/customer/index(\.php)?/?$
-RewriteRule ^$ / [R=301,L]
+#############################################
+# Redirect /customer or /customer/index → homepage
+#############################################
+RewriteRule ^customer/?$ / [R=301,L]
+RewriteRule ^customer/index(\.php)?/?$ / [R=301,L]
 
-# Existing 404 rule
+#############################################
+# Pretty URL for product details:
+# /product_details.php/my-slug
+# Internally → product_details.php?slug=my-slug
+#############################################
+RewriteRule ^product_details\.php/([A-Za-z0-9-_]+)/?$ product_details.php?slug=$1 [L,QSA]
+
+
+#############################################
+# Handle real 404s
+#############################################
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^.*$ /404.php [L]
 
-# php -- BEGIN cPanel-generated handler, do not edit
-# Set the “ea-php73” package as the default “PHP” programming language.
+#############################################
+# PHP Handler (cPanel)
+#############################################
 <IfModule mime_module>
   AddHandler application/x-httpd-ea-php73 .php .php7 .phtml
 </IfModule>
-# php -- END cPanel-generated handler, do not edit
