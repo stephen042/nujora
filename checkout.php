@@ -33,17 +33,29 @@ function getCartItems($isLoggedIn, $pdo)
 
     // Guest cart
     if (!empty($_SESSION['guest_cart'])) {
-        foreach ($_SESSION['guest_cart'] as $pid => $qty) {
+        foreach ($_SESSION['guest_cart'] as $pid => $cartData) {
+
+            // If old cart format, convert
+            if (!is_array($cartData)) {
+                $cartData = [
+                    'quantity' => $cartData,
+                    'variant_id' => null,
+                    'variant_options' => null
+                ];
+            }
+
             $stmt = $pdo->prepare("SELECT id, name, price FROM products WHERE id=?");
             $stmt->execute([$pid]);
             $p = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($p) {
                 $items[] = [
-                    'product_id' => $p['id'],
-                    'name'       => $p['name'],
-                    'price'      => $p['price'],
-                    'quantity'   => $qty
+                    'product_id'       => $p['id'],
+                    'name'             => $p['name'],
+                    'price'            => $p['price'],
+                    'quantity'         => $cartData['quantity'],
+                    'variant_id'       => $cartData['variant_id'],
+                    'variant_options'  => $cartData['variant_options']
                 ];
             }
         }
@@ -411,7 +423,27 @@ if (isset($_POST['proceed_payment']) && !$isLoggedIn) {
 
                             <?php foreach ($cartItems as $item): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($item['name']) ?> × <?= $item['quantity'] ?></td>
+                                    <td>
+                                        <?= htmlspecialchars($item['name']) ?> × <?= $item['quantity'] ?>
+                                
+                                        <?php if (!empty($item['variant_options'])): ?>
+                                            <?php
+                                            $vo = is_array($item['variant_options'])
+                                                ? $item['variant_options']
+                                                : json_decode($item['variant_options'], true);
+
+                                            if (is_array($vo)) {
+                                                echo "<br><small class='text-muted'>";
+                                                foreach ($vo as $key => $value) {
+                                                    echo htmlspecialchars(ucfirst($key) . ": $value ") . " ";
+                                                }
+                                                echo "</small>";
+                                            }
+                                            ?>
+                                        <?php endif; ?>
+                                        <hr>
+                                    </td>
+
                                     <td class="text-end">₦<?= number_format((float)$item['price'] * (int)$item['quantity']) ?></td>
                                 </tr>
                             <?php endforeach; ?>

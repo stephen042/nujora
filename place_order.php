@@ -183,10 +183,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             $order_id = $pdo->lastInsertId();
 
             // Insert order items
-            $stmt = $pdo->prepare("INSERT INTO order_items (order_id, product_id, price, quantity, seller_id, image_url) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("
+                INSERT INTO order_items 
+                (order_id, product_id, variant_id, variant_options, price, quantity, seller_id, image_url) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+
             foreach ($cart_items as $item) {
-                $stmt->execute([$order_id, $item['product_id'], $item['price'], $item['quantity'], $item['seller_id'], $item['image_url']]);
+                $stmt->execute([
+                    $order_id,
+                    $item['product_id'],
+                    $item['variant_id'] ?: null,
+                    $item['variant_options'] ?: null,
+                    $item['price'],
+                    $item['quantity'],
+                    $item['seller_id'],
+                    $item['image_url']
+                ]);
             }
+
 
             // Insert transaction
             $stmt = $pdo->prepare("INSERT INTO transactions (payment_method, amount, status, transaction_reference, created_at, updated_at)

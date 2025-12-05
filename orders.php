@@ -29,11 +29,12 @@ try {
                (SELECT status FROM order_status_history 
                 WHERE order_id = o.id 
                 ORDER BY changed_at DESC LIMIT 1) as current_status,
-               GROUP_CONCAT(oi.product_id) as product_ids,
-               GROUP_CONCAT(p.name) as product_names,
-               GROUP_CONCAT(oi.quantity) as quantities,
-               GROUP_CONCAT(oi.price) as prices,
-               GROUP_CONCAT(p.image_url) as image_urls
+                GROUP_CONCAT(oi.product_id) as product_ids,
+                GROUP_CONCAT(p.name) as product_names,
+                GROUP_CONCAT(oi.quantity) as quantities,
+                GROUP_CONCAT(oi.price) as prices,
+                GROUP_CONCAT(p.image_url) as image_urls,
+                GROUP_CONCAT(oi.variant_options) as variant_options 
         FROM orders o
         JOIN order_items oi ON o.id = oi.order_id
         JOIN products p ON oi.product_id = p.id
@@ -377,6 +378,7 @@ try {
                 $quantities = explode(',', $order['quantities']);
                 $prices = explode(',', $order['prices']);
                 $image_urls = explode(',', $order['image_urls']);
+                $variants_raw = explode(',', $order['variant_options']);
 
                 // Calculate order total
                 $order_total = 0;
@@ -426,7 +428,7 @@ try {
                         </div>
                     </div>
 
-                    <!-- Order Products -->
+
                     <!-- Order Products -->
                     <?php foreach ($product_ids as $index => $product_id):
                         $product_id = (int)$product_id;
@@ -457,7 +459,26 @@ try {
                                 alt="<?= htmlspecialchars($product_names[$index]) ?>">
                             <div class="flex-grow-1">
                                 <h6><?= htmlspecialchars($product_names[$index]) ?></h6>
-                                <div class="text-muted">Qty: <?= $quantities[$index] ?></div>
+                                <div class="text-muted">
+                                    Qty: <?= $quantities[$index] ?>
+                                </div>
+                                <?php
+                                // Decode JSON safely
+                                $variant_text = '';
+                                if (!empty($variants_raw[$index]) && $variants_raw[$index] !== 'null') {
+                                    $decoded = json_decode($variants_raw[$index], true);
+                                    if (is_array($decoded)) {
+                                        foreach ($decoded as $key => $value) {
+                                            $variant_text .= ucfirst($key) . ': ' . htmlspecialchars($value) . ' ';
+                                        }
+                                    }
+                                }
+                                ?>
+                                <?php if ($variant_text): ?>
+                                    <div class="text-muted small">
+                                        <?= $variant_text ?>
+                                    </div>
+                                <?php endif; ?>
                                 <div>₦<?= number_format($prices[$index], 2) ?></div>
                             </div>
                             <div class="text-end">

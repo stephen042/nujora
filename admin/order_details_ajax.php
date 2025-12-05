@@ -106,17 +106,49 @@ $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </thead>
             <tbody>
                 <?php foreach ($items as $it): ?>
+
+                    <?php
+                    // Decode variant options (if JSON)
+                    $variantText = '';
+                    if (!empty($it['variant_options'])) {
+                        $vo = json_decode($it['variant_options'], true);
+
+                        if (is_array($vo)) {
+                            foreach ($vo as $key => $val) {
+                                $variantText .= "<span class='badge bg-secondary me-1 p-2'>{$key}: {$val}</span>";
+                            }
+                        } else {
+                            $variantText = "<span class='text-muted'>N/A</span>";
+                        }
+                    }
+                    ?>
+
                     <tr>
                         <td>
                             <strong><?= htmlspecialchars($it['product_name']); ?></strong><br>
+                            <?= $variantText ?>
                         </td>
+
                         <td>
                             <?php if ($it['image_url']): ?>
                                 <img src="../<?= htmlspecialchars($it['image_url']); ?>"
                                     width="50" class="mt-2 rounded">
                             <?php endif; ?>
                         </td>
-                        <td><?= $it['seller_id'] ? "Seller #" . $it['seller_id'] : "N/A"; ?></td>
+
+                        <td>
+                            <?php
+                            if ($it['seller_id']) {
+                                $sellerStmt = $pdo->prepare("SELECT name FROM users WHERE id = ?");
+                                $sellerStmt->execute([$it['seller_id']]);
+                                $seller = $sellerStmt->fetch(PDO::FETCH_ASSOC);
+                                echo htmlspecialchars($seller['name'] ?? 'N/A');
+                            } else {
+                                echo "N/A";
+                            }
+                            ?>
+                        </td>
+
                         <td><?= $it['quantity']; ?></td>
                         <td>$<?= number_format($it['price'], 2); ?></td>
                         <td>$<?= number_format($it['quantity'] * $it['price'], 2); ?></td>
@@ -131,9 +163,9 @@ $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Totals -->
     <div class="mb-4">
         <h5 class="fw-bold"><i class="fa fa-money-bill me-2"></i>Payment Details</h5>
-        <p><strong>Subtotal:</strong> $<?= number_format($order['subtotal'], 2); ?></p>
-        <p><strong>Discount:</strong> -$<?= number_format($order['discount'], 2); ?></p>
-        <p><strong>Total:</strong> <span class="fw-bold text-success">$<?= number_format($order['total'], 2); ?></span></p>
+        <p><strong>Subtotal:</strong> ₦<?= number_format($order['subtotal'], 2); ?></p>
+        <p><strong>Discount:</strong> -₦<?= number_format($order['discount'], 2); ?></p>
+        <p><strong>Total:</strong> <span class="fw-bold text-success">₦<?= number_format($order['total'], 2); ?></span></p>
         <p>
             <strong>Payment Method:</strong>
             <?php
