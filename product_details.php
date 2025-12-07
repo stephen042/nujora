@@ -431,6 +431,16 @@ try {
       font-weight: 600;
     }
 
+    .variant-btn:disabled {
+      border-color: #000 !important;
+      color: #000 !important;
+      text-decoration: line-through;
+      background-color: #ffe6e6 !important;
+      /* light red */
+      opacity: 0.9;
+      cursor: not-allowed;
+    }
+
     @media (max-width: 768px) {
       .main-image {
         height: 300px;
@@ -895,7 +905,7 @@ try {
   <?php include 'includes/script.php'; ?>
 
   <script>
-  document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
 
       const variants = <?= json_encode($variant_combinations) ?>;
 
@@ -912,96 +922,98 @@ try {
       // Find a matching variant
       // --------------------------
       function findVariant() {
-          return variants.find(v =>
-              Object.keys(v.options).every(a => selected[a] === v.options[a])
-          );
+        return variants.find(v =>
+          Object.keys(v.options).every(a => selected[a] === v.options[a])
+        );
       }
 
       // --------------------------
       // Refresh button states
       // --------------------------
       function refreshButtons() {
-          groups.forEach(group => {
-              const attr = group.dataset.attr;
+        groups.forEach(group => {
+          const attr = group.dataset.attr;
 
-              group.querySelectorAll(".variant-btn").forEach(btn => {
-                  const value = btn.dataset.value;
+          group.querySelectorAll(".variant-btn").forEach(btn => {
+            const value = btn.dataset.value;
 
-                  const test = {...selected};
-                  test[attr] = value;
+            const test = {
+              ...selected
+            };
+            test[attr] = value;
 
-                  const possible = variants.some(v =>
-                      Object.keys(test).every(a =>
-                          test[a] === "" || v.options[a] === test[a]
-                      )
-                  );
+            const possible = variants.some(v =>
+              Object.keys(test).every(a =>
+                test[a] === "" || v.options[a] === test[a]
+              )
+            );
 
-                  btn.disabled = !possible;
+            btn.disabled = !possible;
 
-                  btn.classList.toggle(
-                      "btn-primary",
-                      selected[attr] === value
-                  );
-                  btn.classList.toggle(
-                      "btn-outline-primary",
-                      selected[attr] !== value
-                  );
-              });
+            btn.classList.toggle(
+              "btn-primary",
+              selected[attr] === value
+            );
+            btn.classList.toggle(
+              "btn-outline-primary",
+              selected[attr] !== value
+            );
           });
+        });
       }
 
       // --------------------------
       // Refresh hidden variant_id
       // --------------------------
       function refreshVariantId() {
-          const v = findVariant();
+        const v = findVariant();
 
-          if (v) {
-              variantInput.value = v.id;
-              errorBox.textContent = "";
-          } else {
-              variantInput.value = "";
-              errorBox.textContent = "This combination is not available.";
-          }
+        if (v) {
+          variantInput.value = v.id;
+          errorBox.textContent = "";
+        } else {
+          variantInput.value = "";
+          errorBox.textContent = "This combination is not available.";
+        }
 
-          refreshAddToCart(); // update Add to Cart state
+        refreshAddToCart(); // update Add to Cart state
       }
 
       // --------------------------
       // Refresh Add to Cart button
       // --------------------------
       function refreshAddToCart() {
-          addToCartBtn.disabled = !variantInput.value;
+        addToCartBtn.disabled = !variantInput.value;
       }
 
       // --------------------------
       // Variant button click
       // --------------------------
       document.querySelectorAll(".variant-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-              const group = btn.closest(".variant-group");
-              const attr = group.dataset.attr;
-              const value = btn.dataset.value;
+        btn.addEventListener("click", () => {
+          const group = btn.closest(".variant-group");
+          const attr = group.dataset.attr;
+          const value = btn.dataset.value;
 
-              // Toggle selection
-              selected[attr] = selected[attr] === value ? "" : value;
+          // Toggle selection
+          selected[attr] = selected[attr] === value ? "" : value;
 
-              refreshButtons();
-              refreshVariantId();
-          });
+          refreshButtons();
+          refreshVariantId();
+        });
       });
 
       // --------------------------
       // Clear button click
       // --------------------------
       document.querySelectorAll(".clear-variant-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-              const attr = btn.closest(".variant-group").dataset.attr;
-              selected[attr] = "";
+        btn.addEventListener("click", () => {
+          const attr = btn.closest(".variant-group").dataset.attr;
+          selected[attr] = "";
 
-              refreshButtons();
-              refreshVariantId();
-          });
+          refreshButtons();
+          refreshVariantId();
+        });
       });
 
       // --------------------------
@@ -1013,44 +1025,44 @@ try {
       // Add to Cart click
       // --------------------------
       addToCartBtn.addEventListener("click", () => {
-          const product_id = addToCartBtn.dataset.id;
-          const variant_id = variantInput.value;
+        const product_id = addToCartBtn.dataset.id;
+        const variant_id = variantInput.value;
 
-          if (!variant_id) {
-              alert("Please select product options before adding to cart.");
-              return;
-          }
+        if (!variant_id) {
+          alert("Please select product options before adding to cart.");
+          return;
+        }
 
-          const formData = new FormData();
-          formData.append("product_id", product_id);
-          formData.append("quantity", 1);
-          formData.append("variant_id", variant_id);
+        const formData = new FormData();
+        formData.append("product_id", product_id);
+        formData.append("quantity", 1);
+        formData.append("variant_id", variant_id);
 
-          // Append selected attributes
-          groups.forEach(group => {
-              group.querySelectorAll(".variant-btn").forEach(btn => {
-                  if (btn.classList.contains("btn-primary")) {
-                      formData.append(group.dataset.attr, btn.dataset.value);
-                  }
-              });
+        // Append selected attributes
+        groups.forEach(group => {
+          group.querySelectorAll(".variant-btn").forEach(btn => {
+            if (btn.classList.contains("btn-primary")) {
+              formData.append(group.dataset.attr, btn.dataset.value);
+            }
           });
+        });
 
-          fetch("add_to_cart.php", {
-              method: "POST",
-              body: formData
+        fetch("add_to_cart.php", {
+            method: "POST",
+            body: formData
           })
           .then(res => res.json())
           .then(data => {
-              if (!data.success) {
-                  // alert(data.message);
-                  return;
-              }
-              console.log("Added to cart. Total items:", data.count);
-              // Optional: update cart icon/count on page
+            if (!data.success) {
+              // alert(data.message);
+              return;
+            }
+            console.log("Added to cart. Total items:", data.count);
+            // Optional: update cart icon/count on page
           });
       });
 
-  });
+    });
   </script>
 
 </body>
