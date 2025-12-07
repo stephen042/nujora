@@ -496,7 +496,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tbody>
                 </table>
 
-                <button type="submit" class="btn btn-danger" name="delete_variants">Delete Selected Variants</button>
+                <button type="submit" class="btn btn-danger" name="delete_variants_submit">
+                    Delete Selected Variants
+                </button>
             </form>
         <?php endif; ?>
 

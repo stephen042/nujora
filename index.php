@@ -465,7 +465,7 @@ function getSellerBadge($avg_rating)
             <div>
               <h1 class="display-4 fw-bold mb-3">Big Discount Week</h1>
               <p class="lead mb-4">Up to 50% off selected items</p>
-              <a href="products.php?discounts=1" class="btn btn-light">Grab Deals</a>
+              <a href="products.php" class="btn btn-light">Grab Deals</a>
             </div>
           </div>
         </div>
@@ -476,7 +476,7 @@ function getSellerBadge($avg_rating)
             <div>
               <h1 class="display-4 fw-bold mb-3">Support Local Shops</h1>
               <p class="lead mb-4">Buy from sellers in your area</p>
-              <a href="sellers.php" class="btn btn-light">Find Sellers</a>
+              <a href="products.php" class="btn btn-light">Find Sellers</a>
             </div>
           </div>
         </div>
