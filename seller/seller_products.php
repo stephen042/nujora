@@ -42,7 +42,6 @@ try {
     $product_stmt->execute();
 
     $products = $product_stmt->fetchAll(PDO::FETCH_ASSOC);
-
 } catch (PDOException $e) {
     // Handle database error gracefully
     die("Database error: " . $e->getMessage());
@@ -57,10 +56,12 @@ $total_pages = ceil($total_products / $per_page);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($shop_info['shop_name'] ?? 'My Shop') ?> | TrendyMart</title>
+    <meta property="og:image" content="uploads/default-product.png" />
+    <title><?= htmlspecialchars($shop_info['shop_name'] ?? 'My Shop') ?> | <?= APP_NAME ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -73,64 +74,64 @@ $total_pages = ceil($total_products / $per_page);
             --dark-text: #2B2A26;
             --success: #28a745;
         }
-        
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f8f9fa;
             color: var(--dark-text);
         }
-        
+
         .shop-header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             padding: 3rem 0;
             margin-bottom: 2rem;
             border-radius: 0 0 20px 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         }
-        
+
         .shop-logo {
             width: 120px;
             height: 120px;
             object-fit: cover;
             border-radius: 50%;
             border: 4px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .product-card {
             background: white;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             height: 100%;
             display: flex;
             flex-direction: column;
         }
-        
+
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        
+
         .product-img-container {
             height: 200px;
             overflow: hidden;
             position: relative;
         }
-        
+
         .product-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             transition: transform 0.5s ease;
         }
-        
+
         .product-card:hover .product-img {
             transform: scale(1.05);
         }
-        
+
         .product-badge {
             position: absolute;
             top: 10px;
@@ -142,41 +143,41 @@ $total_pages = ceil($total_products / $per_page);
             font-size: 0.8rem;
             font-weight: 600;
         }
-        
+
         .rating-stars {
             color: #FFD700;
             font-size: 0.9rem;
         }
-        
+
         .btn-primary {
             background-color: var(--primary);
             border-color: var(--primary);
             padding: 8px 20px;
             font-weight: 500;
         }
-        
+
         .btn-primary:hover {
             background-color: #5a0db4;
             border-color: #5a0db4;
         }
-        
+
         .nav-pills .nav-link.active {
             background-color: var(--primary);
         }
-        
+
         .stats-card {
             background: white;
             border-radius: 10px;
             padding: 1.5rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         }
-        
+
         .stats-number {
             font-size: 2rem;
             font-weight: 700;
             color: var(--primary);
         }
-        
+
         .sidebar-link {
             display: flex;
             align-items: center;
@@ -186,54 +187,56 @@ $total_pages = ceil($total_products / $per_page);
             text-decoration: none;
             transition: all 0.2s ease;
         }
-        
-        .sidebar-link:hover, .sidebar-link.active {
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
             background-color: rgba(106, 17, 203, 0.1);
             color: var(--primary);
         }
-        
+
         .sidebar-link i {
             margin-right: 10px;
             width: 20px;
             text-align: center;
         }
-        
+
         .pagination .page-item.active .page-link {
             background-color: var(--primary);
             border-color: var(--primary);
         }
-        
+
         .pagination .page-link {
             color: var(--primary);
         }
-        
+
         @media (max-width: 768px) {
             .shop-header {
                 padding: 2rem 0;
                 text-align: center;
             }
-            
+
             .shop-logo {
                 width: 80px;
                 height: 80px;
                 margin-bottom: 1rem;
             }
-            
+
             .product-img-container {
                 height: 150px;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Shop Header -->
     <header class="shop-header">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-2 text-center text-md-start">
-                    <img src="<?= htmlspecialchars($shop_info['shop_logo'] ?? 'https://via.placeholder.com/120') ?>" 
-                         alt="<?= htmlspecialchars($shop_info['shop_name'] ?? 'Shop Logo') ?>" 
-                         class="shop-logo mb-3 mb-md-0">
+                    <img src="<?= htmlspecialchars($shop_info['shop_logo'] ?? 'https://via.placeholder.com/120') ?>"
+                        alt="<?= htmlspecialchars($shop_info['shop_name'] ?? 'Shop Logo') ?>"
+                        class="shop-logo mb-3 mb-md-0">
                 </div>
                 <div class="col-md-7 text-center text-md-start">
                     <h1 class="mb-2"><?= htmlspecialchars($shop_info['shop_name'] ?? 'My Shop') ?></h1>
@@ -262,7 +265,7 @@ $total_pages = ceil($total_products / $per_page);
                         <span class="stats-number">₦0</span> <!-- Replace with actual sales data -->
                     </div>
                 </div>
-                
+
                 <nav class="nav flex-column">
                     <a href="seller_products.php" class="sidebar-link active">
                         <i class="fas fa-box"></i> My Products
@@ -281,7 +284,7 @@ $total_pages = ceil($total_products / $per_page);
                     </a>
                 </nav>
             </div>
-            
+
             <!-- Main Content -->
             <div class="col-lg-9">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -306,7 +309,7 @@ $total_pages = ceil($total_products / $per_page);
                         </div>
                     </div>
                 </div>
-                
+
                 <?php if (empty($products)): ?>
                     <div class="text-center py-5">
                         <i class="fas fa-box-open fa-4x text-muted mb-4"></i>
@@ -322,10 +325,10 @@ $total_pages = ceil($total_products / $per_page);
                             <div class="col">
                                 <div class="product-card">
                                     <div class="product-img-container">
-                                        <img src="<?= htmlspecialchars($product['image_url'] ?? 'https://via.placeholder.com/300') ?>" 
-                                             alt="<?= htmlspecialchars($product['name']) ?>" 
-                                             class="product-img"
-                                             onerror="this.src='https://via.placeholder.com/300?text=Product+Image'">
+                                        <img src="<?= htmlspecialchars($product['image_url'] ?? 'https://via.placeholder.com/300') ?>"
+                                            alt="<?= htmlspecialchars($product['name']) ?>"
+                                            class="product-img"
+                                            onerror="this.src='https://via.placeholder.com/300?text=Product+Image'">
                                         <?php if ($product['stock'] > 0): ?>
                                             <span class="product-badge">In Stock</span>
                                         <?php else: ?>
@@ -361,7 +364,7 @@ $total_pages = ceil($total_products / $per_page);
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    
+
                     <!-- Pagination -->
                     <?php if ($total_pages > 1): ?>
                         <nav class="mt-5">
@@ -369,13 +372,13 @@ $total_pages = ceil($total_products / $per_page);
                                 <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?page=<?= $page - 1 ?>">Previous</a>
                                 </li>
-                                
+
                                 <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                                     <li class="page-item <?= $i == $page ? 'active' : '' ?>">
                                         <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
                                     </li>
                                 <?php endfor; ?>
-                                
+
                                 <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?page=<?= $page + 1 ?>">Next</a>
                                 </li>
@@ -396,7 +399,7 @@ $total_pages = ceil($total_products / $per_page);
                 window.location.href = `seller_products.php?search=${encodeURIComponent(searchTerm)}`;
             }
         });
-        
+
         // Enable pressing Enter in search input
         document.querySelector('.input-group input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -405,4 +408,5 @@ $total_pages = ceil($total_products / $per_page);
         });
     </script>
 </body>
+
 </html>
