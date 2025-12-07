@@ -32,7 +32,7 @@ try {
 
 // Require variant if product has variants
 if ($has_variants && !$variant_id) {
-    echo json_encode(['success' => false, 'message' => 'View product details and select product options']);
+    echo json_encode(['success' => false, 'message' => 'View product details and select product options.']);
     exit;
 }
 

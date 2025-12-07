@@ -10,23 +10,37 @@
     document.addEventListener("DOMContentLoaded", () => {
 
         const variants = <?= json_encode($variants) ?>;
-        // Example structure:
-        // {
-        //    "12": {"color":"red","size":"M"},
-        //    "13": {"color":"red","size":"L"},
-        //    "14": {"color":"blue","size":"M"}
-        // }
-
         const selects = document.querySelectorAll(".variant-select");
+        const buttons = document.querySelectorAll(".variant-btn");
         const variantInput = document.getElementById("selected-variant-id");
+        const addToCartBtns = document.querySelectorAll(".add-to-cart");
+        const groups = document.querySelectorAll(".variant-group");
+        const errorBox = document.getElementById("variant-error");
 
+        // Track selected button values
+        let selected = {};
+        groups.forEach(g => selected[g.dataset.attr] = "");
+
+        // --------------------------
+        // Detect currently selected variant
+        // --------------------------
         function detectVariant() {
             let chosen = {};
 
+            // From selects
             selects.forEach(sel => {
                 const name = sel.dataset.attr;
                 const value = sel.value;
                 if (value) chosen[name] = value;
+            });
+
+            // From buttons
+            buttons.forEach(btn => {
+                const group = btn.closest(".variant-group");
+                const attr = group.dataset.attr;
+                if (btn.classList.contains("btn-primary")) {
+                    chosen[attr] = btn.dataset.value;
+                }
             });
 
             // Find matching variant
@@ -35,8 +49,8 @@
                 const variant = variants[variantId];
                 let match = true;
 
-                for (let attr in chosen) {
-                    if (variant[attr] !== chosen[attr]) {
+                for (let attr in variant) {
+                    if (chosen[attr] !== variant[attr]) {
                         match = false;
                         break;
                     }
@@ -47,37 +61,123 @@
                     break;
                 }
             }
+
+            refreshButtons();
+            refreshAddToCart();
+            refreshVariantError();
         }
 
-        selects.forEach(sel => {
-            sel.addEventListener("change", detectVariant);
+        // --------------------------
+        // Highlight buttons & disable impossible options
+        // --------------------------
+        function refreshButtons() {
+            groups.forEach(group => {
+                const attr = group.dataset.attr;
+
+                group.querySelectorAll(".variant-btn").forEach(btn => {
+                    const value = btn.dataset.value;
+
+                    // Create a test selection with this button selected
+                    const test = {
+                        ...selected
+                    };
+                    test[attr] = value;
+
+                    // Check if any variant exists that matches this test
+                    const possible = Object.values(variants).some(v =>
+                        Object.keys(v).every(a => !test[a] || v[a] === test[a])
+                    );
+
+                    btn.disabled = !possible;
+
+                    // Highlight selected
+                    btn.classList.toggle("btn-primary", selected[attr] === value);
+                    btn.classList.toggle("btn-outline-primary", selected[attr] !== value);
+                });
+            });
+        }
+
+        // --------------------------
+        // Show error if no variant selected
+        // --------------------------
+        function refreshVariantError() {
+            if (variantInput && errorBox) {
+                errorBox.textContent = variantInput.value ? "" : "Please select product options.";
+            }
+        }
+
+        // --------------------------
+        // Enable/disable Add to Cart button
+        // --------------------------
+        function refreshAddToCart() {
+            addToCartBtns.forEach(btn => {
+                btn.disabled = (selects.length > 0 || buttons.length > 0) && !variantInput.value;
+            });
+        }
+
+        // --------------------------
+        // Button click logic
+        // --------------------------
+        buttons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const group = btn.closest(".variant-group");
+                const attr = group.dataset.attr;
+                const value = btn.dataset.value;
+
+                // Toggle selection
+                selected[attr] = selected[attr] === value ? "" : value;
+
+                detectVariant();
+            });
         });
 
+        // Clear buttons
+        document.querySelectorAll(".clear-variant-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const attr = btn.closest(".variant-group").dataset.attr;
+                selected[attr] = "";
 
-        // Override "Add to Cart" button behavior
-        document.querySelectorAll(".add-to-cart").forEach(btn => {
+                detectVariant();
+            });
+        });
+
+        // Select change
+        selects.forEach(sel => sel.addEventListener("change", detectVariant));
+
+        // --------------------------
+        // Add to Cart click
+        // --------------------------
+        addToCartBtns.forEach(btn => {
             btn.addEventListener("click", function(e) {
                 e.preventDefault();
 
                 const productId = this.dataset.id;
                 const variantId = variantInput ? variantInput.value : "";
+
                 let body = `product_id=${productId}&quantity=1`;
 
-                // If there are variants, collect options
-                if (selects.length > 0) {
-                    if (!variantId) {
-                        showToast("Please choose product options", "error");
-                        return;
-                    }
-
-                    body += `&variant_id=${variantId}`;
-
-                    selects.forEach(sel => {
-                        const attr = sel.dataset.attr;
-                        const value = sel.value;
-                        body += `&${attr}=${value}`;
-                    });
+                if ((selects.length > 0 || buttons.length > 0) && !variantId) {
+                    if (errorBox) errorBox.textContent = "Please select product options.";
+                    return;
                 }
+
+                if (variantId) body += `&variant_id=${variantId}`;
+
+                // Append select values
+                selects.forEach(sel => {
+                    const attr = sel.dataset.attr;
+                    const value = sel.value;
+                    if (value) body += `&${attr}=${value}`;
+                });
+
+                // Append selected button values
+                buttons.forEach(btn => {
+                    const group = btn.closest(".variant-group");
+                    const attr = group.dataset.attr;
+                    if (btn.classList.contains("btn-primary")) {
+                        body += `&${attr}=${btn.dataset.value}`;
+                    }
+                });
 
                 fetch("add_to_cart.php", {
                         method: "POST",
@@ -89,26 +189,44 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-
-                            // Update top navbar cart count
+                            // Update cart counts
                             const topBadge = document.getElementById("cart-count");
                             if (topBadge) topBadge.textContent = data.count;
 
-                            // Update bottom navbar cart count
                             const bottomBadge = document.getElementById("bottom-cart-count");
                             if (bottomBadge) bottomBadge.textContent = data.count;
 
-                            showToast(data.message, "success");
+                            if (typeof showToast === "function") {
+                                showToast(data.message, "success");
+                            } else {
+                                console.log(data.message);
+                            }
                         } else {
-                            showToast(data.message, "error");
+                            if (typeof showToast === "function") {
+                                showToast(data.message, "error");
+                            } else {
+                                console.error(data.message);
+                            }
                         }
                     })
-                    .catch(() => showToast("Network error", "error"));
+                    .catch(() => {
+                        if (typeof showToast === "function") {
+                            showToast("Network error", "error");
+                        } else {
+                            console.error("Network error");
+                        }
+                    });
             });
         });
 
+        // --------------------------
+        // Initial refresh on page load
+        // --------------------------
+        detectVariant();
+
     });
 </script>
+
 
 <!-- for product details -->
 <script>
@@ -342,12 +460,21 @@
         transform: translateX(0);
     }
 
-    .custom-toast.success { background-color: #04a459ff; }
-    .custom-toast.error { background-color: #dc3545; }
-    .custom-toast.info { background-color: #0d6efd; }
-    .custom-toast.warning { 
-        background-color: #ffc107; 
-        color: #000; 
+    .custom-toast.success {
+        background-color: #04a459ff;
+    }
+
+    .custom-toast.error {
+        background-color: #dc3545;
+    }
+
+    .custom-toast.info {
+        background-color: #0d6efd;
+    }
+
+    .custom-toast.warning {
+        background-color: #ffc107;
+        color: #000;
     }
 
     /* NEW: Ensure close button works everywhere */

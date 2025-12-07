@@ -27,32 +27,58 @@ try {
 
   // ✅ Fetch product variants using product ID
   $stmt = $pdo->prepare("
-    SELECT v.id AS variant_id,
-           o.option_name,
-           o.option_value
+    SELECT 
+        v.id AS variant_id,
+        v.sku,
+        v.stock,
+        o.option_name,
+        o.option_value
     FROM product_variants v
     JOIN product_variant_options o ON o.variant_id = v.id
     WHERE v.product_id = ?
+    ORDER BY v.id ASC
 ");
   $stmt->execute([$product['id']]);
   $raw = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  // Convert to a structured format
-  $variants = [];
-  $attributes = [];
+  // -----------------------------
+  // Build structured variant list
+  // -----------------------------
+  $variants = [];          // example: [12 => ['Size'=>'M','Color'=>'Black']]
+  $attributes = [];        // example: ['Size'=>['S','M'], 'Color'=>['Black','White']]
+  $variant_combinations = []; // for JS validation
 
   foreach ($raw as $row) {
-    $variants[$row['variant_id']][$row['option_name']] = $row['option_value'];
+
+    // Build variant structure (like seller side)
+    $variants[$row['variant_id']]['id'] = $row['variant_id'];
+    $variants[$row['variant_id']]['sku'] = $row['sku'];
+    $variants[$row['variant_id']]['stock'] = $row['stock'];
+
+    // Add option pairs
+    $variants[$row['variant_id']]['options'][$row['option_name']] = $row['option_value'];
+
+    // Collect attributes for dropdowns
     $attributes[$row['option_name']][] = $row['option_value'];
   }
 
-  // Remove duplicates
+  // Remove duplicates from attributes
   foreach ($attributes as $key => $values) {
-    $attributes[$key] = array_unique($values);
+    $attributes[$key] = array_values(array_unique($values));
   }
 
   $has_variants = count($variants) > 0;
 
+  // -----------------------------
+  // Build clean combinations for JS
+  // -----------------------------
+  $variant_combinations = [];
+  foreach ($variants as $v) {
+    $variant_combinations[] = [
+      'id' => $v['id'],
+      'options' => $v['options']
+    ];
+  }
 
 
 
@@ -260,6 +286,10 @@ try {
       font-size: 1.8rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
+    }
+
+    .is-invalid {
+      border: 2px solid #dc3545 !important;
     }
 
     .price-container {
@@ -504,29 +534,46 @@ try {
 
             <?php foreach ($attributes as $attrName => $values): ?>
               <div class="mb-3">
-                <label class="form-label fw-bold">Select <?= ucfirst($attrName) ?></label>
-                <select class="form-select variant-select" data-attr="<?= $attrName ?>">
-                  <option value="">Choose <?= $attrName ?></option>
+                <label class="form-label fw-bold d-block">
+                  Select <?= ucfirst($attrName) ?>
+                </label>
+
+                <div class="btn-group flex-wrap variant-group" data-attr="<?= $attrName ?>">
 
                   <?php foreach ($values as $v): ?>
-                    <option value="<?= $v ?>"><?= ucfirst($v) ?></option>
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary m-1 variant-btn"
+                      data-value="<?= $v ?>">
+                      <?= ucfirst($v) ?>
+                    </button>
                   <?php endforeach; ?>
 
-                </select>
+                  <!-- 🔥 CLEAR BUTTON -->
+                  <button
+                    type="button"
+                    class="btn btn-danger m-1 clear-variant-btn">
+                    Clear
+                  </button>
+
+                </div>
               </div>
             <?php endforeach; ?>
 
-            <!-- Hidden variant_id -->
             <input type="hidden" id="selected-variant-id">
+
+            <p id="variant-error" class="text-danger fw-bold mt-2"></p>
+            <!-- <p id="variant-sku" class="text-muted"></p>
+            <p id="variant-stock" class="text-success fw-bold"></p> -->
 
           <?php endif; ?>
 
 
 
-
           <div class="d-grid gap-2">
             <!-- Add to Cart Button -->
-            <button class="btn btn-add-to-cart btn-lg p-1 text-white add-to-cart w-100" data-id="<?= $product['id'] ?>" <?= $product['stock'] == 0 ? 'disabled' : '' ?>>
+            <button id="add-to-cart" class="btn btn-add-to-cart btn-lg p-1 text-white add-to-cart w-100"
+              data-id="<?= $product['id'] ?>" <?= $product['stock'] == 0 ? 'disabled' : '' ?>>
               <i class="fas fa-shopping-cart float-start m-2"></i>
               Add to Cart
             </button>
@@ -846,6 +893,165 @@ try {
 
   <!-- Script -->
   <?php include 'includes/script.php'; ?>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+
+      const variants = <?= json_encode($variant_combinations) ?>;
+
+      const groups = document.querySelectorAll(".variant-group");
+      const variantInput = document.getElementById("selected-variant-id");
+      const errorBox = document.getElementById("variant-error");
+      const addToCartBtn = document.getElementById("add-to-cart");
+
+      // Track selected options
+      let selected = {};
+      groups.forEach(g => selected[g.dataset.attr] = "");
+
+      // --------------------------
+      // Find a matching variant
+      // --------------------------
+      function findVariant() {
+          return variants.find(v =>
+              Object.keys(v.options).every(a => selected[a] === v.options[a])
+          );
+      }
+
+      // --------------------------
+      // Refresh button states
+      // --------------------------
+      function refreshButtons() {
+          groups.forEach(group => {
+              const attr = group.dataset.attr;
+
+              group.querySelectorAll(".variant-btn").forEach(btn => {
+                  const value = btn.dataset.value;
+
+                  const test = {...selected};
+                  test[attr] = value;
+
+                  const possible = variants.some(v =>
+                      Object.keys(test).every(a =>
+                          test[a] === "" || v.options[a] === test[a]
+                      )
+                  );
+
+                  btn.disabled = !possible;
+
+                  btn.classList.toggle(
+                      "btn-primary",
+                      selected[attr] === value
+                  );
+                  btn.classList.toggle(
+                      "btn-outline-primary",
+                      selected[attr] !== value
+                  );
+              });
+          });
+      }
+
+      // --------------------------
+      // Refresh hidden variant_id
+      // --------------------------
+      function refreshVariantId() {
+          const v = findVariant();
+
+          if (v) {
+              variantInput.value = v.id;
+              errorBox.textContent = "";
+          } else {
+              variantInput.value = "";
+              errorBox.textContent = "This combination is not available.";
+          }
+
+          refreshAddToCart(); // update Add to Cart state
+      }
+
+      // --------------------------
+      // Refresh Add to Cart button
+      // --------------------------
+      function refreshAddToCart() {
+          addToCartBtn.disabled = !variantInput.value;
+      }
+
+      // --------------------------
+      // Variant button click
+      // --------------------------
+      document.querySelectorAll(".variant-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+              const group = btn.closest(".variant-group");
+              const attr = group.dataset.attr;
+              const value = btn.dataset.value;
+
+              // Toggle selection
+              selected[attr] = selected[attr] === value ? "" : value;
+
+              refreshButtons();
+              refreshVariantId();
+          });
+      });
+
+      // --------------------------
+      // Clear button click
+      // --------------------------
+      document.querySelectorAll(".clear-variant-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+              const attr = btn.closest(".variant-group").dataset.attr;
+              selected[attr] = "";
+
+              refreshButtons();
+              refreshVariantId();
+          });
+      });
+
+      // --------------------------
+      // Initialize Add to Cart button
+      // --------------------------
+      refreshAddToCart();
+
+      // --------------------------
+      // Add to Cart click
+      // --------------------------
+      addToCartBtn.addEventListener("click", () => {
+          const product_id = addToCartBtn.dataset.id;
+          const variant_id = variantInput.value;
+
+          if (!variant_id) {
+              alert("Please select product options before adding to cart.");
+              return;
+          }
+
+          const formData = new FormData();
+          formData.append("product_id", product_id);
+          formData.append("quantity", 1);
+          formData.append("variant_id", variant_id);
+
+          // Append selected attributes
+          groups.forEach(group => {
+              group.querySelectorAll(".variant-btn").forEach(btn => {
+                  if (btn.classList.contains("btn-primary")) {
+                      formData.append(group.dataset.attr, btn.dataset.value);
+                  }
+              });
+          });
+
+          fetch("add_to_cart.php", {
+              method: "POST",
+              body: formData
+          })
+          .then(res => res.json())
+          .then(data => {
+              if (!data.success) {
+                  // alert(data.message);
+                  return;
+              }
+              console.log("Added to cart. Total items:", data.count);
+              // Optional: update cart icon/count on page
+          });
+      });
+
+  });
+  </script>
 
 </body>
 
