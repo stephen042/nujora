@@ -81,16 +81,18 @@ function getSellerBadge($avg_rating)
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reliable Online Shopping in <?= APP_NAME ?> | Shop Quality Deals | Nujora</title>
-  <meta name="description" content="Nujora offers the best online shopping in <?= APP_NAME ?>. Enjoy secure payments, trusted sellers, and unbeatable deals on fashion, gadgets, and daily essentials. Contact now!">
+  <title>Online Shopping in Nigeria | Fashion & Beauty Products | Nujora</title>
+  <meta name="description" content="Looking for the best online shopping sites in Nigeria? Nujora offers electronics, fashion, beauty, kids’ products, secure shopping, and trusted sellers nationwide.
+">
   <link rel="icon" type="image/png" href="uploads/default-product.png">
   <link href="assets/css/bootstrap.min.css" rel="stylesheet">
   <link rel="canonical" href="<?php echo 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <meta property="og:title" content="Reliable Online Shopping in <?= APP_NAME ?> | Shop Quality Deals | Nujora" />
-  <meta property="og:description" content="Nujora offers the best online shopping in <?= APP_NAME ?>. Enjoy secure payments, trusted sellers, and unbeatable deals on fashion, gadgets, and daily essentials. Contact now!" />
+  <meta property="og:title" content="Online Shopping in Nigeria | Fashion & Beauty Products | Nujora" />
+  <meta property="og:description" content="Looking for the best online shopping sites in Nigeria? Nujora offers electronics, fashion, beauty, kids’ products, secure shopping, and trusted sellers nationwide.
+" />
   <meta property="og:url" content="<?php echo 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>" />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="uploads/default-product.png" />
@@ -463,7 +465,7 @@ function getSellerBadge($avg_rating)
         <div class="carousel-item" style="height: 450px; background: url('images/bg1.png') center/cover no-repeat;">
           <div class="d-flex h-100 justify-content-center align-items-center bg-dark bg-opacity-50 text-center text-white">
             <div>
-              <h1 class="display-4 fw-bold mb-3">Big Discount Week</h1>
+              <h2 class="display-4 fw-bold mb-3">Big Discount Week</h2>
               <p class="lead mb-4">Up to 50% off selected items</p>
               <a href="products.php" class="btn btn-light">Grab Deals</a>
             </div>
@@ -474,7 +476,7 @@ function getSellerBadge($avg_rating)
         <div class="carousel-item" style="height: 450px; background: url('images/bg2.png') center/cover no-repeat;">
           <div class="d-flex h-100 justify-content-center align-items-center bg-dark bg-opacity-50 text-center text-white">
             <div>
-              <h1 class="display-4 fw-bold mb-3">Support Local Shops</h1>
+              <h2 class="display-4 fw-bold mb-3">Support Local Shops</h2>
               <p class="lead mb-4">Buy from sellers in your area</p>
               <a href="products.php" class="btn btn-light">Find Sellers</a>
             </div>
@@ -726,11 +728,11 @@ function getSellerBadge($avg_rating)
         </p>
 
         <p>
-          Find the latest
-          <strong>home appliances products</strong>,
+          Find the 
+          <a href="https://nujora.ng/products.php?category=APPLIANCES"><strong>latest home appliances products</strong>,</a>
           <strong>cheap Android phones in Nigeria</strong>,
           tablets and their prices in Nigeria, and
-          <strong>the best Android phones in Nigeria</strong> — all in one place.
+          <a href="https://nujora.ng/products.php?category=PHONES%20AND%20TABLETS"><strong>the best Android phones in Nigeria</strong></a>— all in one place.
           You can also explore a wide range of
           <strong>beauty and personal care products</strong>,
           <strong>skin care products in Nigeria</strong>, and
@@ -741,16 +743,16 @@ function getSellerBadge($avg_rating)
         <p>
           At <?= APP_NAME ?>, we connect real buyers and sellers across Nigeria.
           From
-          <a href="#" class="fw-bold text-decoration-none">online beauty stores in Nigeria</a>
+          <a href="https://nujora.ng/products.php?category=BEAUTY%20%26%20PERSONAL%20CARE" class="fw-bold text-decoration-none">online beauty stores in Nigeria</a>
           to
-          <strong>online shopping in Nigeria for clothes</strong>,
+         <a href="https://nujora.ng/products.php?category=FASHION"><strong>online shopping in Nigeria for clothes</strong>,</a>
           our platform helps you compare prices, connect directly with sellers, and shop smartly.
         </p>
 
         <p>
           For parents and families, discover quality
-          <strong>educational products for kids</strong>,
-          <strong>baby toys in Nigeria</strong>, and
+          <a href="https://nujora.ng/products.php?category=EDUCATIONAL%20PRODUCTS"><strong>educational products for kids</strong>,</a>
+          <a href="https://nujora.ng/products.php?category=TOYS%2C%20BABY%20%26%20KIDS%20PRODUCTS"><strong>baby toys in Nigeria</strong>,</a> and
           <strong>educational toys in Nigeria</strong>
           that help your children learn and play better.
         </p>

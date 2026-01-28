@@ -86,36 +86,37 @@ $category_meta = [
         "description" => "Check out the top-selling Category 9 products in our store."
     ],
     "APPLIANCES" => [
-        "title" => "Shop Home Appliances Online | Stylish, Modern, and Affordable",
-        "description" => "Shop Nigerian home appliances online at Nujora. Stylish, modern, and affordable products designed to simplify your life and elevate your home’s comfort and style."
+        "title" => "Latest Home Appliances Products Online in Nigeria | Nujora",
+        "description" => "Shop the latest home appliances products online in Nigeria at Nujora. Find quality, affordable kitchen and household appliances with reliable delivery nationwide."
     ],
     "BEAUTY & PERSONAL CARE" => [
-        "title" => "Buy Nigerian Beauty and Personal Care Products Online | Nujora",
-        "description" => "Discover premium Nigerian beauty and personal care products online at Nujora. Shop skincare, haircare, and wellness essentials with fast delivery across Nigeria."
+        "title" => "Beauty & Personal Care Products Online in Nigeria | Nujora",
+        "description" => "Find the best beauty & personal care products online in Nigeria at Nujora. Shop skincare, haircare, makeup & daily essentials with secure payments and fast delivery."
     ],
     "EDUCATIONAL PRODUCTS" => [
-        "title" => "Educational Products for Kids – Smart Learning with Fun | Nujora",
-        "description" => "Nujora offers educational products for kids that combine fun and learning. Explore toys, books, and tools designed to spark curiosity, creativity, and growth."
+        "title" => "Educational Products for Kids Online in Nigeria | Nujora",
+        "description" => "Get educational products for kids online in Nigeria at Nujora. Shop learning toys, study tools, and educational supplies that support early development."
     ],
     "ELECTRONICS" => [
         "title" => "Latest Electronics & Gadgets",
         "description" => "Find the newest electronics and gadgets to keep you ahead of the tech curve."
     ],
     "FASHION" => [
-        "title" => "Shop Clothes Online in Nigeria – Latest Fashion at Best Prices",
-        "description" => "Latest fashion trends online in Nigeria with Nujora. Shop stylish clothes, shoes, bags, jewelry, and accessories at unbeatable prices for men, women, and kids."
+        "title" => "Fashion Products Online in Nigeria | Stylish Clothes | Nujora",
+        "description" => "Shop fashion products online in Nigeria at Nujora. Find stylish clothes for men & women, trending designs, quality fabrics & a smooth online shopping experience."
     ],
     "HOME & OFFICES" => [
         "title" => "Home & Office Essentials",
         "description" => "Everything you need for your home and office in one place."
     ],
     "PHONES AND TABLETS" => [
-        "title" => "Affordable Android Phones and Tablets Deals in Nigeria - Nujora",
-        "description" => "Get affordable Android phones and tablets in Nigeria at Nujora. Shop top brands, compare deals, and enjoy fast delivery and a trusted online shopping experience."
+        "title" => "Android Phones & Tablets Collection in Nigeria | Nujora",
+        "description" => "Find the best android phones & tablets online in Nigeria at Nujora. Get latest models from top brands, competitive prices, secure checkout, and fast nationwide delivery.
+"
     ],
     "TOYS, BABY & KIDS PRODUCTS" => [
-        "title" => "Shop Baby and Educational Toys in Nigeria – Safe and Fun Choices",
-        "description" => "Shop a diverse selection of baby and educational toys in Nigeria. Safe, fun, and stimulating toys designed to inspire learning, creativity, and endless playtime."
+        "title" => "Baby Toys Collection Online in Nigeria | Educational Toys | Nujora",
+        "description" => "Get the best baby toys collection online in Nigeria at Nujora. Shop educational toys designed for fun, learning, creativity, and healthy early childhood development."
     ]
 ];
 
