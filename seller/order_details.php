@@ -74,7 +74,7 @@ if ($pdo->query("SHOW TABLES LIKE 'order_status_history'")->rowCount() > 0) {
 
 <body>
     <div class="container my-5">
-        <h2 class="mb-4">Order Details <span class="text-muted">#<?= htmlspecialchars($order_id) ?></span></h2>
+        <h2 class="mb-4">Order Details :</span></h2>
         <div class="row">
             <div class="col-md-8">
                 <div class="card order-summary-card mb-4">
@@ -115,11 +115,12 @@ if ($pdo->query("SHOW TABLES LIKE 'order_status_history'")->rowCount() > 0) {
                                     </span>
                                 </div>
                             </div>
+                            <?php endforeach; ?>
                             <ul class="list-group list-group-flush mb-3">
                                 <li class="list-group-item"><strong>Quantity:</strong> <?= htmlspecialchars($item['quantity']) ?></li>
-                                <li class="list-group-item"><strong>Total Price:</strong> ₦<?= number_format(($item['price'] ?? 0) * ($item['quantity'] ?? 0), 2) ?></li>
+                                <li class="list-group-item text-danger"><strong>Discount:</strong> ₦<?= number_format($order['discount'], 2) ?></li>
+                                <li class="list-group-item"><strong>Total Price:</strong> ₦<?= number_format($order['total'], 2) ?></li>
                             </ul>
-                        <?php endforeach; ?>
                         <ul class="list-group list-group-flush mb-3">
                             <li class="list-group-item"><strong>Order Date:</strong> <?= date('d M Y, H:i A', strtotime($order['created_at'])) ?></li>
                             <li class="list-group-item"><strong>Delivery Method:</strong>

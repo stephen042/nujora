@@ -31,6 +31,7 @@ try {
                 ORDER BY changed_at DESC LIMIT 1) as current_status,
                 GROUP_CONCAT(oi.product_id) as product_ids,
                 GROUP_CONCAT(p.name) as product_names,
+                GROUP_CONCAT(p.slug) as product_slug,
                 GROUP_CONCAT(oi.quantity) as quantities,
                 GROUP_CONCAT(oi.price) as prices,
                 GROUP_CONCAT(p.image_url) as image_urls,
@@ -138,6 +139,62 @@ try {
             margin-bottom: 20px;
             border: none;
             transition: transform 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .order-card {
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            }
+
+            .order-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            padding: 12px;
+            gap: 10px;
+            }
+
+            .order-product {
+            flex-direction: column;
+            padding: 12px;
+            }
+
+            .product-img {
+            width: 100%;
+            height: 150px;
+            margin-right: 0;
+            margin-bottom: 10px;
+            }
+
+            .order-footer {
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+            }
+
+            .order-footer > div:first-child {
+            width: 100%;
+            }
+
+            .order-footer > div:last-child {
+            width: 100%;
+            }
+
+            h6 {
+            font-size: 0.9rem;
+            }
+
+            h5 {
+            font-size: 1rem;
+            }
+
+            .tracking-steps {
+            padding: 10px 0;
+            }
+
+            .step-text {
+            font-size: 0.7rem;
+            }
         }
 
         .order-card:hover {
@@ -368,23 +425,25 @@ try {
             <div class="text-center py-5">
                 <i class="bi bi-box-seam" style="font-size: 3rem; color: #6c757d;"></i>
                 <h4 class="mt-3">No orders found</h4>
-                <p class="text-muted">You no active orders yet</p>
+                <p class="text-muted">You have no orders yet</p>
                 <a href="products.php" class="btn btn-primary mt-3">Shop Now</a>
             </div>
         <?php else: ?>
             <?php foreach ($orders as $order):
                 $product_ids = explode(',', $order['product_ids']);
                 $product_names = explode(',', $order['product_names']);
+                $product_slug = explode(',', $order['product_slug']);
                 $quantities = explode(',', $order['quantities']);
                 $prices = explode(',', $order['prices']);
+                $order_total = $order['total'];
                 $image_urls = explode(',', $order['image_urls']);
                 $variants_raw = explode(',', $order['variant_options']);
-
+                // die($order_total);
                 // Calculate order total
-                $order_total = 0;
-                foreach ($prices as $index => $price) {
-                    $order_total += $price * $quantities[$index];
-                }
+                // $order_total = 0;
+                // foreach ($order_total_db as $index => $price) {
+                //     $order_total += $price * $quantities[$index];
+                // }
 
                 // Tracking progress
                 $tracking_steps = [
@@ -454,7 +513,7 @@ try {
                         }
                     ?>
                         <div class="order-product">
-                            <img src="<?= htmlspecialchars($image_urls[$index]) ?? "uploads/default-product.png" ?>"
+                            <img src="<?= htmlspecialchars($image_urls[$index] ?? "uploads/default-product.png") ?>"
                                 class="product-img"
                                 alt="<?= htmlspecialchars($product_names[$index]) ?>">
                             <div class="flex-grow-1">
@@ -479,11 +538,10 @@ try {
                                         <?= $variant_text ?>
                                     </div>
                                 <?php endif; ?>
-                                <div>₦<?= number_format($prices[$index], 2) ?></div>
+                                <div class="text-muted small">Product Price: ₦<?= number_format($prices[$index], 2) ?></div>
                             </div>
                             <div class="text-end">
-                                <div>₦<?= number_format($prices[$index] * $quantities[$index], 2) ?></div>
-                                <a href="product_details.php?id=<?= $product_id ?>" class="btn btn-sm btn-outline-primary mt-2 p-1 decoration-none">
+                                <a href="product_details.php?slug=<?= $product_slug[$index]?>" class="btn btn-sm btn-outline-primary mt-2 p-1 decoration-none">
                                     View Product
                                 </a>
 
@@ -516,7 +574,8 @@ try {
                         </div>
                         <div class="text-end">
                             <div class="text-muted">Total <?= count($product_ids) ?> item(s)</div>
-                            <h5 class="mb-0">₦<?= number_format($order_total, 2) ?></h5>
+                            <h6 class="text-muted">Discount: <span class="text-danger">-₦<?= number_format($order['discount'] ?? 0, 2) ?></span></h6>
+                            <h5 class="text-muted">Total: <span class="text-success">₦<?= number_format($order_total, 2) ?></span></h5>
                         </div>
                     </div>
                 </div>
@@ -734,7 +793,7 @@ try {
                             // close modal after a short delay and redirect
                             setTimeout(() => {
                                 reviewModal.hide();
-                                window.location.href = 'order.php?tab=completed';
+                                window.location.href = 'orders.php?tab=completed';
                             }, 900);
                         } else {
                             rvError.textContent = json.message || 'Failed to submit review.';

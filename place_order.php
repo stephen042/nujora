@@ -86,7 +86,7 @@ if (!$has_non_free_delivery) {
 
 // Apply promo code if exists
 $discount_amount = 0;
-$applied_promo = $_SESSION['applied_promo'] ?? '';
+$applied_promo = $_SESSION['applied_coupon']['code'] ?? null;
 if ($applied_promo) {
     $stmt = $pdo->prepare("SELECT discount_type, discount_value FROM coupons WHERE code = ? AND status='active' AND expiry_date > NOW()");
     $stmt->execute([$applied_promo]);
@@ -100,7 +100,7 @@ if ($applied_promo) {
     }
 }
 
-$total = $subtotal - $discount_amount + $delivery_fee;
+$total = max($subtotal - $discount_amount + $delivery_fee, 0);
 
 // Fetch bank details
 $stmt = $pdo->query("SELECT account_name, account_number, bank_name FROM bank_details LIMIT 1");
@@ -177,9 +177,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             $txn_ref = $payment_method === 'bank_transfer' ? $_SESSION['payment_proof_reference'] : 'TXN_' . strtoupper(uniqid()) . '_' . time();
 
             // Insert order
-            $stmt = $pdo->prepare("INSERT INTO orders (buyer_id, transaction_reference, subtotal, total, payment_method, shipping_address, delivery_method ,status, created_at)
-                                   VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())");
-            $stmt->execute([$buyer_id, $txn_ref, $subtotal, $total, $payment_method, $pickup_address, $delivery_method]);
+            // $stmt = $pdo->prepare("INSERT INTO orders (buyer_id, transaction_reference, subtotal, discount, total, payment_method, shipping_address, delivery_method ,status, created_at)
+            //                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())");
+            // $stmt->execute([$buyer_id, $txn_ref, $subtotal, $discount_amount, $total, $payment_method, $pickup_address]);
+            // $order_id = $pdo->lastInsertId();
+            // Insert order
+            $stmt = $pdo->prepare("INSERT INTO orders (buyer_id, transaction_reference, subtotal, discount, total, payment_method, shipping_address, delivery_method, status, created_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())");
+
+            $stmt->execute([
+                $buyer_id,
+                $txn_ref,
+                $subtotal,
+                $discount_amount,
+                $total,
+                $payment_method,
+                $pickup_address,
+                $delivery_method
+            ]);
             $order_id = $pdo->lastInsertId();
 
             // Insert order items
@@ -717,7 +732,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                 <h4>Order Summary</h4>
                 <p><span>Subtotal:</span> <span>₦<?= number_format($subtotal, 2) ?></span></p>
                 <?php if ($discount_amount > 0): ?>
-                    <p><span>Discount:</span> <span>-₦<?= number_format($discount_amount, 2) ?></span></p>
+                    <p><span>Discount:</span> <span class="text-danger">-₦<?= number_format($discount_amount, 2) ?></span></p>
                 <?php endif; ?>
                 <p><span>Delivery Fee:</span> <span><?= $delivery_fee > 0 ? '₦' . number_format($delivery_fee, 2) : 'FREE' ?></span></p>
                 <p class="total-row"><span>Total:</span> <span>₦<?= number_format($total, 2) ?></span></p>
@@ -865,7 +880,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                 <form method="POST" enctype="multipart/form-data" id="checkoutForm">
 
                     <!-- Card Payment -->
-                    <div class="payment-method-option" onclick="selectPayment('card')">
+                    <div class="payment-method-option d-none" onclick="selectPayment('card')">
                         <input type="radio" name="payment_method" value="card" id="card_payment">
                         <label for="card_payment">
                             <strong>Card Payment</strong>

@@ -858,7 +858,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
                                         <th>Buyer</th>
                                         <th>Date</th>
                                         <th>Qty</th>
-                                        <th>Amount</th>
+                                        <th>Product Amount</th>
+                                        <th>Discount Amount</th>
+                                        <th>Paid Amount</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -871,7 +873,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
                                             <td><?= htmlspecialchars($order['buyer_name']) ?></td>
                                             <td><?= date('M j, Y', strtotime($order['created_at'])) ?></td>
                                             <td><?= htmlspecialchars($order['quantity']) ?></td>
-                                            <td>₦<?= number_format($order['price'] * $order['quantity'], 2) ?></td>
+                                            <td>₦<?= number_format($order['subtotal'], 2) ?></td>
+                                            <td>₦<?= number_format($order['discount'], 2) ?></td>
+                                            <td>₦<?= number_format($order['total'], 2) ?></td>
                                             <td>
                                                 <span class="badge 
                                                 <?= $order['current_status'] === 'completed' ? 'bg-success' : '' ?>

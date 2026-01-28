@@ -521,9 +521,13 @@ try {
               <?php endif; ?>
             </div>
             <?php if (isset($product['free_delivery']) && $product['free_delivery'] == 1): ?>
-              <small class="text-muted">+ ₦1,200 shipping fee</small>
+              ●<small class="text-muted">+ ₦1,200 shipping fee</small>
             <?php else: ?>
-              <small class="text-success">Free Shipping</small>
+              ●<small class="text-success">Free Shipping</small>
+            <?php endif; ?>
+            <br>
+            <?php if (isset($product['pay_on_delivery']) && $product['pay_on_delivery'] != 1): ?>
+              ●<small class="text-success">Payment on Delivery Available</small>
             <?php endif; ?>
           </div>
 

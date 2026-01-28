@@ -150,8 +150,8 @@ $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </td>
 
                         <td><?= $it['quantity']; ?></td>
-                        <td>$<?= number_format($it['price'], 2); ?></td>
-                        <td>$<?= number_format($it['quantity'] * $it['price'], 2); ?></td>
+                        <td>₦<?= number_format($it['price'], 2); ?></td>
+                        <td>₦<?= number_format($it['quantity'] * $it['price'], 2); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

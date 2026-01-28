@@ -69,7 +69,7 @@ $orders = $pdo->query("
                             <tr>
                                 <td><?=$o+1; ?></td>
                                 <td><?=htmlspecialchars($order['buyer_name']); ?></td>
-                                <td>$<?=number_format($order['total'], 2); ?></td>
+                                <td>₦<?=number_format($order['total'], 2); ?></td>
                                 <td>
                                     <?php 
                                         if ($order['payment_method'] == 'cod') {
