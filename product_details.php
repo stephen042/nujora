@@ -596,7 +596,7 @@ try {
           <?php if ($product['stock'] == 0): ?>
             <form method="POST" action="notify.php">
               <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
-              <button class="btn btn-outline-secondary btn-lg">
+              <button class="btn btn-outline-secondary btn-lg" disabled>
                 <i class="fas fa-bell me-2"></i> Notify When Available
               </button>
             </form>
